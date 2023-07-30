@@ -1,13 +1,8 @@
-package gensource_realese.view;
+package gensource.view;
 
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
-
-import gensource_realese.model.AnotacaoString;
-import gensource_realese.model.Atributo;
-import gensource_realese.model.enumAndModel.Anotacao;
-import gensource_realese.model.enumAndModel.AnotacaoModel;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -18,6 +13,12 @@ import javax.swing.JTable;
 
 import com.towel.el.annotation.AnnotationResolver;
 import com.towel.swing.table.ObjectTableModel;
+
+import gensource.model.AnotacaoString;
+import gensource.model.Atributo;
+import gensource.model.enumAndModel.Anotacao;
+import gensource.model.enumAndModel.AnotacaoModel;
+
 import javax.swing.JLabel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;

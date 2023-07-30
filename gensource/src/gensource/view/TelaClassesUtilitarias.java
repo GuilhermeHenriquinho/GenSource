@@ -1,4 +1,4 @@
-package gensource_realese.view;
+package gensource.view;
 
 import java.awt.EventQueue;
 

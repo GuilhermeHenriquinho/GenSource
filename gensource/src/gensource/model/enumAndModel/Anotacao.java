@@ -1,4 +1,4 @@
-package gensource_realese.model.enumAndModel;
+package gensource.model.enumAndModel;
 
 public enum Anotacao {
     ENTIDADE("Entity", "Indica que a classe é uma entidade, ou seja, ela representa uma tabela no banco de dados."),

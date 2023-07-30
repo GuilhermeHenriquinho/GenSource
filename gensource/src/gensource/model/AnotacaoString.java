@@ -1,4 +1,4 @@
-package gensource_realese.model;
+package gensource.model;
 
 public class AnotacaoString {
 	private String anotacao;

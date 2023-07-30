@@ -1,4 +1,4 @@
-package gensource_realese.model.enumAndModel;
+package gensource.model.enumAndModel;
 
 public class AnotacaoModel {
 	private int id;

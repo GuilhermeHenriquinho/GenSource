@@ -1,4 +1,4 @@
-package gensource_realese.model;
+package gensource.model;
 
 import java.util.List;
 

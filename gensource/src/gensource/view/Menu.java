@@ -1,4 +1,4 @@
-package gensource_realese.view;
+package gensource.view;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -44,10 +44,10 @@ import javax.swing.border.TitledBorder;
 import com.towel.el.annotation.AnnotationResolver;
 import com.towel.swing.table.ObjectTableModel;
 
-import gensource_realese.model.Atributo;
-import gensource_realese.model.Classe;
-import gensource_realese.model.Conexao;
-import gensource_realese.model.Projeto;
+import gensource.model.Atributo;
+import gensource.model.Classe;
+import gensource.model.Conexao;
+import gensource.model.Projeto;
 
 public class Menu {
 
@@ -109,7 +109,7 @@ public class Menu {
 
         JLabel lblNewLabel = new JLabel("");
         lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel.setIcon(new ImageIcon("C:\\workspace\\gensource\\src\\gensource_realese\\icon\\LogoPrincipal2.png"));
+        lblNewLabel.setIcon(new ImageIcon("C:\\Users\\guilh\\git\\gensource\\gensource\\bin\\gensource_realese\\icon\\LogoPrincipal2.png"));
         lblNewLabel.setBounds(0, 0, 701, 97);
         panelCabecalho.add(lblNewLabel);
 
