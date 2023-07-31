@@ -548,10 +548,10 @@ public class Menu {
 	private void montaClassesTeste() {
 		Classe classe1 = new Classe();
 		classe1.setDiretorioClasse("com.classes");
-		classe1.setNomeClasse("Produto");
+		classe1.setNomeClasse("Pessoa");
 		Atributo at1 = new Atributo();
 		at1.setNomeAtributo("codigo");
-		at1.setTipoAtributo("Integer");
+		at1.setTipoAtributo("Long");
 		String anotacao1 = "@Id";
 		String anotacao2 = "@GeneratedValue(strategy = GenerationType.IDENTITY)";
 		List<String> anotacoes = new ArrayList<>();
@@ -561,55 +561,65 @@ public class Menu {
 		List<Atributo> atributos = new ArrayList<>();
 		atributos.add(at1);
 		Atributo at2 = new Atributo();
+		at2.setConsultaPor(true);
 		at2.setNomeAtributo("nome");
 		at2.setTipoAtributo("String");
 		atributos.add(at2);
+		Atributo at3 = new Atributo();
+		at3.setConsultaPor(true);
+		at3.setNomeAtributo("sobrenome");
+		at3.setTipoAtributo("String");
+		atributos.add(at3);
+		Atributo at4 = new Atributo();
+		at4.setNomeAtributo("idade");
+		at4.setTipoAtributo("Integer");
+		atributos.add(at4);
 		classe1.setAtributos(atributos);
 		listaClasses.add(classe1);
 
 		// Classe 2
-		Classe classe2 = new Classe();
-		classe2.setDiretorioClasse("com.classes.cliente");
-		classe2.setNomeClasse("Cliente");
-		Atributo at3 = new Atributo();
-		at3.setNomeAtributo("id");
-		at3.setTipoAtributo("Long");
-		String anotacao3 = "@Id";
-		String anotacao4 = "@GeneratedValue(strategy = GenerationType.IDENTITY)";
-		List<String> anotacoes2 = new ArrayList<>();
-		anotacoes2.add(anotacao3);
-		anotacoes2.add(anotacao4);
-		at3.setAnotacao(anotacoes2);
-		List<Atributo> atributos2 = new ArrayList<>();
-		atributos2.add(at3);
-		Atributo at4 = new Atributo();
-		at4.setNomeAtributo("nome");
-		at4.setTipoAtributo("String");
-		atributos2.add(at4);
-		classe2.setAtributos(atributos2);
-		listaClasses.add(classe2);
+//		Classe classe2 = new Classe();
+//		classe2.setDiretorioClasse("com.classes.cliente");
+//		classe2.setNomeClasse("Cliente");
+//		Atributo at3 = new Atributo();
+//		at3.setNomeAtributo("id");
+//		at3.setTipoAtributo("Long");
+//		String anotacao3 = "@Id";
+//		String anotacao4 = "@GeneratedValue(strategy = GenerationType.IDENTITY)";
+//		List<String> anotacoes2 = new ArrayList<>();
+//		anotacoes2.add(anotacao3);
+//		anotacoes2.add(anotacao4);
+//		at3.setAnotacao(anotacoes2);
+//		List<Atributo> atributos2 = new ArrayList<>();
+//		atributos2.add(at3);
+//		Atributo at4 = new Atributo();
+//		at4.setNomeAtributo("nome");
+//		at4.setTipoAtributo("String");
+//		atributos2.add(at4);
+//		classe2.setAtributos(atributos2);
+//		listaClasses.add(classe2);
 
 		// Classe 3
-		Classe classe3 = new Classe();
-		classe3.setDiretorioClasse("com.classes.cliente");
-		classe3.setNomeClasse("Pedido");
-		Atributo at5 = new Atributo();
-		at5.setNomeAtributo("id");
-		at5.setTipoAtributo("Long");
-		String anotacao5 = "@Id";
-		String anotacao6 = "@GeneratedValue(strategy = GenerationType.IDENTITY)";
-		List<String> anotacoes3 = new ArrayList<>();
-		anotacoes3.add(anotacao5);
-		anotacoes3.add(anotacao6);
-		at5.setAnotacao(anotacoes3);
-		List<Atributo> atributos3 = new ArrayList<>();
-		atributos3.add(at5);
-		Atributo at6 = new Atributo();
-		at6.setNomeAtributo("valorTotal");
-		at6.setTipoAtributo("BigDecimal");
-		atributos3.add(at6);
-		classe3.setAtributos(atributos3);
-		listaClasses.add(classe3);
+//		Classe classe3 = new Classe();
+//		classe3.setDiretorioClasse("com.classes.cliente");
+//		classe3.setNomeClasse("Pedido");
+//		Atributo at5 = new Atributo();
+//		at5.setNomeAtributo("id");
+//		at5.setTipoAtributo("Long");
+//		String anotacao5 = "@Id";
+//		String anotacao6 = "@GeneratedValue(strategy = GenerationType.IDENTITY)";
+//		List<String> anotacoes3 = new ArrayList<>();
+//		anotacoes3.add(anotacao5);
+//		anotacoes3.add(anotacao6);
+//		at5.setAnotacao(anotacoes3);
+//		List<Atributo> atributos3 = new ArrayList<>();
+//		atributos3.add(at5);
+//		Atributo at6 = new Atributo();
+//		at6.setNomeAtributo("valorTotal");
+//		at6.setTipoAtributo("BigDecimal");
+//		atributos3.add(at6);
+//		classe3.setAtributos(atributos3);
+//		listaClasses.add(classe3);
 	}
 	
     private void gerarProjetoMaven(Projeto projeto) throws IOException, InterruptedException {
@@ -623,6 +633,9 @@ public class Menu {
         montaPomXml(projeto);
         criarClasses(projeto);
         montaPersistenceXml(projeto);
+        gerarTelasCadastro(projeto);
+        
+        
         JOptionPane.showMessageDialog(null, "Projeto gerado com sucesso!");
         
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "mvn clean install");
@@ -631,6 +644,50 @@ public class Menu {
         Process process = builder.start();
         process.waitFor();
     }
+    
+    private void gerarTelasCadastro(Projeto projeto) throws IOException {
+        String diretorioTelas = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\telasCadastro";
+        Files.createDirectories(Paths.get(diretorioTelas));
+
+        // Cria a classe de cadastro para cada classe do projeto
+        for (Classe classe : projeto.getClasses()) {
+            String nomeClasse = classe.getNomeClasse();
+
+            // Constrói o conteúdo da classe de cadastro com base em um template
+            StringBuilder codigoTela = new StringBuilder();
+            codigoTela.append("package com.telasCadastro;\n\n");
+            codigoTela.append("import javax.swing.*;\n");
+            codigoTela.append("import ").append(classe.getDiretorioClasse()).append(".").append(nomeClasse).append(";\n\n");
+            codigoTela.append("public class Tela").append(nomeClasse).append("Cadastro extends JFrame {\n\n");
+            codigoTela.append("    private ").append(nomeClasse).append(" ").append(nomeClasse.toLowerCase()).append(";\n\n");
+            codigoTela.append("    // Construtor da tela de cadastro\n");
+            codigoTela.append("    public Tela").append(nomeClasse).append("Cadastro() {\n");
+            codigoTela.append("        initComponents();\n");
+            codigoTela.append("    }\n\n");
+            codigoTela.append("    // Método para inicializar os componentes da tela\n");
+            codigoTela.append("    private void initComponents() {\n");
+            codigoTela.append("        // Adicione os componentes da tela aqui\n");
+            codigoTela.append("    }\n\n");
+            codigoTela.append("    // Método para salvar os dados do ").append(nomeClasse).append("\n");
+            codigoTela.append("    private void salvar").append(nomeClasse).append("() {\n");
+            codigoTela.append("        // Implemente aqui a lógica para salvar o ").append(nomeClasse).append("\n");
+            codigoTela.append("    }\n\n");
+            codigoTela.append("    // Método para carregar os dados do ").append(nomeClasse).append("\n");
+            codigoTela.append("    private void carregar").append(nomeClasse).append("() {\n");
+            codigoTela.append("        // Implemente aqui a lógica para carregar os dados do ").append(nomeClasse).append("\n");
+            codigoTela.append("    }\n\n");
+            codigoTela.append("    public static void main(String[] args) {\n");
+            codigoTela.append("        java.awt.EventQueue.invokeLater(() -> {\n");
+            codigoTela.append("            new Tela").append(nomeClasse).append("Cadastro().setVisible(true);\n");
+            codigoTela.append("        });\n");
+            codigoTela.append("    }\n");
+            codigoTela.append("}");
+
+            // Salva a classe de cadastro no arquivo .java
+            Files.write(Paths.get(diretorioTelas + "\\" + "Tela" +nomeClasse + "Cadastro.java"), codigoTela.toString().getBytes());
+        }
+    }
+
     
     private void montaPomXml(Projeto projeto) {
         // Criar o arquivo pom.xml com as configurações necessárias
@@ -780,11 +837,22 @@ public class Menu {
             // Código para criar a classe DAO correspondente utilizando a GenericDAO
             StringBuilder codigoDAO = new StringBuilder();
             codigoDAO.append("package ").append("dao").append(";\n\n");
+            codigoDAO.append("import java.util.List").append(";\n\n");
             codigoDAO.append("import ").append(classe.getDiretorioClasse()).append("."+nomeClasse).append(";\n\n");
             codigoDAO.append("public class ").append(nomeClasse).append("DAO extends GenericDAO<").append(nomeClasse).append("> {\n\n");
             codigoDAO.append("    public ").append(nomeClasse).append("DAO() {\n");
             codigoDAO.append("        super(").append(nomeClasse).append(".class);\n");
             codigoDAO.append("    }\n\n");
+            
+            // Adicionar o método findByAttribute se houver atributos com consultaPor igual a true
+            for (Atributo atributo : atributos) {
+                if (atributo.getConsultaPor() != null && atributo.getConsultaPor()) {
+                    codigoDAO.append("    public List<").append(nomeClasse).append("> findBy").append(capitalize(atributo.getNomeAtributo())).append("(").append(atributo.getTipoAtributo()).append(" ").append(atributo.getNomeAtributo()).append(") {\n");
+                    codigoDAO.append("        return findByAttribute(\"").append(atributo.getNomeAtributo()).append("\", ").append(atributo.getNomeAtributo()).append(");\n");
+                    codigoDAO.append("    }\n\n");
+                }
+            }
+            
             codigoDAO.append("}");
 
             // Criar a pasta do pacote base se ainda não existe
@@ -797,67 +865,84 @@ public class Menu {
     }
     
     private void daoGenerico(String diretorioProjeto, String nomeConexao) throws IOException {
-    	StringBuilder codigoGenericDAO = new StringBuilder();
-    	codigoGenericDAO.append("package dao;\n");
-    	codigoGenericDAO.append("import javax.persistence.EntityManager;\n");
-    	codigoGenericDAO.append("import javax.persistence.EntityManagerFactory;\n");
-    	codigoGenericDAO.append("import javax.persistence.Persistence;\n");
-    	codigoGenericDAO.append("import java.util.List;\n\n");
-    	codigoGenericDAO.append("public class GenericDAO<T> {\n\n");
-    	codigoGenericDAO.append("    private static final String PERSISTENCE_UNIT_NAME = \""+nomeConexao+"\"; // Nome da unidade de persistência no persistence.xml\n\n");
-    	codigoGenericDAO.append("    private Class<T> entityType;\n");
-    	codigoGenericDAO.append("    private EntityManagerFactory entityManagerFactory;\n\n");
-    	codigoGenericDAO.append("    public GenericDAO(Class<T> entityType) {\n");
-    	codigoGenericDAO.append("        this.entityType = entityType;\n");
-    	codigoGenericDAO.append("        this.entityManagerFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);\n");
-    	codigoGenericDAO.append("    }\n\n");
-    	codigoGenericDAO.append("    public T save(T entity) {\n");
-    	codigoGenericDAO.append("        EntityManager entityManager = entityManagerFactory.createEntityManager();\n");
-    	codigoGenericDAO.append("        try {\n");
-    	codigoGenericDAO.append("            entityManager.getTransaction().begin();\n");
-    	codigoGenericDAO.append("            entity = entityManager.merge(entity);\n");
-    	codigoGenericDAO.append("            entityManager.getTransaction().commit();\n");
-    	codigoGenericDAO.append("            return entity;\n");
-    	codigoGenericDAO.append("        } catch (Exception e) {\n");
-    	codigoGenericDAO.append("            entityManager.getTransaction().rollback();\n");
-    	codigoGenericDAO.append("            throw e;\n");
-    	codigoGenericDAO.append("        } finally {\n");
-    	codigoGenericDAO.append("            entityManager.close();\n");
-    	codigoGenericDAO.append("        }\n");
-    	codigoGenericDAO.append("    }\n\n");
-    	codigoGenericDAO.append("    public T findById(Long id) {\n");
-    	codigoGenericDAO.append("        EntityManager entityManager = entityManagerFactory.createEntityManager();\n");
-    	codigoGenericDAO.append("        try {\n");
-    	codigoGenericDAO.append("            return entityManager.find(entityType, id);\n");
-    	codigoGenericDAO.append("        } finally {\n");
-    	codigoGenericDAO.append("            entityManager.close();\n");
-    	codigoGenericDAO.append("        }\n");
-    	codigoGenericDAO.append("    }\n\n");
-    	codigoGenericDAO.append("    public List<T> findAll() {\n");
-    	codigoGenericDAO.append("        EntityManager entityManager = entityManagerFactory.createEntityManager();\n");
-    	codigoGenericDAO.append("        try {\n");
-    	codigoGenericDAO.append("            String query = \"SELECT e FROM \" + entityType.getSimpleName() + \" e\";\n");
-    	codigoGenericDAO.append("            return entityManager.createQuery(query, entityType).getResultList();\n");
-    	codigoGenericDAO.append("        } finally {\n");
-    	codigoGenericDAO.append("            entityManager.close();\n");
-    	codigoGenericDAO.append("        }\n");
-    	codigoGenericDAO.append("    }\n\n");
-    	codigoGenericDAO.append("    public void delete(T entity) {\n");
-    	codigoGenericDAO.append("        EntityManager entityManager = entityManagerFactory.createEntityManager();\n");
-    	codigoGenericDAO.append("        try {\n");
-    	codigoGenericDAO.append("            entityManager.getTransaction().begin();\n");
-    	codigoGenericDAO.append("            entity = entityManager.merge(entity);\n");
-    	codigoGenericDAO.append("            entityManager.remove(entity);\n");
-    	codigoGenericDAO.append("            entityManager.getTransaction().commit();\n");
-    	codigoGenericDAO.append("        } catch (Exception e) {\n");
-    	codigoGenericDAO.append("            entityManager.getTransaction().rollback();\n");
-    	codigoGenericDAO.append("            throw e;\n");
-    	codigoGenericDAO.append("        } finally {\n");
-    	codigoGenericDAO.append("            entityManager.close();\n");
-    	codigoGenericDAO.append("        }\n");
-    	codigoGenericDAO.append("    }\n");
-    	codigoGenericDAO.append("}\n");
-    	
+        StringBuilder codigoGenericDAO = new StringBuilder();
+        codigoGenericDAO.append("package dao;\n");
+        codigoGenericDAO.append("import javax.persistence.EntityManager;\n");
+        codigoGenericDAO.append("import javax.persistence.EntityManagerFactory;\n");
+        codigoGenericDAO.append("import javax.persistence.Persistence;\n");
+        codigoGenericDAO.append("import javax.persistence.criteria.CriteriaBuilder;\n");
+        codigoGenericDAO.append("import javax.persistence.criteria.CriteriaQuery;\n");
+        codigoGenericDAO.append("import javax.persistence.criteria.Root;\n");
+        codigoGenericDAO.append("import java.util.List;\n\n");
+        codigoGenericDAO.append("public class GenericDAO<T> {\n\n");
+        codigoGenericDAO.append("    private static final String PERSISTENCE_UNIT_NAME = \""+nomeConexao+"\"; // Nome da unidade de persistência no persistence.xml\n\n");
+        codigoGenericDAO.append("    private Class<T> entityType;\n");
+        codigoGenericDAO.append("    private EntityManagerFactory entityManagerFactory;\n\n");
+        codigoGenericDAO.append("    public GenericDAO(Class<T> entityType) {\n");
+        codigoGenericDAO.append("        this.entityType = entityType;\n");
+        codigoGenericDAO.append("        this.entityManagerFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);\n");
+        codigoGenericDAO.append("    }\n\n");
+        codigoGenericDAO.append("    public T save(T entity) {\n");
+        codigoGenericDAO.append("        EntityManager entityManager = entityManagerFactory.createEntityManager();\n");
+        codigoGenericDAO.append("        try {\n");
+        codigoGenericDAO.append("            entityManager.getTransaction().begin();\n");
+        codigoGenericDAO.append("            entity = entityManager.merge(entity);\n");
+        codigoGenericDAO.append("            entityManager.getTransaction().commit();\n");
+        codigoGenericDAO.append("            return entity;\n");
+        codigoGenericDAO.append("        } catch (Exception e) {\n");
+        codigoGenericDAO.append("            entityManager.getTransaction().rollback();\n");
+        codigoGenericDAO.append("            throw e;\n");
+        codigoGenericDAO.append("        } finally {\n");
+        codigoGenericDAO.append("            entityManager.close();\n");
+        codigoGenericDAO.append("        }\n");
+        codigoGenericDAO.append("    }\n\n");
+        codigoGenericDAO.append("    public T findById(Long id) {\n");
+        codigoGenericDAO.append("        EntityManager entityManager = entityManagerFactory.createEntityManager();\n");
+        codigoGenericDAO.append("        try {\n");
+        codigoGenericDAO.append("            return entityManager.find(entityType, id);\n");
+        codigoGenericDAO.append("        } finally {\n");
+        codigoGenericDAO.append("            entityManager.close();\n");
+        codigoGenericDAO.append("        }\n");
+        codigoGenericDAO.append("    }\n\n");
+        codigoGenericDAO.append("    public List<T> findAll() {\n");
+        codigoGenericDAO.append("        EntityManager entityManager = entityManagerFactory.createEntityManager();\n");
+        codigoGenericDAO.append("        try {\n");
+        codigoGenericDAO.append("            String query = \"SELECT e FROM \" + entityType.getSimpleName() + \" e\";\n");
+        codigoGenericDAO.append("            return entityManager.createQuery(query, entityType).getResultList();\n");
+        codigoGenericDAO.append("        } finally {\n");
+        codigoGenericDAO.append("            entityManager.close();\n");
+        codigoGenericDAO.append("        }\n");
+        codigoGenericDAO.append("    }\n\n");
+        codigoGenericDAO.append("    public void delete(T entity) {\n");
+        codigoGenericDAO.append("        EntityManager entityManager = entityManagerFactory.createEntityManager();\n");
+        codigoGenericDAO.append("        try {\n");
+        codigoGenericDAO.append("            entityManager.getTransaction().begin();\n");
+        codigoGenericDAO.append("            entity = entityManager.merge(entity);\n");
+        codigoGenericDAO.append("            entityManager.remove(entity);\n");
+        codigoGenericDAO.append("            entityManager.getTransaction().commit();\n");
+        codigoGenericDAO.append("        } catch (Exception e) {\n");
+        codigoGenericDAO.append("            entityManager.getTransaction().rollback();\n");
+        codigoGenericDAO.append("            throw e;\n");
+        codigoGenericDAO.append("        } finally {\n");
+        codigoGenericDAO.append("            entityManager.close();\n");
+        codigoGenericDAO.append("        }\n");
+        codigoGenericDAO.append("    }\n\n");
+        // Parte adicionada - findByAttribute
+        codigoGenericDAO.append("    public List<T> findByAttribute(String attributeName, Object attributeValue) {\n");
+        codigoGenericDAO.append("        EntityManager entityManager = entityManagerFactory.createEntityManager();\n");
+        codigoGenericDAO.append("        try {\n");
+        codigoGenericDAO.append("            CriteriaBuilder cb = entityManager.getCriteriaBuilder();\n");
+        codigoGenericDAO.append("            CriteriaQuery<T> query = cb.createQuery(entityType);\n");
+        codigoGenericDAO.append("            Root<T> root = query.from(entityType);\n");
+        codigoGenericDAO.append("            query.select(root).where(cb.equal(root.get(attributeName), attributeValue));\n");
+        codigoGenericDAO.append("            return entityManager.createQuery(query).getResultList();\n");
+        codigoGenericDAO.append("        } finally {\n");
+        codigoGenericDAO.append("            entityManager.close();\n");
+        codigoGenericDAO.append("        }\n");
+        codigoGenericDAO.append("    }\n");
+
+        codigoGenericDAO.append("}\n");
+
         // Criar a pasta do pacote base se ainda não existe
         String diretorioSrcDAO = diretorioProjeto + "\\src\\main\\java\\dao";
         Files.createDirectories(Paths.get(diretorioSrcDAO));
