@@ -57,7 +57,7 @@ public class Menu {
 	private List<Classe> listaClasses = new ArrayList<Classe>();
 	private List<Atributo> listaAtributo = new ArrayList<Atributo>();
 	private JTable table;
-	private JTextField textField;
+	private JTextField txtNomeAtributo;
 	private JTextField txtNomeConexao;
 	private JTextField txtUrl;
 	private JTextField txtDialect;
@@ -250,6 +250,16 @@ public class Menu {
         panelConexao.add(txtDriver);
         
         JButton btnAvancar_1 = new JButton("Avancar");
+        btnAvancar_1.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		if(verificaCamposProjeto()) {
+	        		tabbedPane.setEnabledAt(1, true);
+	        		tabbedPane.setSelectedIndex(1);
+        		} else {
+        			JOptionPane.showMessageDialog(null, "Por favor crie ou adicione um projeto para avançar!");
+        		}
+        	}
+        });
         btnAvancar_1.setBounds(543, 284, 122, 34);
         panelProjeto.add(btnAvancar_1);
         
@@ -279,6 +289,7 @@ public class Menu {
         lblNewLabel_4.setBounds(20, 370, 675, 14);
         abaProjeto.add(lblNewLabel_4);
         tabbedPane.addTab("Classe", abaClasse);
+        tabbedPane.setEnabledAt(1, false);
         abaClasse.setLayout(null);
         
         JPanel panelClass = new JPanel();
@@ -320,21 +331,21 @@ public class Menu {
         lblNomeDoAtributo.setBounds(10, 26, 61, 21);
         panel.add(lblNomeDoAtributo);
         
-        textField = new JTextField();
-        textField.setFont(new Font("Tahoma", Font.PLAIN, 13));
-        textField.setColumns(10);
-        textField.setBounds(67, 24, 153, 23);
-        panel.add(textField);
+        txtNomeAtributo = new JTextField();
+        txtNomeAtributo.setFont(new Font("Tahoma", Font.PLAIN, 13));
+        txtNomeAtributo.setColumns(10);
+        txtNomeAtributo.setBounds(67, 24, 153, 23);
+        panel.add(txtNomeAtributo);
         
         JLabel lblTipo = new JLabel("Tipo:");
         lblTipo.setFont(new Font("Tahoma", Font.PLAIN, 13));
         lblTipo.setBounds(230, 26, 38, 21);
         panel.add(lblTipo);
         
-        JComboBox cbTipo = new JComboBox();
-        cbTipo.setModel(new DefaultComboBoxModel(new String[] {"", "Int", "Long", "Boolean", "Char", "Float", "Double", "String"}));
-        cbTipo.setBounds(267, 24, 127, 23);
-        panel.add(cbTipo);
+        JComboBox cbTipoAtributo = new JComboBox();
+        cbTipoAtributo.setModel(new DefaultComboBoxModel(new String[] {"", "Int", "Long", "Boolean", "Char", "Float", "Double", "String"}));
+        cbTipoAtributo.setBounds(267, 24, 127, 23);
+        panel.add(cbTipoAtributo);
         
         JCheckBox checkObrigatorio = new JCheckBox("Obrigat\u00F3rio");
         checkObrigatorio.setBounds(277, 59, 102, 23);
@@ -347,35 +358,18 @@ public class Menu {
         JButton btnAdicionar = new JButton("Adicionar");
         btnAdicionar.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-				Classe c = new Classe();
-				c.setNomeClasse("Cliente");
-				
-				Atributo at = new Atributo();
-				at.setNomeAtributo("id");
-				at.setTipoAtributo("Long");
-				
-				Atributo at2 = new Atributo();
-				at2.setNomeAtributo("nome");
-				at2.setTipoAtributo("String");
-				
-				Atributo at3 = new Atributo();
-				at3.setNomeAtributo("idade");
-				at3.setTipoAtributo("int");
-				
-				List<Atributo> listaAtributos = new ArrayList<>();
-				listaAtributos.add(at);
-				listaAtributos.add(at2);
-				listaAtributos.add(at3);
-				
-				c.setAtributos(listaAtributos);
-				
-				listaClasses.add(c);
-				
-				for(int i=0; i<listaAtributos.size(); i++) {
-					listaAtributos.get(i).setIsObrigatorio(true);
-					listaAtributos.get(i).setIsRelacionamento(false);
-				}
-				listaAtributo = listaAtributos;
+        		
+        		Atributo atr = new Atributo();
+        		atr.setNomeAtributo(txtNomeAtributo.getText());
+        		atr.setTipoAtributo(cbTipoAtributo.getSelectedItem().toString());
+        		
+        		/*
+        		chckbxApareceNaConsulta
+				chckbxConsulta
+				checkObrigatorio
+				checkRelacionamento
+        		*/
+        		
 				carregaTable();
         	}
         });
@@ -510,6 +504,25 @@ public class Menu {
 		frmGensourceMenu.getContentPane().add(btnGerarClasse_1_1_1);
     }
     
+    public Boolean verificaCamposProjeto() {
+        List<String> campos = new ArrayList<>();
+        campos.add(txtNomeConexao.getText());
+        campos.add(txtUrl.getText());
+        campos.add(txtDialect.getText());
+        campos.add(txtUsuario.getText());
+        campos.add(txtSenha.getText());
+        campos.add(txtDriver.getText());
+        campos.add(txtCaminho.getText());
+        campos.add(txtNomeProjeto.getText());
+
+        for (String campo : campos) {
+            if (campo.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
 	public void carregaTable() {
 		AnnotationResolver resolver = new AnnotationResolver(Atributo.class);
 		model = new ObjectTableModel<Atributo>(resolver, "nomeAtributo:Nome,tipoAtributo:Tipo,isObrigatorio:Obrigatório,isRelacionamento:Relacionamento");
@@ -641,7 +654,6 @@ public class Menu {
         criarClasses(projeto);
         montaPersistenceXml(projeto);
         gerarTelasCadastro(projeto);
-        
         
         JOptionPane.showMessageDialog(null, "Projeto gerado com sucesso!");
         
@@ -811,6 +823,8 @@ public class Menu {
         	int y = 23;
         	int x = 10;
         	int z = 114;
+        	
+        	//Ao criar modificar para identificar chave primaria e deixar o campo não editavel
         	for(Atributo atr : classe.getAtributos()){
         		String nomeAtributo = atr.getNomeAtributo();
         	
@@ -922,7 +936,7 @@ public class Menu {
             codigoTela.append("                ").append(classe.getNomeClasse()).append("DAO dao = new ").append(classe.getNomeClasse()).append("DAO();\n");
             codigoTela.append("                ").append(classe.getNomeClasse()).append(" obj = buildObject()").append(";\n");
             codigoTela.append("                dao.save(obj);\n");
-            codigoTela.append("                JOptionPane.showMessageDialog(null, \"").append(classe.getNomeClasse()).append(" salvo com Sucesso!\");\n");
+            codigoTela.append("                JOptionPane.showMessageDialog(null, \"").append(classe.getNomeClasse()).append(" salvo(a) com Sucesso!\");\n");
             codigoTela.append("                limpaTela();\n");
             codigoTela.append("            }\n");
             codigoTela.append("        });\n");
@@ -968,7 +982,7 @@ public class Menu {
             codigoTela.append("                ").append(classe.getNomeClasse()).append("DAO dao = new ").append(classe.getNomeClasse()).append("DAO();\n");
             codigoTela.append("                ").append(classe.getNomeClasse()).append(" obj = buildObject()").append(";\n");
             codigoTela.append("                dao.save(obj);\n");
-            codigoTela.append("                JOptionPane.showMessageDialog(null, \"").append(classe.getNomeClasse()).append(" editado com Sucesso!\");\n");
+            codigoTela.append("                JOptionPane.showMessageDialog(null, \"").append(classe.getNomeClasse()).append(" editado(a) com Sucesso!\");\n");
             codigoTela.append("                limpaTela();\n");
             codigoTela.append("            }\n");
             codigoTela.append("        });\n");
@@ -982,11 +996,11 @@ public class Menu {
             codigoTela.append("        btnExcluir = new JButton(\"Excluir\");\n");
             codigoTela.append("        btnExcluir.addActionListener(new ActionListener() {\n");
             codigoTela.append("            public void actionPerformed(ActionEvent e) {\n");
-            codigoTela.append("                if (!txtcodigo.getText().isEmpty()) {\n");
+            codigoTela.append("                if (!txtcodigo.getText().isEmpty()) {\n"); //modificar para identificar chave primaria
             codigoTela.append("                    ").append(classe.getNomeClasse()).append("DAO dao = new ").append(classe.getNomeClasse()).append("DAO();\n");
             codigoTela.append("                    ").append(classe.getNomeClasse()).append(" obj = buildObject()").append(";\n");
             codigoTela.append("                    dao.delete(obj);\n");
-            codigoTela.append("                    JOptionPane.showMessageDialog(null, \"").append(classe.getNomeClasse()).append(" deletado com Sucesso!\");\n");
+            codigoTela.append("                    JOptionPane.showMessageDialog(null, \"").append(classe.getNomeClasse()).append(" deletado(a) com Sucesso!\");\n");
             codigoTela.append("                    limpaTela();\n");
             codigoTela.append("                }\n");
             codigoTela.append("            }\n");
@@ -1233,7 +1247,6 @@ public class Menu {
             codigoDAO.append("        super(").append(nomeClasse).append(".class);\n");
             codigoDAO.append("    }\n\n");
             
-            // Adicionar o método findByAttribute se houver atributos com consultaPor igual a true
             for (Atributo atributo : atributos) {
                 if (atributo.getConsultaPor() != null && atributo.getConsultaPor()) {
                     codigoDAO.append("    public List<").append(nomeClasse).append("> findBy").append(capitalize(atributo.getNomeAtributo())).append("(").append(atributo.getTipoAtributo()).append(" ").append(atributo.getNomeAtributo()).append(") {\n");
