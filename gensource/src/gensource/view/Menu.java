@@ -1345,6 +1345,87 @@ public class Menu extends JFrame{
         }
     }
     
+    private void montaPomXmlWeb(Projeto projeto) {
+        String conteudoPomXmlWeb = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                "    <modelVersion>4.0.0</modelVersion>\n" +
+                "    <parent>\n" +
+                "        <groupId>org.springframework.boot</groupId>\n" +
+                "        <artifactId>spring-boot-starter-parent</artifactId>\n" +
+                "        <version>2.5.1</version>\n" +
+                "        <relativePath/> <!-- lookup parent from repository -->\n" +
+                "    </parent>\n" +
+                "    <groupId>com.mycompany</groupId>\n" +
+                "    <artifactId>MyWebApp</artifactId>\n" +
+                "    <version>0.0.1-SNAPSHOT</version>\n" +
+                "    <name>MyWebApp</name>\n" +
+                "    <description>Demo project for Spring Boot</description>\n" +
+                "    <properties>\n" +
+                "        <java.version>11</java.version>\n" +
+                "    </properties>\n" +
+                "    <dependencies>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.springframework.boot</groupId>\n" +
+                "            <artifactId>spring-boot-starter-data-jpa</artifactId>\n" +
+                "        </dependency>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.springframework.boot</groupId>\n" +
+                "            <artifactId>spring-boot-starter-thymeleaf</artifactId>\n" +
+                "        </dependency>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.springframework.boot</groupId>\n" +
+                "            <artifactId>spring-boot-starter-web</artifactId>\n" +
+                "        </dependency>\n" +
+                "\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.springframework.boot</groupId>\n" +
+                "            <artifactId>spring-boot-devtools</artifactId>\n" +
+                "            <scope>runtime</scope>\n" +
+                "            <optional>true</optional>\n" +
+                "        </dependency>\n" +
+                "        <dependency>\n" +
+                "            <groupId>mysql</groupId>\n" +
+                "            <artifactId>mysql-connector-java</artifactId>\n" +
+                "            <scope>runtime</scope>\n" +
+                "        </dependency>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.springframework.boot</groupId>\n" +
+                "            <artifactId>spring-boot-starter-test</artifactId>\n" +
+                "            <scope>test</scope>\n" +
+                "        </dependency>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.webjars</groupId>\n" +
+                "            <artifactId>bootstrap</artifactId>\n" +
+                "            <version>4.3.1</version>\n" +
+                "        </dependency>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.webjars</groupId>\n" +
+                "            <artifactId>webjars-locator-core</artifactId>\n" +
+                "        </dependency>\n" +
+                "    </dependencies>\n" +
+                "\n" +
+                "    <build>\n" +
+                "        <plugins>\n" +
+                "            <plugin>\n" +
+                "                <groupId>org.springframework.boot</groupId>\n" +
+                "                <artifactId>spring-boot-maven-plugin</artifactId>\n" +
+                "            </plugin>\n" +
+                "        </plugins>\n" +
+                "    </build>\n" +
+                "\n" +
+                "</project>";
+
+        String pomDestino = projeto.getDiretorioProjeto() + "\\pom.xml";
+        try {
+            Files.write(Paths.get(pomDestino), conteudoPomXmlWeb.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
+    
     private void montaPersistenceXml(Projeto projeto) {
         String persistenceXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<persistence version=\"2.1\"\n" +
@@ -1462,6 +1543,196 @@ public class Menu extends JFrame{
             // Escrever o código da classe DAO no arquivo .java
             Files.write(Paths.get(diretorioSrcDAO + "\\" + nomeClasse + "DAO.java"), codigoDAO.toString().getBytes());
         }
+    }
+    
+    public void montaRepositoryForClass(Projeto projeto) throws IOException {
+    	for(Classe classe : projeto.getClasses()) {
+	        StringBuilder conteudoRepository = new StringBuilder();
+	        conteudoRepository.append("package com."+projeto.getNomeProjeto()+"."+classe.getNomeClasse()+";\n\n");
+	        conteudoRepository.append("import org.springframework.data.repository.CrudRepository;\n\n");
+	        conteudoRepository.append("public interface "+classe.getNomeClasse()+"Repository extends CrudRepository<User, Integer> {\n");
+	        //Verificar isso, chave primaria
+	        conteudoRepository.append("    public Long countById(Integer id);\n");
+	        conteudoRepository.append("}\n");
+	        
+	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
+            Files.createDirectories(Paths.get(diretorioRepository));
+
+            Files.write(Paths.get(diretorioRepository + "\\" + classe.getNomeClasse() + "Repository.java"), conteudoRepository.toString().getBytes());
+    	}
+    }
+    
+    public void montaServiceForClass(Projeto projeto) throws IOException {
+    	for(Classe classe : projeto.getClasses()) {
+	        StringBuilder conteudoService = new StringBuilder();
+	        conteudoService.append("package com."+projeto.getNomeProjeto()+"."+classe.getNomeClasse()+";\n\n");
+	        conteudoService.append("import org.springframework.beans.factory.annotation.Autowired;\n");
+	        conteudoService.append("import org.springframework.stereotype.Service;\n");
+	        conteudoService.append("import java.util.List;\n");
+	        conteudoService.append("import java.util.Optional;\n\n");
+	        conteudoService.append("@Service\n");
+	        conteudoService.append("public class "+classe.getNomeClasse()+"Service {\n\n");
+	        conteudoService.append("    @Autowired private "+classe.getNomeClasse()+"Repository repo;\n\n");
+	        conteudoService.append("    public List<"+classe.getNomeClasse()+"> listAll() {\n");
+	        conteudoService.append("        return (List<"+classe.getNomeClasse()+">) repo.findAll();\n");
+	        conteudoService.append("    }\n\n");
+	        conteudoService.append("    public void save("+classe.getNomeClasse()+" "+classe.getNomeClasse()+") {\n");
+	        conteudoService.append("        repo.save("+classe.getNomeClasse()+");\n");
+	        conteudoService.append("    }\n\n");
+	        conteudoService.append("    public "+classe.getNomeClasse()+" get(Integer id) throws "+classe.getNomeClasse()+"NotFoundException {\n");
+	        conteudoService.append("        Optional<"+classe.getNomeClasse()+"> result = repo.findById(id);\n");
+	        conteudoService.append("        if (result.isPresent()) {\n");
+	        conteudoService.append("            return result.get();\n");
+	        conteudoService.append("        }\n");
+	        conteudoService.append("        throw new "+classe.getNomeClasse()+"NotFoundException(\"Não foi possível encontrar nenhum usuário com ID \" + id);\n");
+	        conteudoService.append("    }\n\n");
+	        conteudoService.append("    public void delete(Integer id) throws "+classe.getNomeClasse()+"NotFoundException {\n");
+	        conteudoService.append("        Long count = repo.countById(id);\n");
+	        conteudoService.append("        if (count == null || count == 0) {\n");
+	        conteudoService.append("            throw new "+classe.getNomeClasse()+"NotFoundException(\"Não foi possível encontrar nenhum usuário com ID \" + id);\n");
+	        conteudoService.append("        }\n");
+	        conteudoService.append("        repo.deleteById(id);\n");
+	        conteudoService.append("    }\n");
+	        conteudoService.append("}\n");
+	        
+	        String diretorioService = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
+	        
+	        Files.write(Paths.get(diretorioService + "\\" + classe.getNomeClasse() + "Service.java"), conteudoService.toString().getBytes());
+    	}
+    }
+    
+    private void montaNotFoundException(Projeto projeto) throws IOException {
+    	for(Classe classe : projeto.getClasses()) {
+	        StringBuilder conteudoNotFoundException = new StringBuilder();
+	
+	        conteudoNotFoundException.append("package com."+projeto.getNomeProjeto()+"."+classe.getNomeClasse()+";\n\n");
+	        conteudoNotFoundException.append("public class "+classe.getNomeClasse()+"NotFoundException extends Throwable {\n\n");
+	        conteudoNotFoundException.append("    public "+classe.getNomeClasse()+"NotFoundException(String message) {\n");
+	        conteudoNotFoundException.append("        super(message);\n");
+	        conteudoNotFoundException.append("    }\n");
+	        conteudoNotFoundException.append("}\n");
+	        
+	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
+	        Files.write(Paths.get(diretorioRepository + "\\" + classe.getNomeClasse() + "NotFoundException.java"), conteudoNotFoundException.toString().getBytes());
+    	}
+    }
+    
+    public void montaApplicationProperties(Projeto projeto) throws IOException {
+        StringBuilder conteudoApplicationProperties = new StringBuilder();
+        conteudoApplicationProperties.append("spring.datasource.url="+projeto.getConexao().getUrl()+"\n");
+        conteudoApplicationProperties.append("spring.datasource.username="+projeto.getConexao().getUsuario()+"\n");
+        conteudoApplicationProperties.append("spring.datasource.password="+projeto.getConexao().getSenha()+"\n");
+        conteudoApplicationProperties.append("spring.jpa.hibernate.ddl-auto=create\n");
+        conteudoApplicationProperties.append("spring.jpa.properties.hibernate.show_sql=true\n");
+        
+        String applicationPropertiesDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\application.properties";
+        Files.write(Paths.get(applicationPropertiesDestino), conteudoApplicationProperties.toString().getBytes());
+    }
+    
+    //VERIFICAR EM TUDO PARA VER COMO VAI SER TRATADO A QUESTAO DA CHAVE PRIMARIA
+    //(CAMINHO MAIS FACIL É PADRONIZAR PARA CÓDIGO OU ID) E AVISAR AO USUARIO QUE ISSO SERÁ PADRÃO PARA TODAS AS CLASSES
+    //VERIFICAR SOBRE A CONVERSÃO DOS TIPOS
+    //VERIFICAR QUESTÃO DE RELACIONAMENTOS
+    //VERIFICAR QUESTAO DE ANOTAÇÕES
+    
+    //Ajustar e depois criar a Classe ("USER"), verificar se vai ser necessario criar outro metodo ou se dá para utilizar o criarClasses
+    private void montaControllerForClass(Projeto projeto) throws IOException {
+    	for(Classe classe : projeto.getClasses()) {
+    	    StringBuilder conteudoController = new StringBuilder();
+
+    	    conteudoController.append("package com."+projeto.getNomeProjeto()+"."+classe.getNomeClasse()+";\n\n");
+    	    conteudoController.append("import org.springframework.beans.factory.annotation.Autowired;\n");
+    	    conteudoController.append("import org.springframework.stereotype.Controller;\n");
+    	    conteudoController.append("import org.springframework.ui.Model;\n");
+    	    conteudoController.append("import org.springframework.web.bind.annotation.GetMapping;\n");
+    	    conteudoController.append("import org.springframework.web.bind.annotation.PathVariable;\n");
+    	    conteudoController.append("import org.springframework.web.bind.annotation.PostMapping;\n");
+    	    conteudoController.append("import org.springframework.web.servlet.mvc.support.RedirectAttributes;\n");
+    	    conteudoController.append("import java.util.List;\n\n");
+    	    conteudoController.append("@Controller\n");
+    	    conteudoController.append("public class UserController {\n\n");
+    	    conteudoController.append("    @Autowired private UserService service;\n\n");
+    	    conteudoController.append("    @GetMapping(\"/users\")\n");
+    	    conteudoController.append("    public String showUserList(Model model) {\n");
+    	    conteudoController.append("        List<User> listUsers = service.listAll();\n");
+    	    conteudoController.append("        model.addAttribute(\"listUsers\", listUsers);\n");
+    	    conteudoController.append("        return \"users\";\n");
+    	    conteudoController.append("    }\n\n");
+    	    conteudoController.append("    @GetMapping(\"/users/new\")\n");
+    	    conteudoController.append("    public String showNewForm(Model model) {\n");
+    	    conteudoController.append("        model.addAttribute(\"user\", new User());\n");
+    	    conteudoController.append("        model.addAttribute(\"pageTitle\", \"Add New User\");\n");
+    	    conteudoController.append("        return \"user_form\";\n");
+    	    conteudoController.append("    }\n\n");
+    	    conteudoController.append("    @PostMapping(\"/users/save\")\n");
+    	    conteudoController.append("    public String saveUser(User user, RedirectAttributes ra) {\n");
+    	    conteudoController.append("        service.save(user);\n");
+    	    conteudoController.append("        ra.addFlashAttribute(\"message\", \"The user has been saved successfully.\");\n");
+    	    conteudoController.append("        return \"redirect:/users\";\n");
+    	    conteudoController.append("    }\n\n");
+    	    conteudoController.append("    @GetMapping(\"/users/edit/{id}\")\n");
+    	    conteudoController.append("    public String showEditForm(@PathVariable(\"id\") Integer id, Model model, RedirectAttributes ra) {\n");
+    	    conteudoController.append("        try {\n");
+    	    conteudoController.append("            User user = service.get(id);\n");
+    	    conteudoController.append("            model.addAttribute(\"user\", user);\n");
+    	    conteudoController.append("            model.addAttribute(\"pageTitle\", \"Edit User (ID: \" + id + \")\");\n");
+    	    conteudoController.append("            return \"user_form\";\n");
+    	    conteudoController.append("        } catch (UserNotFoundException e) {\n");
+    	    conteudoController.append("            ra.addFlashAttribute(\"message\", e.getMessage());\n");
+    	    conteudoController.append("            return \"redirect:/users\";\n");
+    	    conteudoController.append("        }\n");
+    	    conteudoController.append("    }\n\n");
+    	    conteudoController.append("    @GetMapping(\"/users/delete/{id}\")\n");
+    	    conteudoController.append("    public String deleteUser(@PathVariable(\"id\") Integer id, RedirectAttributes ra) {\n");
+    	    conteudoController.append("        try {\n");
+    	    conteudoController.append("            service.delete(id);\n");
+    	    conteudoController.append("            ra.addFlashAttribute(\"message\", \"The user ID \" + id + \" has been deleted.\");\n");
+    	    conteudoController.append("        } catch (UserNotFoundException e) {\n");
+    	    conteudoController.append("            ra.addFlashAttribute(\"message\", e.getMessage());\n");
+    	    conteudoController.append("        }\n");
+    	    conteudoController.append("        return \"redirect:/users\";\n");
+    	    conteudoController.append("    }\n");
+    	    conteudoController.append("}\n");
+    	    
+	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
+	        Files.write(Paths.get(diretorioRepository + "\\" + classe.getNomeClasse() + "Controller.java"), conteudoController.toString().getBytes());
+    	}
+    }
+    
+    public void montaClassesWeb(Projeto projeto) {
+    	for(Classe classe : projeto.getClasses()) {
+    		
+    	}
+    }
+    
+    public void montaMainController(Projeto projeto) throws IOException {
+        StringBuilder conteudoMainController = new StringBuilder();
+        conteudoMainController.append("package com."+projeto.getNomeProjeto()+";\n\n");
+        conteudoMainController.append("import org.springframework.stereotype.Controller;\n");
+        conteudoMainController.append("import org.springframework.web.bind.annotation.GetMapping;\n\n");
+        conteudoMainController.append("@Controller\n");
+        conteudoMainController.append("public class MainController {\n\n");
+        conteudoMainController.append("    @GetMapping(\"\")\n");
+        conteudoMainController.append("    public String showHomePage() {\n");
+        conteudoMainController.append("        return \"index\";\n");
+        conteudoMainController.append("    }\n");
+        conteudoMainController.append("}\n");
+        String diretorioSrcMain = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto();
+        Files.createDirectories(Paths.get(diretorioSrcMain));
+        Files.write(Paths.get(diretorioSrcMain + "\\MainController.java"), conteudoMainController.toString().getBytes());
+        
+        StringBuilder conteudoMyWebAppApplication = new StringBuilder();
+        conteudoMyWebAppApplication.append("package com."+projeto.getNomeProjeto()+";\n\n");
+        conteudoMyWebAppApplication.append("import org.springframework.boot.SpringApplication;\n");
+        conteudoMyWebAppApplication.append("import org.springframework.boot.autoconfigure.SpringBootApplication;\n\n");
+        conteudoMyWebAppApplication.append("@SpringBootApplication\n");
+        conteudoMyWebAppApplication.append("public class MyWebAppApplication {\n\n");
+        conteudoMyWebAppApplication.append("    public static void main(String[] args) {\n");
+        conteudoMyWebAppApplication.append("        SpringApplication.run(MyWebAppApplication.class, args);\n");
+        conteudoMyWebAppApplication.append("    }\n");
+        conteudoMyWebAppApplication.append("}\n");
+        
+        Files.write(Paths.get(diretorioSrcMain + "\\MyWebAppApplication.java"), conteudoMyWebAppApplication.toString().getBytes());
     }
     
     private void daoGenerico(String diretorioProjeto, String nomeConexao) throws IOException {
