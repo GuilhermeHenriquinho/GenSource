@@ -1,7 +1,6 @@
 package gensource.model.enumAndModel;
 
 public enum Anotacao {
-    ENTIDADE("Entity", "Indica que a classe é uma entidade, ou seja, ela representa uma tabela no banco de dados."),
     CHAVE_PRIMARIA("Id", "Define o atributo como a chave primária da entidade."),
 
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)

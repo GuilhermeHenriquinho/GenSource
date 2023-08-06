@@ -44,6 +44,7 @@ import javax.swing.border.TitledBorder;
 import com.towel.el.annotation.AnnotationResolver;
 import com.towel.swing.table.ObjectTableModel;
 
+import gensource.model.AnotacaoString;
 import gensource.model.Atributo;
 import gensource.model.Classe;
 import gensource.model.Conexao;
@@ -66,6 +67,13 @@ public class Menu extends JFrame{
 	private JTextField txtCaminhoClasse;
 	private JTextField txtDriver;
 	private JComboBox cbTipoAtributo;
+	private JCheckBox chckbxApareceNaConsulta;
+	private JCheckBox chckbxConsultaPor;
+	private JCheckBox checkObrigatorio;
+	private JCheckBox checkRelacionamento;
+	private Boolean nova = true;
+	private JCheckBox chckbxWeb;
+	private JButton btnLimparClasse;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -247,8 +255,8 @@ public class Menu extends JFrame{
         txtDriver.setBounds(132, 119, 235, 23);
         panelConexao.add(txtDriver);
         
-        JButton btnAvancar_1 = new JButton("Avancar");
-        btnAvancar_1.addActionListener(new ActionListener() {
+        JButton btnAvancar = new JButton("Avancar");
+        btnAvancar.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
 //        		if(verificaCamposProjeto()) {
 	        		tabbedPane.setEnabledAt(1, true);
@@ -258,12 +266,8 @@ public class Menu extends JFrame{
 //        		}
         	}
         });
-        btnAvancar_1.setBounds(543, 284, 122, 34);
-        panelProjeto.add(btnAvancar_1);
-        
-        JButton btnAvancar_1_1 = new JButton("Selecionar Projeto");
-        btnAvancar_1_1.setBounds(411, 284, 122, 34);
-        panelProjeto.add(btnAvancar_1_1);
+        btnAvancar.setBounds(543, 284, 122, 34);
+        panelProjeto.add(btnAvancar);
         
         JButton btnSelecionarCaminhoProjeto = new JButton("Selecionar");
         btnSelecionarCaminhoProjeto.addActionListener(new ActionListener() {
@@ -281,10 +285,10 @@ public class Menu extends JFrame{
         btnSelecionarCaminhoProjeto.setBounds(564, 26, 101, 28);
         panelProjeto.add(btnSelecionarCaminhoProjeto);
         
-        JLabel lblNewLabel_4 = new JLabel("Para avan\u00E7ar para as outras guias \u00E9 necess\u00E1rio criar ou selecionar um projeto!");
+        JLabel lblNewLabel_4 = new JLabel("Para avan\u00E7ar para as outras guias \u00E9 necess\u00E1rio criar um projeto!");
         lblNewLabel_4.setHorizontalAlignment(SwingConstants.CENTER);
         lblNewLabel_4.setForeground(new Color(255, 0, 0));
-        lblNewLabel_4.setBounds(20, 370, 675, 14);
+        lblNewLabel_4.setBounds(10, 370, 675, 14);
         abaProjeto.add(lblNewLabel_4);
         tabbedPane.addTab("Classe", abaClasse);
         tabbedPane.setEnabledAt(1, false);
@@ -307,15 +311,6 @@ public class Menu extends JFrame{
         panelClass.add(txtNomeClasse);
         txtNomeClasse.setFont(new Font("Tahoma", Font.PLAIN, 13));
         txtNomeClasse.setColumns(10);
-        
-        JButton btnGerarClasse = new JButton("Gerar Classe");
-        btnGerarClasse.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		verificaGerarClasse();
-        	}
-        });
-        btnGerarClasse.setBounds(385, 351, 111, 34);
-        panelClass.add(btnGerarClasse);
         
         JPanel panel = new JPanel();
         panel.setBackground(new Color(255, 255, 255));
@@ -346,11 +341,11 @@ public class Menu extends JFrame{
         cbTipoAtributo.setBounds(267, 24, 127, 23);
         panel.add(cbTipoAtributo);
         
-        JCheckBox checkObrigatorio = new JCheckBox("Obrigat\u00F3rio");
+        checkObrigatorio = new JCheckBox("Obrigat\u00F3rio");
         checkObrigatorio.setBounds(277, 59, 102, 23);
         panel.add(checkObrigatorio);
         
-        JCheckBox checkRelacionamento = new JCheckBox("Relacionamento");
+        checkRelacionamento = new JCheckBox("Relacionamento");
         checkRelacionamento.setBounds(393, 59, 112, 23);
         panel.add(checkRelacionamento);
         
@@ -366,10 +361,29 @@ public class Menu extends JFrame{
 				if(e.getClickCount() == 2) {
 					Atributo atributo = model.getValue(table.getSelectedRow());
 					TelaAnotacao tela = new TelaAnotacao();
+					
+					List<String> anotacoes = atributo.getAnotacao();
+					List<AnotacaoString> anotacoesObject = new ArrayList<>();
+					
+					if(Objects.nonNull(anotacoes) && !anotacoes.isEmpty()) {
+						for(String anot : anotacoes) {
+							anotacoesObject.add(new AnotacaoString(anot));
+						}
+						tela.setAnotacoesString(anotacoesObject);
+					}
 					tela.setAtributo(atributo);
 					tela.setVisible(true);
 					
-					
+					if(Objects.nonNull(tela.getRetorno())) {
+						Classe classe = selecionaClasse();
+	        			
+	        			for(int i=0; i<classe.getAtributos().size(); i++) {
+	        				if(classe.getAtributos().get(i).getNomeAtributo().equals(atributo.getNomeAtributo())) {
+	        					classe.getAtributos().get(i).setAnotacao(tela.getRetorno().getAnotacao());
+	        				}
+	        			}
+	        			carregaTable(classe.getAtributos());
+					}
 					
 				}
 			}
@@ -379,14 +393,7 @@ public class Menu extends JFrame{
 		JButton btnRemover = new JButton("Remover");
 		btnRemover.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String nomeClasse = txtNomeClasse.getText();
-				
-				Classe classe = new Classe();
-				for(Classe classr : listaClasses) {
-					if(classr.getNomeClasse().equals(nomeClasse)) {
-						classe = classr;
-					}
-				}
+				Classe classe = selecionaClasse();
 				
 				String nomeAtributo = model.getValue(table.getSelectedRow()).getNomeAtributo();
 				List<Atributo> listaAtr = classe.getAtributos();
@@ -408,15 +415,9 @@ public class Menu extends JFrame{
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//abre uma tela com os campos de atributo para preencher e dps salva e recarrega a lista
-				Classe classe = new Classe();
 				String nomeAtributo = txtNomeAtributo.getText();
-				String nomeClasse = txtNomeClasse.getText();
 				
-				for(Classe classr : listaClasses) {
-					if(classr.getNomeClasse().equals(nomeClasse)) {
-						classe = classr;
-					}
-				}
+				Classe classe = selecionaClasse();
 				
 				int index = 0;
 				for(int i=0; i<classe.getAtributos().size(); i++) {
@@ -435,6 +436,8 @@ public class Menu extends JFrame{
 					carregaTable(classe.getAtributos());
 				}
 				
+				
+				
 			}
 		});
 		btnEditar.setBounds(383, 247, 122, 23);
@@ -445,41 +448,56 @@ public class Menu extends JFrame{
 		lblNewLabel_2.setBounds(10, 222, 613, 14);
 		panel.add(lblNewLabel_2);
 		
-		JCheckBox chckbxConsultaPor = new JCheckBox("Consulta Por");
+		chckbxConsultaPor = new JCheckBox("Consulta Por");
 		chckbxConsultaPor.setBounds(154, 59, 110, 23);
 		panel.add(chckbxConsultaPor);
 		
-		JCheckBox chckbxApareceNaConsulta = new JCheckBox("Aparece na Consulta");
+		chckbxApareceNaConsulta = new JCheckBox("Aparece na Consulta");
 		chckbxApareceNaConsulta.setBounds(10, 59, 132, 23);
 		panel.add(chckbxApareceNaConsulta);
 		
 		JButton btnLimpar = new JButton("Limpar");
 		btnLimpar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				txtNomeClasse.setText("");
-				txtCaminhoClasse.setText("");
-				txtNomeAtributo.setText("");
-				cbTipoAtributo.setSelectedIndex(0);
-				chckbxApareceNaConsulta.setSelected(false);
-				chckbxConsultaPor.setSelected(false);
-				checkObrigatorio.setSelected(false);
-				checkRelacionamento.setSelected(false);
+				limpa(false);
 			}
 		});
 		btnLimpar.setBounds(251, 247, 122, 23);
 		panel.add(btnLimpar);
 		
 		JButton btnRemoverClasse = new JButton("Excluir Classe");
-		btnRemoverClasse.setBounds(34, 351, 105, 34);
+		btnRemoverClasse.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//exclui classe atual que esta na tela e limpa os campos
+				int i=0;
+				for(; i<listaClasses.size(); i++) {
+					if(txtNomeClasse.getText().equals(listaClasses.get(i).getNomeClasse())) {
+						listaClasses.remove(i);
+						break;
+					}
+				}
+				
+				limpa(true);
+			}
+		});
+		btnRemoverClasse.setBounds(58, 351, 121, 34);
 		panelClass.add(btnRemoverClasse);
 		
 		JButton btnEditarClasse = new JButton("Editar Classe");
 		btnEditarClasse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//Abrir tela que seleciona classe e tras para essa e preenche campos com a classe
+				//Abrir tela que seleciona classe (que tem em execucao do projeto atual) e tras para essa e preenche campos com a classe
+				SelecionaClasse screen = new SelecionaClasse();
+				screen.setClasses(listaClasses);
+				screen.setVisible(true);
+				
+				if(Objects.nonNull(screen.getRetorno())) {
+					mostraClasse(screen.getRetorno());
+					nova = false;
+				}
 			}
 		});
-		btnEditarClasse.setBounds(149, 351, 105, 34);
+		btnEditarClasse.setBounds(329, 351, 130, 34);
 		panelClass.add(btnEditarClasse);
 		
 		JLabel lblCaminhoDaClasse = new JLabel("Diret\u00F3rio:");
@@ -512,7 +530,18 @@ public class Menu extends JFrame{
 		JButton btnSalvarClasse = new JButton("Salvar Classe");
 		btnSalvarClasse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				cbTipoAtributo.addItem(txtNomeClasse.getText());
+				
+				if(nova) {
+					cbTipoAtributo.addItem(txtNomeClasse.getText());
+				} else {
+					for(int i=0; i<listaClasses.size(); i++) {
+						if(txtNomeClasse.getText().equals(listaClasses.get(i).getNomeClasse())) {
+							listaClasses.get(i).setDiretorioClasse(txtCaminhoClasse.getText());
+							listaClasses.get(i).setAtributos(model.getData());
+						}
+					}
+				}
+				
 				carregaTable(new ArrayList<Atributo>());
 				
 				txtNomeClasse.setText("");
@@ -524,20 +553,12 @@ public class Menu extends JFrame{
 				checkObrigatorio.setSelected(false);
 				checkRelacionamento.setSelected(false);
 				
-				JOptionPane.showMessageDialog(null, "Classe salva com Sucesso!");
+				nova = true;
+				JOptionPane.showMessageDialog(null, "Classe Salva com Sucesso!");
 			}
 		});
-		btnSalvarClasse.setBounds(264, 351, 111, 34);
+		btnSalvarClasse.setBounds(469, 351, 121, 34);
 		panelClass.add(btnSalvarClasse);
-		
-		JButton btnAvanar = new JButton("Gerar Telas");
-		btnAvanar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				//gera telas
-			}
-		});
-		btnAvanar.setBounds(506, 351, 111, 34);
-		panelClass.add(btnAvanar);
 		
 		JButton btnGerar = new JButton("Gerar Projeto");
         btnGerar.addActionListener(new ActionListener() {
@@ -548,7 +569,9 @@ public class Menu extends JFrame{
                     public void run() {
                         try {
                         	Projeto projeto = montaProjeto();
-                            gerarProjetoMaven(projeto);
+                        	if(Objects.nonNull(projeto) && Objects.nonNull(projeto.getClasses()) && !projeto.getClasses().isEmpty()) {
+                        		gerarProjetoMaven(projeto);
+                        	}
                         } catch (Exception ex) {
                             SwingUtilities.invokeLater(new Runnable() {
                                 @Override
@@ -565,30 +588,29 @@ public class Menu extends JFrame{
 		btnGerar.setBounds(553, 554, 122, 44);
 		this.getContentPane().add(btnGerar);
 		
-		JButton btnGerarClasse_1_1 = new JButton("Limpar");
-		btnGerarClasse_1_1.setBounds(421, 554, 122, 44);
-		this.getContentPane().add(btnGerarClasse_1_1);
+		JButton btnLimparProjeto = new JButton("Limpar");
+		btnLimparProjeto.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+			}
+		});
+		btnLimparProjeto.setBounds(421, 554, 122, 44);
+		this.getContentPane().add(btnLimparProjeto);
 		
-		JButton btnGerarClasse_1_1_1 = new JButton("Fechar");
-		btnGerarClasse_1_1_1.addActionListener(new ActionListener() {
+		JButton btnFechar = new JButton("Fechar");
+		btnFechar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				dispose();
 			}
 		});
-		btnGerarClasse_1_1_1.setBounds(289, 554, 122, 44);
-		this.getContentPane().add(btnGerarClasse_1_1_1);
+		btnFechar.setBounds(289, 554, 122, 44);
+		this.getContentPane().add(btnFechar);
 		
         JButton btnAdicionar = new JButton("Adicionar");
         btnAdicionar.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		if(verificaClasse_Atributo()) {
-        			String nomeClasse = txtNomeClasse.getText();
-        			Classe classe = new Classe();
-        			for(Classe classr : listaClasses) {
-        				if(classr.getNomeClasse().equals(nomeClasse)) {
-        					classe = classr;
-        				}
-        			}
+        			Classe classe = selecionaClasse();
         			
 	        		Atributo atr = new Atributo();
 	        		atr.setNomeAtributo(txtNomeAtributo.getText());
@@ -608,11 +630,38 @@ public class Menu extends JFrame{
 	        		}
 	        		
 					carregaTable(classe.getAtributos());
+					
+					limpa(false);
         		}
         	}
         });
         btnAdicionar.setBounds(511, 55, 112, 31);
         panel.add(btnAdicionar);
+        panelClass.add(getChckbxWeb());
+        panelClass.add(getBtnLimparClasse());
+    }
+    
+	public void limpaProjeto() {
+		txtNomeProjeto.setText("");
+		txtCaminho.setText("");
+		txtNomeConexao.setText("");
+		txtUrl.setText("");
+		txtDialect.setText("");
+		txtDriver.setText("");
+		txtUsuario.setText("");
+		txtSenha.setText("");
+		limpa(true);
+	}
+    
+    public Classe selecionaClasse() {
+		String nomeClasse = txtNomeClasse.getText();
+		Classe classe = new Classe();
+		for(Classe classr : listaClasses) {
+			if(classr.getNomeClasse().equals(nomeClasse)) {
+				classe = classr;
+			}
+		}
+		return classe;
     }
     
     public Boolean verificaClasse_Atributo() {
@@ -687,10 +736,6 @@ public class Menu extends JFrame{
 	public void ajusta() {
 		List<Atributo> atributos = new ArrayList();
 		carregaTable(atributos);
-	}
-	
-	public void verificaGerarClasse() {
-		//gerar classe model e dao no caminho especificado
 	}
 	
 	private Projeto montaProjeto() {
@@ -1329,7 +1374,6 @@ public class Menu extends JFrame{
             e.printStackTrace();
         }
     }
-
     
     private void criarClasses(Projeto projeto) throws IOException {
     	daoGenerico(projeto.getDiretorioProjeto(), projeto.getConexao().getNomeConexao());
@@ -1519,4 +1563,47 @@ public class Menu extends JFrame{
 		this.listaClasses = listaClasses;
 	}
     
+	public void mostraClasse(Classe classe) {
+		txtNomeClasse.setText(classe.getNomeClasse());
+		txtCaminhoClasse.setText(classe.getDiretorioClasse());
+		txtNomeAtributo.setText("");
+		cbTipoAtributo.setSelectedIndex(0);
+		chckbxApareceNaConsulta.setSelected(false);
+		chckbxConsultaPor.setSelected(false);
+		checkObrigatorio.setSelected(false);
+		checkRelacionamento.setSelected(false);
+		carregaTable(classe.getAtributos());
+	}
+	
+	private void limpa(Boolean classe) {
+		if(classe) {
+			txtNomeClasse.setText("");
+			txtCaminhoClasse.setText("");
+		}
+		txtNomeAtributo.setText("");
+		cbTipoAtributo.setSelectedIndex(0);
+		chckbxApareceNaConsulta.setSelected(false);
+		chckbxConsultaPor.setSelected(false);
+		checkObrigatorio.setSelected(false);
+		checkRelacionamento.setSelected(false);
+	}
+	private JCheckBox getChckbxWeb() {
+		if (chckbxWeb == null) {
+			chckbxWeb = new JCheckBox("Desktop");
+			chckbxWeb.setBounds(553, 27, 90, 23);
+		}
+		return chckbxWeb;
+	}
+	private JButton getBtnLimparClasse() {
+		if (btnLimparClasse == null) {
+			btnLimparClasse = new JButton("Limpar Classe");
+			btnLimparClasse.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					limpa(true);
+				}
+			});
+			btnLimparClasse.setBounds(189, 351, 130, 34);
+		}
+		return btnLimparClasse;
+	}
 }

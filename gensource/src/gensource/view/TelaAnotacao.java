@@ -86,7 +86,8 @@ public class TelaAnotacao extends JDialog {
 					}
 					getAtributo().setAnotacao(anotacoesString);
 					setRetorno(getAtributo());
-					JOptionPane.showMessageDialog(null, "Anotações para o Atributo "+getAtributo().getNomeAtributo()+" salvas com Sucesso!");
+					JOptionPane.showMessageDialog(null, "Anotações para o Atributo \""+getAtributo().getNomeAtributo()+"\" salvas com Sucesso!");
+					dispose();
 				} else {
 					JOptionPane.showMessageDialog(null, "Por favor adicione anotações para o atributo.");
 				}
@@ -110,7 +111,7 @@ public class TelaAnotacao extends JDialog {
 				AnotacaoString anotacao = new AnotacaoString();
 				anotacao.setAnotacao("@Column(name = \"product_name\", nullable = false, length = 100)");
 				anotacoesString.add(anotacao);
-				carregaTableString();
+				carregaTableString(anotacoesString);
 			}
 		});
 		btnAdicionar.setBounds(417, 217, 89, 23);
@@ -154,11 +155,12 @@ public class TelaAnotacao extends JDialog {
 			@Override
 			public void windowOpened(WindowEvent e) {
 				lbNomeCampo.setText(atributo.getNomeAtributo());
+				carregaTableString(anotacoesString);
 			}
 		});
 		enumToObject();
 		carregaTable();
-		carregaTableString();
+		carregaTableString(anotacoesString);
 	}
 	
 	public void enumToObject() {
@@ -196,10 +198,10 @@ public class TelaAnotacao extends JDialog {
 	    table.getColumnModel().getColumn(0).setPreferredWidth(50);
 	}
 	
-	public void carregaTableString() {
+	public void carregaTableString(List<AnotacaoString> anotacoes) {
 		AnnotationResolver resolver = new AnnotationResolver(AnotacaoString.class);
 		modelString = new ObjectTableModel<AnotacaoString>(resolver, "anotacao:Anotação");
-		modelString.setData(anotacoesString);
+		modelString.setData(anotacoes);
 		table2.setModel(modelString);
 	}
 
@@ -210,4 +212,13 @@ public class TelaAnotacao extends JDialog {
 	public void setRetorno(Atributo retorno) {
 		this.retorno = retorno;
 	}
+
+	public List<AnotacaoString> getAnotacoesString() {
+		return anotacoesString;
+	}
+
+	public void setAnotacoesString(List<AnotacaoString> anotacoesString) {
+		this.anotacoesString = anotacoesString;
+	}
+	
 }
