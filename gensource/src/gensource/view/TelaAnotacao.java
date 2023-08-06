@@ -7,7 +7,10 @@ import javax.swing.JFrame;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
@@ -20,6 +23,8 @@ import gensource.model.enumAndModel.Anotacao;
 import gensource.model.enumAndModel.AnotacaoModel;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
@@ -27,9 +32,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.Font;
 
-public class TelaAnotacao {
+public class TelaAnotacao extends JDialog {
 
-	private JFrame frmGensourceTela;
 	private ObjectTableModel<AnotacaoModel> model = null;
 	private ObjectTableModel<AnotacaoString> modelString = null;
     private List<AnotacaoModel> anotacoes = new ArrayList<>();
@@ -37,16 +41,14 @@ public class TelaAnotacao {
 	private JTable table;
 	private JTable table2;
     private Atributo atributo;
+    private Atributo retorno;
 
-	/**
-	 * Launch the application.
-	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					TelaAnotacao window = new TelaAnotacao();
-					window.frmGensourceTela.setVisible(true);
+					window.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -54,27 +56,20 @@ public class TelaAnotacao {
 		});
 	}
 
-	/**
-	 * Create the application.
-	 */
 	public TelaAnotacao() {
 		initialize();
 	}
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
 	private void initialize() {
-		frmGensourceTela = new JFrame();
-
-		frmGensourceTela.setTitle("GENSOURCE - Tela de Anota\u00E7\u00F5es");
-		frmGensourceTela.getContentPane().setBackground(new Color(255, 255, 255));
-		frmGensourceTela.setBounds(100, 100, 532, 509);
-		frmGensourceTela.getContentPane().setLayout(null);
+		setModal(true);
+		this.setTitle("GENSOURCE - Tela de Anota\u00E7\u00F5es");
+		this.getContentPane().setBackground(new Color(255, 255, 255));
+		this.setBounds(100, 100, 532, 509);
+		this.getContentPane().setLayout(null);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(10, 88, 496, 118);
-		frmGensourceTela.getContentPane().add(scrollPane);
+		this.getContentPane().add(scrollPane);
 		
 		table = new JTable();
 		scrollPane.setViewportView(table);
@@ -82,14 +77,32 @@ public class TelaAnotacao {
 		JButton btnNewButton = new JButton("Concluir");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				List<AnotacaoString> anotacoes = modelString.getData();
+				if(Objects.nonNull(anotacoes) && !anotacoes.isEmpty()) {
+					List<String> anotacoesString = new ArrayList<>();
+					for(AnotacaoString an : anotacoes) {
+						anotacoesString.add(an.getAnotacao());
+					}
+					getAtributo().setAnotacao(anotacoesString);
+					setRetorno(getAtributo());
+					JOptionPane.showMessageDialog(null, "Anotações para o Atributo "+getAtributo().getNomeAtributo()+" salvas com Sucesso!");
+				} else {
+					JOptionPane.showMessageDialog(null, "Por favor adicione anotações para o atributo.");
+				}
 			}
 		});
 		btnNewButton.setBounds(398, 424, 108, 35);
-		frmGensourceTela.getContentPane().add(btnNewButton);
+		this.getContentPane().add(btnNewButton);
 		
 		JButton btnCancelar = new JButton("Cancelar");
+		btnCancelar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
 		btnCancelar.setBounds(280, 424, 108, 35);
-		frmGensourceTela.getContentPane().add(btnCancelar);
+		this.getContentPane().add(btnCancelar);
 		
 		JButton btnAdicionar = new JButton("Adicionar");
 		btnAdicionar.addActionListener(new ActionListener() {
@@ -101,21 +114,21 @@ public class TelaAnotacao {
 			}
 		});
 		btnAdicionar.setBounds(417, 217, 89, 23);
-		frmGensourceTela.getContentPane().add(btnAdicionar);
+		this.getContentPane().add(btnAdicionar);
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
 		scrollPane_1.setBounds(10, 268, 496, 118);
-		frmGensourceTela.getContentPane().add(scrollPane_1);
+		this.getContentPane().add(scrollPane_1);
 		
 		JLabel lblNewLabel = new JLabel("Anota\u00E7\u00F5es disponiveis");
 		lblNewLabel.setForeground(new Color(0, 0, 0));
 		lblNewLabel.setBackground(new Color(119, 136, 153));
 		lblNewLabel.setBounds(10, 72, 496, 14);
-		frmGensourceTela.getContentPane().add(lblNewLabel);
+		this.getContentPane().add(lblNewLabel);
 		
 		JLabel lblAnotaesUtilizadas = new JLabel("Anota\u00E7\u00F5es Utilizadas");
 		lblAnotaesUtilizadas.setBounds(10, 251, 496, 14);
-		frmGensourceTela.getContentPane().add(lblAnotaesUtilizadas);
+		this.getContentPane().add(lblAnotaesUtilizadas);
 		
 		table2 = new JTable();
 		scrollPane_1.setViewportView(table2);
@@ -124,20 +137,20 @@ public class TelaAnotacao {
 		lblNewLabel_1.setForeground(new Color(255, 0, 0));
 		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel_1.setBounds(10, 388, 496, 14);
-		frmGensourceTela.getContentPane().add(lblNewLabel_1);
+		this.getContentPane().add(lblNewLabel_1);
 		
 		JLabel lblNewLabel_2 = new JLabel("Anota\u00E7\u00F5es para o Campo:");
 		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		lblNewLabel_2.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblNewLabel_2.setBounds(10, 26, 312, 23);
-		frmGensourceTela.getContentPane().add(lblNewLabel_2);
+		this.getContentPane().add(lblNewLabel_2);
 		
 		JLabel lbNomeCampo = new JLabel("");
 		lbNomeCampo.setForeground(new Color(255, 165, 0));
 		lbNomeCampo.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		lbNomeCampo.setBounds(332, 26, 174, 23);
-		frmGensourceTela.getContentPane().add(lbNomeCampo);
-		frmGensourceTela.addWindowListener(new WindowAdapter() {
+		this.getContentPane().add(lbNomeCampo);
+		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowOpened(WindowEvent e) {
 				lbNomeCampo.setText(atributo.getNomeAtributo());
@@ -157,14 +170,6 @@ public class TelaAnotacao {
         	anotacaoModel.setExplicacao(anotacoes[i].getExplicacao());
         	this.anotacoes.add(anotacaoModel);
         }
-	}
-
-	public JFrame getFrame() {
-		return frmGensourceTela;
-	}
-
-	public void setFrame(JFrame frame) {
-		this.frmGensourceTela = frame;
 	}
 
 	public List<AnotacaoModel> getAnotacoes() {
@@ -196,5 +201,13 @@ public class TelaAnotacao {
 		modelString = new ObjectTableModel<AnotacaoString>(resolver, "anotacao:Anotação");
 		modelString.setData(anotacoesString);
 		table2.setModel(modelString);
+	}
+
+	public Atributo getRetorno() {
+		return retorno;
+	}
+
+	public void setRetorno(Atributo retorno) {
+		this.retorno = retorno;
 	}
 }

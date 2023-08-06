@@ -49,13 +49,11 @@ import gensource.model.Classe;
 import gensource.model.Conexao;
 import gensource.model.Projeto;
 
-public class Menu {
-
-    private JFrame frmGensourceMenu;
+public class Menu extends JFrame{
     private JTextField txtNomeClasse;
 	private ObjectTableModel<Atributo> model = null;
 	private List<Classe> listaClasses = new ArrayList<Classe>();
-	private List<Atributo> listaAtributo = new ArrayList<Atributo>();
+//	private List<Atributo> listaAtributo = new ArrayList<Atributo>();
 	private JTable table;
 	private JTextField txtNomeAtributo;
 	private JTextField txtNomeConexao;
@@ -67,6 +65,7 @@ public class Menu {
 	private JTextField txtCaminho;
 	private JTextField txtCaminhoClasse;
 	private JTextField txtDriver;
+	private JComboBox cbTipoAtributo;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -77,7 +76,7 @@ public class Menu {
                     e.printStackTrace();
                 }
                 Menu window = new Menu();
-                window.frmGensourceMenu.setVisible(true);
+                window.setVisible(true);
             }
         });
     }
@@ -87,24 +86,23 @@ public class Menu {
     }
 
     private void initialize() {
-        frmGensourceMenu = new JFrame();
-        frmGensourceMenu.getContentPane().setBackground(new Color(255, 255, 255));
-        frmGensourceMenu.addWindowListener(new WindowAdapter() {
+        this.getContentPane().setBackground(new Color(255, 255, 255));
+        this.addWindowListener(new WindowAdapter() {
         	@Override
         	public void windowOpened(WindowEvent e) {
         		ajusta();
         	}
         });
-        frmGensourceMenu.getContentPane().setForeground(new Color(255, 255, 255));
-        frmGensourceMenu.setTitle("GENSOURCE - Gerador de CRUD");
-        frmGensourceMenu.setBounds(100, 100, 716, 648);
-        frmGensourceMenu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frmGensourceMenu.getContentPane().setLayout(null);
+        this.getContentPane().setForeground(new Color(255, 255, 255));
+        this.setTitle("GENSOURCE - Gerador de CRUD");
+        this.setBounds(100, 100, 716, 648);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.getContentPane().setLayout(null);
 
         JPanel panelCabecalho = new JPanel();
         panelCabecalho.setBackground(new Color(255, 255, 255));
         panelCabecalho.setBounds(0, 0, 700, 97);
-        frmGensourceMenu.getContentPane().add(panelCabecalho);
+        this.getContentPane().add(panelCabecalho);
         panelCabecalho.setLayout(null);
 
         JLabel lblNewLabel = new JLabel("");
@@ -115,7 +113,7 @@ public class Menu {
 
         JPanel panelGuias = new JPanel();
         panelGuias.setBounds(0, 97, 700, 446);
-        frmGensourceMenu.getContentPane().add(panelGuias);
+        this.getContentPane().add(panelGuias);
         panelGuias.setLayout(new BoxLayout(panelGuias, BoxLayout.X_AXIS)); // Definindo o layout como BoxLayout horizontal
 
         // Criação do JTabbedPane
@@ -252,12 +250,12 @@ public class Menu {
         JButton btnAvancar_1 = new JButton("Avancar");
         btnAvancar_1.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		if(verificaCamposProjeto()) {
+//        		if(verificaCamposProjeto()) {
 	        		tabbedPane.setEnabledAt(1, true);
 	        		tabbedPane.setSelectedIndex(1);
-        		} else {
-        			JOptionPane.showMessageDialog(null, "Por favor crie ou adicione um projeto para avançar!");
-        		}
+//        		} else {
+//        			JOptionPane.showMessageDialog(null, "Por favor crie ou adicione um projeto para avançar!");
+//        		}
         	}
         });
         btnAvancar_1.setBounds(543, 284, 122, 34);
@@ -342,7 +340,8 @@ public class Menu {
         lblTipo.setBounds(230, 26, 38, 21);
         panel.add(lblTipo);
         
-        JComboBox cbTipoAtributo = new JComboBox();
+        cbTipoAtributo = new JComboBox();
+        //Adicionar nome das Classes já adicionadas
         cbTipoAtributo.setModel(new DefaultComboBoxModel(new String[] {"", "Int", "Long", "Boolean", "Char", "Float", "Double", "String"}));
         cbTipoAtributo.setBounds(267, 24, 127, 23);
         panel.add(cbTipoAtributo);
@@ -355,27 +354,6 @@ public class Menu {
         checkRelacionamento.setBounds(393, 59, 112, 23);
         panel.add(checkRelacionamento);
         
-        JButton btnAdicionar = new JButton("Adicionar");
-        btnAdicionar.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		
-        		Atributo atr = new Atributo();
-        		atr.setNomeAtributo(txtNomeAtributo.getText());
-        		atr.setTipoAtributo(cbTipoAtributo.getSelectedItem().toString());
-        		
-        		/*
-        		chckbxApareceNaConsulta
-				chckbxConsulta
-				checkObrigatorio
-				checkRelacionamento
-        		*/
-        		
-				carregaTable();
-        	}
-        });
-        btnAdicionar.setBounds(511, 55, 112, 31);
-        panel.add(btnAdicionar);
-        
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setBounds(10, 97, 613, 118);
         panel.add(scrollPane);
@@ -384,19 +362,81 @@ public class Menu {
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				Atributo atributo = model.getValue(table.getSelectedColumn());
-				TelaAnotacao tela = new TelaAnotacao();
-				tela.setAtributo(atributo);
-				tela.getFrame().setVisible(true);
+				
+				if(e.getClickCount() == 2) {
+					Atributo atributo = model.getValue(table.getSelectedRow());
+					TelaAnotacao tela = new TelaAnotacao();
+					tela.setAtributo(atributo);
+					tela.setVisible(true);
+					
+					
+					
+				}
 			}
 		});
 		scrollPane.setViewportView(table);
 		
 		JButton btnRemover = new JButton("Remover");
+		btnRemover.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String nomeClasse = txtNomeClasse.getText();
+				
+				Classe classe = new Classe();
+				for(Classe classr : listaClasses) {
+					if(classr.getNomeClasse().equals(nomeClasse)) {
+						classe = classr;
+					}
+				}
+				
+				String nomeAtributo = model.getValue(table.getSelectedRow()).getNomeAtributo();
+				List<Atributo> listaAtr = classe.getAtributos();
+				for(int i=0; i<listaAtr.size(); i++) {
+					if(listaAtr.get(i).getNomeAtributo().equals(nomeAtributo)) {
+						listaAtr.remove(i);
+						break;
+					}
+				}
+				classe.setAtributos(listaAtr);
+				
+				carregaTable(classe.getAtributos());
+			}
+		});
 		btnRemover.setBounds(119, 247, 122, 23);
 		panel.add(btnRemover);
 		
 		JButton btnEditar = new JButton("Editar");
+		btnEditar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//abre uma tela com os campos de atributo para preencher e dps salva e recarrega a lista
+				Classe classe = new Classe();
+				String nomeAtributo = txtNomeAtributo.getText();
+				String nomeClasse = txtNomeClasse.getText();
+				
+				for(Classe classr : listaClasses) {
+					if(classr.getNomeClasse().equals(nomeClasse)) {
+						classe = classr;
+					}
+				}
+				
+				int index = 0;
+				for(int i=0; i<classe.getAtributos().size(); i++) {
+					if(classe.getAtributos().get(i).getNomeAtributo().equals(nomeAtributo)) {
+						index = i;
+					}
+				}
+				
+				TelaEditarAtributo screen = new TelaEditarAtributo();
+				screen.setAtributo(classe.getAtributos().get(index));
+				screen.setVisible(true);
+				
+				if(Objects.nonNull(screen.getRetorno())) {
+					classe.getAtributos().set(index, screen.getRetorno());
+					JOptionPane.showMessageDialog(null, "Atributo editado com Sucesso!");
+					carregaTable(classe.getAtributos());
+				}
+				
+			}
+		});
 		btnEditar.setBounds(383, 247, 122, 23);
 		panel.add(btnEditar);
 		
@@ -405,15 +445,27 @@ public class Menu {
 		lblNewLabel_2.setBounds(10, 222, 613, 14);
 		panel.add(lblNewLabel_2);
 		
-		JCheckBox chckbxConsulta = new JCheckBox("Consulta Por");
-		chckbxConsulta.setBounds(154, 59, 110, 23);
-		panel.add(chckbxConsulta);
+		JCheckBox chckbxConsultaPor = new JCheckBox("Consulta Por");
+		chckbxConsultaPor.setBounds(154, 59, 110, 23);
+		panel.add(chckbxConsultaPor);
 		
 		JCheckBox chckbxApareceNaConsulta = new JCheckBox("Aparece na Consulta");
 		chckbxApareceNaConsulta.setBounds(10, 59, 132, 23);
 		panel.add(chckbxApareceNaConsulta);
 		
 		JButton btnLimpar = new JButton("Limpar");
+		btnLimpar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				txtNomeClasse.setText("");
+				txtCaminhoClasse.setText("");
+				txtNomeAtributo.setText("");
+				cbTipoAtributo.setSelectedIndex(0);
+				chckbxApareceNaConsulta.setSelected(false);
+				chckbxConsultaPor.setSelected(false);
+				checkObrigatorio.setSelected(false);
+				checkRelacionamento.setSelected(false);
+			}
+		});
 		btnLimpar.setBounds(251, 247, 122, 23);
 		panel.add(btnLimpar);
 		
@@ -458,16 +510,34 @@ public class Menu {
 		panelClass.add(btnSelecionarCaminhoClasse);
 		
 		JButton btnSalvarClasse = new JButton("Salvar Classe");
+		btnSalvarClasse.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cbTipoAtributo.addItem(txtNomeClasse.getText());
+				carregaTable(new ArrayList<Atributo>());
+				
+				txtNomeClasse.setText("");
+				txtCaminhoClasse.setText("");
+				txtNomeAtributo.setText("");
+				cbTipoAtributo.setSelectedIndex(0);
+				chckbxApareceNaConsulta.setSelected(false);
+				chckbxConsultaPor.setSelected(false);
+				checkObrigatorio.setSelected(false);
+				checkRelacionamento.setSelected(false);
+				
+				JOptionPane.showMessageDialog(null, "Classe salva com Sucesso!");
+			}
+		});
 		btnSalvarClasse.setBounds(264, 351, 111, 34);
 		panelClass.add(btnSalvarClasse);
 		
 		JButton btnAvanar = new JButton("Gerar Telas");
+		btnAvanar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//gera telas
+			}
+		});
 		btnAvanar.setBounds(506, 351, 111, 34);
 		panelClass.add(btnAvanar);
-		
-		JCheckBox chckbxGerarCrud = new JCheckBox("Gerar CRUD");
-		chckbxGerarCrud.setBounds(553, 26, 90, 23);
-		panelClass.add(chckbxGerarCrud);
 		
 		JButton btnGerar = new JButton("Gerar Projeto");
         btnGerar.addActionListener(new ActionListener() {
@@ -493,15 +563,98 @@ public class Menu {
             }
         });
 		btnGerar.setBounds(553, 554, 122, 44);
-		frmGensourceMenu.getContentPane().add(btnGerar);
+		this.getContentPane().add(btnGerar);
 		
 		JButton btnGerarClasse_1_1 = new JButton("Limpar");
 		btnGerarClasse_1_1.setBounds(421, 554, 122, 44);
-		frmGensourceMenu.getContentPane().add(btnGerarClasse_1_1);
+		this.getContentPane().add(btnGerarClasse_1_1);
 		
 		JButton btnGerarClasse_1_1_1 = new JButton("Fechar");
+		btnGerarClasse_1_1_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
 		btnGerarClasse_1_1_1.setBounds(289, 554, 122, 44);
-		frmGensourceMenu.getContentPane().add(btnGerarClasse_1_1_1);
+		this.getContentPane().add(btnGerarClasse_1_1_1);
+		
+        JButton btnAdicionar = new JButton("Adicionar");
+        btnAdicionar.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		if(verificaClasse_Atributo()) {
+        			String nomeClasse = txtNomeClasse.getText();
+        			Classe classe = new Classe();
+        			for(Classe classr : listaClasses) {
+        				if(classr.getNomeClasse().equals(nomeClasse)) {
+        					classe = classr;
+        				}
+        			}
+        			
+	        		Atributo atr = new Atributo();
+	        		atr.setNomeAtributo(txtNomeAtributo.getText());
+	        		atr.setTipoAtributo(cbTipoAtributo.getSelectedItem().toString());
+	        		
+	        		atr.setApareceNaConsulta(chckbxApareceNaConsulta.isSelected());
+	        		atr.setConsultaPor(chckbxConsultaPor.isSelected());
+	        		atr.setIsObrigatorio(checkObrigatorio.isSelected());
+	        		atr.setIsRelacionamento(checkRelacionamento.isSelected());
+	        		
+	        		if(Objects.nonNull(classe.getAtributos()) && !classe.getAtributos().isEmpty()) {
+	        			classe.getAtributos().add(atr);
+	        		}else {
+	        			List<Atributo> listaAtr = new ArrayList<>();
+	        			listaAtr.add(atr);
+	        			classe.setAtributos(listaAtr);
+	        		}
+	        		
+					carregaTable(classe.getAtributos());
+        		}
+        	}
+        });
+        btnAdicionar.setBounds(511, 55, 112, 31);
+        panel.add(btnAdicionar);
+    }
+    
+    public Boolean verificaClasse_Atributo() {
+    	String nomeClasse = txtNomeClasse.getText();
+    	String caminhoClasse = txtCaminhoClasse.getText();
+    	
+    	if(Objects.nonNull(nomeClasse) && Objects.nonNull(caminhoClasse) && nomeClasse.isEmpty() && caminhoClasse.isEmpty()) {
+    		JOptionPane.showMessageDialog(null, "Por favor informe o Nome e o Caminho da Classe!");
+    		return false;
+    	}
+    	
+    	boolean teste = true;
+    	for(Classe classr : listaClasses) {
+    		if(classr.getNomeClasse().equals(nomeClasse)) {
+    			teste = false;
+    		}
+    	}
+    	
+    	if(teste) {
+			Classe classe = new Classe();
+			classe.setNomeClasse(nomeClasse);
+			classe.setDiretorioClasse(txtCaminhoClasse.getText());
+			listaClasses.add(classe);
+    	}
+		
+    	String nome = txtNomeAtributo.getText();
+    	
+    	List<Atributo> listaAtributo = model.getData();
+    	for(Atributo atr : listaAtributo) {
+    		if(atr.getNomeAtributo().equals(nome)) {
+    			JOptionPane.showMessageDialog(null, "O Atributo já foi adicionado!");
+    			return false;
+    		}
+    	}
+    	
+    	String tipo = cbTipoAtributo.getSelectedItem().toString();
+    	if(Objects.nonNull(nome) && Objects.nonNull(tipo) && !nome.isEmpty() && !tipo.isEmpty()) {
+    		return true;
+    	}else {
+    		JOptionPane.showMessageDialog(null, "Por favor informe o Nome e o Tipo do Atributo!");
+    		return false;
+    	}
     }
     
     public Boolean verificaCamposProjeto() {
@@ -522,21 +675,22 @@ public class Menu {
         }
         return true;
     }
-    
-	public void carregaTable() {
+	
+	public void carregaTable(List<Atributo> atributos) {
 		AnnotationResolver resolver = new AnnotationResolver(Atributo.class);
-		model = new ObjectTableModel<Atributo>(resolver, "nomeAtributo:Nome,tipoAtributo:Tipo,isObrigatorio:Obrigatório,isRelacionamento:Relacionamento");
-		model.setData(listaAtributo);
+		model = new ObjectTableModel<Atributo>(resolver, "nomeAtributo:Nome,tipoAtributo:Tipo,isObrigatorio:Obrigatório,isRelacionamento:Relacionamento,apareceNaConsulta:ApareceConsulta,consultaPor:ConsultaPor");
+		model.setData(atributos);
 		table.setModel(model);
 	    table.getColumnModel().getColumn(0).setPreferredWidth(100);
 	}
 	
 	public void ajusta() {
-		carregaTable();
+		List<Atributo> atributos = new ArrayList();
+		carregaTable(atributos);
 	}
 	
 	public void verificaGerarClasse() {
-		
+		//gerar classe model e dao no caminho especificado
 	}
 	
 	private Projeto montaProjeto() {
@@ -840,7 +994,7 @@ public class Menu {
         	    codigoTela.append("private JTextField getTxt"+nomeAtributo+"() {\n");
         		codigoTela.append("    if (txt"+nomeAtributo+" == null) {\n");
         		codigoTela.append("        txt"+nomeAtributo+" = new JTextField();\n");
-        		codigoTela.append("        txt"+nomeAtributo+".setEditable(false);\n");
+//        		codigoTela.append("        txt"+nomeAtributo+".setEditable(false);\n");
         		codigoTela.append("        txt"+nomeAtributo+".setFont(new Font(\"Tahoma\", Font.PLAIN, 13));\n");
         		codigoTela.append("        txt"+nomeAtributo+".setBounds("+z+", "+(y-2)+", 144, 20);\n");
         		codigoTela.append("        txt"+nomeAtributo+".setColumns(10);\n");
@@ -1364,14 +1518,5 @@ public class Menu {
 	public void setListaClasses(List<Classe> listaClasses) {
 		this.listaClasses = listaClasses;
 	}
-
-	public List<Atributo> getListaAtributo() {
-		return listaAtributo;
-	}
-
-	public void setListaAtributo(List<Atributo> listaAtributo) {
-		this.listaAtributo = listaAtributo;
-	}
-    
     
 }
