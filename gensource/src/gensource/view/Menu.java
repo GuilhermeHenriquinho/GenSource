@@ -1345,87 +1345,6 @@ public class Menu extends JFrame{
         }
     }
     
-    private void montaPomXmlWeb(Projeto projeto) {
-        String conteudoPomXmlWeb = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                "    <modelVersion>4.0.0</modelVersion>\n" +
-                "    <parent>\n" +
-                "        <groupId>org.springframework.boot</groupId>\n" +
-                "        <artifactId>spring-boot-starter-parent</artifactId>\n" +
-                "        <version>2.5.1</version>\n" +
-                "        <relativePath/> <!-- lookup parent from repository -->\n" +
-                "    </parent>\n" +
-                "    <groupId>com.mycompany</groupId>\n" +
-                "    <artifactId>MyWebApp</artifactId>\n" +
-                "    <version>0.0.1-SNAPSHOT</version>\n" +
-                "    <name>MyWebApp</name>\n" +
-                "    <description>Demo project for Spring Boot</description>\n" +
-                "    <properties>\n" +
-                "        <java.version>11</java.version>\n" +
-                "    </properties>\n" +
-                "    <dependencies>\n" +
-                "        <dependency>\n" +
-                "            <groupId>org.springframework.boot</groupId>\n" +
-                "            <artifactId>spring-boot-starter-data-jpa</artifactId>\n" +
-                "        </dependency>\n" +
-                "        <dependency>\n" +
-                "            <groupId>org.springframework.boot</groupId>\n" +
-                "            <artifactId>spring-boot-starter-thymeleaf</artifactId>\n" +
-                "        </dependency>\n" +
-                "        <dependency>\n" +
-                "            <groupId>org.springframework.boot</groupId>\n" +
-                "            <artifactId>spring-boot-starter-web</artifactId>\n" +
-                "        </dependency>\n" +
-                "\n" +
-                "        <dependency>\n" +
-                "            <groupId>org.springframework.boot</groupId>\n" +
-                "            <artifactId>spring-boot-devtools</artifactId>\n" +
-                "            <scope>runtime</scope>\n" +
-                "            <optional>true</optional>\n" +
-                "        </dependency>\n" +
-                "        <dependency>\n" +
-                "            <groupId>mysql</groupId>\n" +
-                "            <artifactId>mysql-connector-java</artifactId>\n" +
-                "            <scope>runtime</scope>\n" +
-                "        </dependency>\n" +
-                "        <dependency>\n" +
-                "            <groupId>org.springframework.boot</groupId>\n" +
-                "            <artifactId>spring-boot-starter-test</artifactId>\n" +
-                "            <scope>test</scope>\n" +
-                "        </dependency>\n" +
-                "        <dependency>\n" +
-                "            <groupId>org.webjars</groupId>\n" +
-                "            <artifactId>bootstrap</artifactId>\n" +
-                "            <version>4.3.1</version>\n" +
-                "        </dependency>\n" +
-                "        <dependency>\n" +
-                "            <groupId>org.webjars</groupId>\n" +
-                "            <artifactId>webjars-locator-core</artifactId>\n" +
-                "        </dependency>\n" +
-                "    </dependencies>\n" +
-                "\n" +
-                "    <build>\n" +
-                "        <plugins>\n" +
-                "            <plugin>\n" +
-                "                <groupId>org.springframework.boot</groupId>\n" +
-                "                <artifactId>spring-boot-maven-plugin</artifactId>\n" +
-                "            </plugin>\n" +
-                "        </plugins>\n" +
-                "    </build>\n" +
-                "\n" +
-                "</project>";
-
-        String pomDestino = projeto.getDiretorioProjeto() + "\\pom.xml";
-        try {
-            Files.write(Paths.get(pomDestino), conteudoPomXmlWeb.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    
-    
     private void montaPersistenceXml(Projeto projeto) {
         String persistenceXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<persistence version=\"2.1\"\n" +
@@ -1560,179 +1479,6 @@ public class Menu extends JFrame{
 
             Files.write(Paths.get(diretorioRepository + "\\" + classe.getNomeClasse() + "Repository.java"), conteudoRepository.toString().getBytes());
     	}
-    }
-    
-    public void montaServiceForClass(Projeto projeto) throws IOException {
-    	for(Classe classe : projeto.getClasses()) {
-	        StringBuilder conteudoService = new StringBuilder();
-	        conteudoService.append("package com."+projeto.getNomeProjeto()+"."+classe.getNomeClasse()+";\n\n");
-	        conteudoService.append("import org.springframework.beans.factory.annotation.Autowired;\n");
-	        conteudoService.append("import org.springframework.stereotype.Service;\n");
-	        conteudoService.append("import java.util.List;\n");
-	        conteudoService.append("import java.util.Optional;\n\n");
-	        conteudoService.append("@Service\n");
-	        conteudoService.append("public class "+classe.getNomeClasse()+"Service {\n\n");
-	        conteudoService.append("    @Autowired private "+classe.getNomeClasse()+"Repository repo;\n\n");
-	        conteudoService.append("    public List<"+classe.getNomeClasse()+"> listAll() {\n");
-	        conteudoService.append("        return (List<"+classe.getNomeClasse()+">) repo.findAll();\n");
-	        conteudoService.append("    }\n\n");
-	        conteudoService.append("    public void save("+classe.getNomeClasse()+" "+classe.getNomeClasse()+") {\n");
-	        conteudoService.append("        repo.save("+classe.getNomeClasse()+");\n");
-	        conteudoService.append("    }\n\n");
-	        conteudoService.append("    public "+classe.getNomeClasse()+" get(Integer id) throws "+classe.getNomeClasse()+"NotFoundException {\n");
-	        conteudoService.append("        Optional<"+classe.getNomeClasse()+"> result = repo.findById(id);\n");
-	        conteudoService.append("        if (result.isPresent()) {\n");
-	        conteudoService.append("            return result.get();\n");
-	        conteudoService.append("        }\n");
-	        conteudoService.append("        throw new "+classe.getNomeClasse()+"NotFoundException(\"Não foi possível encontrar nenhum usuário com ID \" + id);\n");
-	        conteudoService.append("    }\n\n");
-	        conteudoService.append("    public void delete(Integer id) throws "+classe.getNomeClasse()+"NotFoundException {\n");
-	        conteudoService.append("        Long count = repo.countById(id);\n");
-	        conteudoService.append("        if (count == null || count == 0) {\n");
-	        conteudoService.append("            throw new "+classe.getNomeClasse()+"NotFoundException(\"Não foi possível encontrar nenhum usuário com ID \" + id);\n");
-	        conteudoService.append("        }\n");
-	        conteudoService.append("        repo.deleteById(id);\n");
-	        conteudoService.append("    }\n");
-	        conteudoService.append("}\n");
-	        
-	        String diretorioService = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
-	        
-	        Files.write(Paths.get(diretorioService + "\\" + classe.getNomeClasse() + "Service.java"), conteudoService.toString().getBytes());
-    	}
-    }
-    
-    private void montaNotFoundException(Projeto projeto) throws IOException {
-    	for(Classe classe : projeto.getClasses()) {
-	        StringBuilder conteudoNotFoundException = new StringBuilder();
-	
-	        conteudoNotFoundException.append("package com."+projeto.getNomeProjeto()+"."+classe.getNomeClasse()+";\n\n");
-	        conteudoNotFoundException.append("public class "+classe.getNomeClasse()+"NotFoundException extends Throwable {\n\n");
-	        conteudoNotFoundException.append("    public "+classe.getNomeClasse()+"NotFoundException(String message) {\n");
-	        conteudoNotFoundException.append("        super(message);\n");
-	        conteudoNotFoundException.append("    }\n");
-	        conteudoNotFoundException.append("}\n");
-	        
-	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
-	        Files.write(Paths.get(diretorioRepository + "\\" + classe.getNomeClasse() + "NotFoundException.java"), conteudoNotFoundException.toString().getBytes());
-    	}
-    }
-    
-    public void montaApplicationProperties(Projeto projeto) throws IOException {
-        StringBuilder conteudoApplicationProperties = new StringBuilder();
-        conteudoApplicationProperties.append("spring.datasource.url="+projeto.getConexao().getUrl()+"\n");
-        conteudoApplicationProperties.append("spring.datasource.username="+projeto.getConexao().getUsuario()+"\n");
-        conteudoApplicationProperties.append("spring.datasource.password="+projeto.getConexao().getSenha()+"\n");
-        conteudoApplicationProperties.append("spring.jpa.hibernate.ddl-auto=create\n");
-        conteudoApplicationProperties.append("spring.jpa.properties.hibernate.show_sql=true\n");
-        
-        String applicationPropertiesDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\application.properties";
-        Files.write(Paths.get(applicationPropertiesDestino), conteudoApplicationProperties.toString().getBytes());
-    }
-    
-    //VERIFICAR EM TUDO PARA VER COMO VAI SER TRATADO A QUESTAO DA CHAVE PRIMARIA
-    //(CAMINHO MAIS FACIL É PADRONIZAR PARA CÓDIGO OU ID) E AVISAR AO USUARIO QUE ISSO SERÁ PADRÃO PARA TODAS AS CLASSES
-    //VERIFICAR SOBRE A CONVERSÃO DOS TIPOS
-    //VERIFICAR QUESTÃO DE RELACIONAMENTOS
-    //VERIFICAR QUESTAO DE ANOTAÇÕES
-    
-    //Ajustar e depois criar a Classe ("USER"), verificar se vai ser necessario criar outro metodo ou se dá para utilizar o criarClasses
-    private void montaControllerForClass(Projeto projeto) throws IOException {
-    	for(Classe classe : projeto.getClasses()) {
-    	    StringBuilder conteudoController = new StringBuilder();
-
-    	    conteudoController.append("package com."+projeto.getNomeProjeto()+"."+classe.getNomeClasse()+";\n\n");
-    	    conteudoController.append("import org.springframework.beans.factory.annotation.Autowired;\n");
-    	    conteudoController.append("import org.springframework.stereotype.Controller;\n");
-    	    conteudoController.append("import org.springframework.ui.Model;\n");
-    	    conteudoController.append("import org.springframework.web.bind.annotation.GetMapping;\n");
-    	    conteudoController.append("import org.springframework.web.bind.annotation.PathVariable;\n");
-    	    conteudoController.append("import org.springframework.web.bind.annotation.PostMapping;\n");
-    	    conteudoController.append("import org.springframework.web.servlet.mvc.support.RedirectAttributes;\n");
-    	    conteudoController.append("import java.util.List;\n\n");
-    	    conteudoController.append("@Controller\n");
-    	    conteudoController.append("public class UserController {\n\n");
-    	    conteudoController.append("    @Autowired private UserService service;\n\n");
-    	    conteudoController.append("    @GetMapping(\"/users\")\n");
-    	    conteudoController.append("    public String showUserList(Model model) {\n");
-    	    conteudoController.append("        List<User> listUsers = service.listAll();\n");
-    	    conteudoController.append("        model.addAttribute(\"listUsers\", listUsers);\n");
-    	    conteudoController.append("        return \"users\";\n");
-    	    conteudoController.append("    }\n\n");
-    	    conteudoController.append("    @GetMapping(\"/users/new\")\n");
-    	    conteudoController.append("    public String showNewForm(Model model) {\n");
-    	    conteudoController.append("        model.addAttribute(\"user\", new User());\n");
-    	    conteudoController.append("        model.addAttribute(\"pageTitle\", \"Add New User\");\n");
-    	    conteudoController.append("        return \"user_form\";\n");
-    	    conteudoController.append("    }\n\n");
-    	    conteudoController.append("    @PostMapping(\"/users/save\")\n");
-    	    conteudoController.append("    public String saveUser(User user, RedirectAttributes ra) {\n");
-    	    conteudoController.append("        service.save(user);\n");
-    	    conteudoController.append("        ra.addFlashAttribute(\"message\", \"The user has been saved successfully.\");\n");
-    	    conteudoController.append("        return \"redirect:/users\";\n");
-    	    conteudoController.append("    }\n\n");
-    	    conteudoController.append("    @GetMapping(\"/users/edit/{id}\")\n");
-    	    conteudoController.append("    public String showEditForm(@PathVariable(\"id\") Integer id, Model model, RedirectAttributes ra) {\n");
-    	    conteudoController.append("        try {\n");
-    	    conteudoController.append("            User user = service.get(id);\n");
-    	    conteudoController.append("            model.addAttribute(\"user\", user);\n");
-    	    conteudoController.append("            model.addAttribute(\"pageTitle\", \"Edit User (ID: \" + id + \")\");\n");
-    	    conteudoController.append("            return \"user_form\";\n");
-    	    conteudoController.append("        } catch (UserNotFoundException e) {\n");
-    	    conteudoController.append("            ra.addFlashAttribute(\"message\", e.getMessage());\n");
-    	    conteudoController.append("            return \"redirect:/users\";\n");
-    	    conteudoController.append("        }\n");
-    	    conteudoController.append("    }\n\n");
-    	    conteudoController.append("    @GetMapping(\"/users/delete/{id}\")\n");
-    	    conteudoController.append("    public String deleteUser(@PathVariable(\"id\") Integer id, RedirectAttributes ra) {\n");
-    	    conteudoController.append("        try {\n");
-    	    conteudoController.append("            service.delete(id);\n");
-    	    conteudoController.append("            ra.addFlashAttribute(\"message\", \"The user ID \" + id + \" has been deleted.\");\n");
-    	    conteudoController.append("        } catch (UserNotFoundException e) {\n");
-    	    conteudoController.append("            ra.addFlashAttribute(\"message\", e.getMessage());\n");
-    	    conteudoController.append("        }\n");
-    	    conteudoController.append("        return \"redirect:/users\";\n");
-    	    conteudoController.append("    }\n");
-    	    conteudoController.append("}\n");
-    	    
-	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
-	        Files.write(Paths.get(diretorioRepository + "\\" + classe.getNomeClasse() + "Controller.java"), conteudoController.toString().getBytes());
-    	}
-    }
-    
-    public void montaClassesWeb(Projeto projeto) {
-    	for(Classe classe : projeto.getClasses()) {
-    		
-    	}
-    }
-    
-    public void montaMainController(Projeto projeto) throws IOException {
-        StringBuilder conteudoMainController = new StringBuilder();
-        conteudoMainController.append("package com."+projeto.getNomeProjeto()+";\n\n");
-        conteudoMainController.append("import org.springframework.stereotype.Controller;\n");
-        conteudoMainController.append("import org.springframework.web.bind.annotation.GetMapping;\n\n");
-        conteudoMainController.append("@Controller\n");
-        conteudoMainController.append("public class MainController {\n\n");
-        conteudoMainController.append("    @GetMapping(\"\")\n");
-        conteudoMainController.append("    public String showHomePage() {\n");
-        conteudoMainController.append("        return \"index\";\n");
-        conteudoMainController.append("    }\n");
-        conteudoMainController.append("}\n");
-        String diretorioSrcMain = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto();
-        Files.createDirectories(Paths.get(diretorioSrcMain));
-        Files.write(Paths.get(diretorioSrcMain + "\\MainController.java"), conteudoMainController.toString().getBytes());
-        
-        StringBuilder conteudoMyWebAppApplication = new StringBuilder();
-        conteudoMyWebAppApplication.append("package com."+projeto.getNomeProjeto()+";\n\n");
-        conteudoMyWebAppApplication.append("import org.springframework.boot.SpringApplication;\n");
-        conteudoMyWebAppApplication.append("import org.springframework.boot.autoconfigure.SpringBootApplication;\n\n");
-        conteudoMyWebAppApplication.append("@SpringBootApplication\n");
-        conteudoMyWebAppApplication.append("public class MyWebAppApplication {\n\n");
-        conteudoMyWebAppApplication.append("    public static void main(String[] args) {\n");
-        conteudoMyWebAppApplication.append("        SpringApplication.run(MyWebAppApplication.class, args);\n");
-        conteudoMyWebAppApplication.append("    }\n");
-        conteudoMyWebAppApplication.append("}\n");
-        
-        Files.write(Paths.get(diretorioSrcMain + "\\MyWebAppApplication.java"), conteudoMyWebAppApplication.toString().getBytes());
     }
     
     private void daoGenerico(String diretorioProjeto, String nomeConexao) throws IOException {
@@ -1877,4 +1623,411 @@ public class Menu extends JFrame{
 		}
 		return btnLimparClasse;
 	}
+    
+    //WEB
+    private void montaPomXmlWeb(Projeto projeto) {
+        String conteudoPomXmlWeb = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                "    <modelVersion>4.0.0</modelVersion>\n" +
+                "    <parent>\n" +
+                "        <groupId>org.springframework.boot</groupId>\n" +
+                "        <artifactId>spring-boot-starter-parent</artifactId>\n" +
+                "        <version>2.5.1</version>\n" +
+                "        <relativePath/> <!-- lookup parent from repository -->\n" +
+                "    </parent>\n" +
+                "    <groupId>com.mycompany</groupId>\n" +
+                "    <artifactId>MyWebApp</artifactId>\n" +
+                "    <version>0.0.1-SNAPSHOT</version>\n" +
+                "    <name>MyWebApp</name>\n" +
+                "    <description>Demo project for Spring Boot</description>\n" +
+                "    <properties>\n" +
+                "        <java.version>11</java.version>\n" +
+                "    </properties>\n" +
+                "    <dependencies>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.springframework.boot</groupId>\n" +
+                "            <artifactId>spring-boot-starter-data-jpa</artifactId>\n" +
+                "        </dependency>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.springframework.boot</groupId>\n" +
+                "            <artifactId>spring-boot-starter-thymeleaf</artifactId>\n" +
+                "        </dependency>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.springframework.boot</groupId>\n" +
+                "            <artifactId>spring-boot-starter-web</artifactId>\n" +
+                "        </dependency>\n" +
+                "\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.springframework.boot</groupId>\n" +
+                "            <artifactId>spring-boot-devtools</artifactId>\n" +
+                "            <scope>runtime</scope>\n" +
+                "            <optional>true</optional>\n" +
+                "        </dependency>\n" +
+                "        <dependency>\n" +
+                "            <groupId>mysql</groupId>\n" +
+                "            <artifactId>mysql-connector-java</artifactId>\n" +
+                "            <scope>runtime</scope>\n" +
+                "        </dependency>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.springframework.boot</groupId>\n" +
+                "            <artifactId>spring-boot-starter-test</artifactId>\n" +
+                "            <scope>test</scope>\n" +
+                "        </dependency>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.webjars</groupId>\n" +
+                "            <artifactId>bootstrap</artifactId>\n" +
+                "            <version>4.3.1</version>\n" +
+                "        </dependency>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.webjars</groupId>\n" +
+                "            <artifactId>webjars-locator-core</artifactId>\n" +
+                "        </dependency>\n" +
+                "    </dependencies>\n" +
+                "\n" +
+                "    <build>\n" +
+                "        <plugins>\n" +
+                "            <plugin>\n" +
+                "                <groupId>org.springframework.boot</groupId>\n" +
+                "                <artifactId>spring-boot-maven-plugin</artifactId>\n" +
+                "            </plugin>\n" +
+                "        </plugins>\n" +
+                "    </build>\n" +
+                "\n" +
+                "</project>";
+
+        String pomDestino = projeto.getDiretorioProjeto() + "\\pom.xml";
+        try {
+            Files.write(Paths.get(pomDestino), conteudoPomXmlWeb.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void montaServiceForClass(Projeto projeto) throws IOException {
+    	for(Classe classe : projeto.getClasses()) {
+	        StringBuilder conteudoService = new StringBuilder();
+	        conteudoService.append("package com."+projeto.getNomeProjeto()+"."+classe.getNomeClasse()+";\n\n");
+	        conteudoService.append("import org.springframework.beans.factory.annotation.Autowired;\n");
+	        conteudoService.append("import org.springframework.stereotype.Service;\n");
+	        conteudoService.append("import java.util.List;\n");
+	        conteudoService.append("import java.util.Optional;\n\n");
+	        conteudoService.append("@Service\n");
+	        conteudoService.append("public class "+classe.getNomeClasse()+"Service {\n\n");
+	        conteudoService.append("    @Autowired private "+classe.getNomeClasse()+"Repository repo;\n\n");
+	        conteudoService.append("    public List<"+classe.getNomeClasse()+"> listAll() {\n");
+	        conteudoService.append("        return (List<"+classe.getNomeClasse()+">) repo.findAll();\n");
+	        conteudoService.append("    }\n\n");
+	        conteudoService.append("    public void save("+classe.getNomeClasse()+" "+classe.getNomeClasse()+") {\n");
+	        conteudoService.append("        repo.save("+classe.getNomeClasse()+");\n");
+	        conteudoService.append("    }\n\n");
+	        conteudoService.append("    public "+classe.getNomeClasse()+" get(Integer id) throws "+classe.getNomeClasse()+"NotFoundException {\n");
+	        conteudoService.append("        Optional<"+classe.getNomeClasse()+"> result = repo.findById(id);\n");
+	        conteudoService.append("        if (result.isPresent()) {\n");
+	        conteudoService.append("            return result.get();\n");
+	        conteudoService.append("        }\n");
+	        conteudoService.append("        throw new "+classe.getNomeClasse()+"NotFoundException(\"Não foi possível encontrar nenhum usuário com ID \" + id);\n");
+	        conteudoService.append("    }\n\n");
+	        conteudoService.append("    public void delete(Integer id) throws "+classe.getNomeClasse()+"NotFoundException {\n");
+	        conteudoService.append("        Long count = repo.countById(id);\n");
+	        conteudoService.append("        if (count == null || count == 0) {\n");
+	        conteudoService.append("            throw new "+classe.getNomeClasse()+"NotFoundException(\"Não foi possível encontrar nenhum usuário com ID \" + id);\n");
+	        conteudoService.append("        }\n");
+	        conteudoService.append("        repo.deleteById(id);\n");
+	        conteudoService.append("    }\n");
+	        conteudoService.append("}\n");
+	        
+	        String diretorioService = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
+	        
+	        Files.write(Paths.get(diretorioService + "\\" + classe.getNomeClasse() + "Service.java"), conteudoService.toString().getBytes());
+    	}
+    }
+    
+    private void montaNotFoundException(Projeto projeto) throws IOException {
+    	for(Classe classe : projeto.getClasses()) {
+	        StringBuilder conteudoNotFoundException = new StringBuilder();
+	
+	        conteudoNotFoundException.append("package com."+projeto.getNomeProjeto()+"."+classe.getNomeClasse()+";\n\n");
+	        conteudoNotFoundException.append("public class "+classe.getNomeClasse()+"NotFoundException extends Throwable {\n\n");
+	        conteudoNotFoundException.append("    public "+classe.getNomeClasse()+"NotFoundException(String message) {\n");
+	        conteudoNotFoundException.append("        super(message);\n");
+	        conteudoNotFoundException.append("    }\n");
+	        conteudoNotFoundException.append("}\n");
+	        
+	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
+	        Files.write(Paths.get(diretorioRepository + "\\" + classe.getNomeClasse() + "NotFoundException.java"), conteudoNotFoundException.toString().getBytes());
+    	}
+    }
+    
+    public void montaApplicationProperties(Projeto projeto) throws IOException {
+        StringBuilder conteudoApplicationProperties = new StringBuilder();
+        conteudoApplicationProperties.append("spring.datasource.url="+projeto.getConexao().getUrl()+"\n");
+        conteudoApplicationProperties.append("spring.datasource.username="+projeto.getConexao().getUsuario()+"\n");
+        conteudoApplicationProperties.append("spring.datasource.password="+projeto.getConexao().getSenha()+"\n");
+        conteudoApplicationProperties.append("spring.jpa.hibernate.ddl-auto=create\n");
+        conteudoApplicationProperties.append("spring.jpa.properties.hibernate.show_sql=true\n");
+        
+        String applicationPropertiesDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\application.properties";
+        Files.write(Paths.get(applicationPropertiesDestino), conteudoApplicationProperties.toString().getBytes());
+    }
+    
+    private void criarIndex(Projeto projeto) throws IOException {
+    	for(Classe classe : projeto.getClasses()) {
+	        StringBuilder conteudoIndexHtml = new StringBuilder();
+	        conteudoIndexHtml.append("<!DOCTYPE html>\n");
+	        conteudoIndexHtml.append("<html lang=\"en\" xmlns:th=\"http://www.thymeleaf.org\">\n");
+	        conteudoIndexHtml.append("<head>\n");
+	        conteudoIndexHtml.append("    <meta charset=\"UTF-8\">\n");
+	        conteudoIndexHtml.append("    <title>"+projeto.getNomeProjeto()+"</title>\n");
+	        conteudoIndexHtml.append("    <link rel=\"stylesheet\" type=\"text/css\" th:href=\"@{/webjars/bootstrap/css/bootstrap.min.css}\"  />\n");
+	        conteudoIndexHtml.append("</head>\n");
+	        conteudoIndexHtml.append("<body>\n");
+	        conteudoIndexHtml.append("<div class=\"container-fluid text-center\">\n");
+	        conteudoIndexHtml.append("    <h1>Welcome to my application</h1>\n");
+	        conteudoIndexHtml.append("    <a class=\"h2\" th:href=\"@{/"+classe.getNomeClasse()+"s}\">Gerenciar "+classe.getNomeClasse()+"s</a>\n");
+	        conteudoIndexHtml.append("</div>\n");
+	        conteudoIndexHtml.append("</body>\n");
+	        conteudoIndexHtml.append("</html>\n");
+	        
+	        String indexHtmlDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\templates\\index.html";
+	        Files.write(Paths.get(indexHtmlDestino), conteudoIndexHtml.toString().getBytes());
+    	}
+    }
+    
+    //ajustar genericamente
+    private void criarListar(Projeto projeto) throws IOException {
+    	for(Classe classe : projeto.getClasses()) {
+    	    StringBuilder conteudoHtml = new StringBuilder();
+
+    	    conteudoHtml.append("<!DOCTYPE html>\n");
+    	    conteudoHtml.append("<html lang=\"en\" xmlns:th=\"http://www.thymeleaf.org\">\n");
+    	    conteudoHtml.append("<head>\n");
+    	    conteudoHtml.append("  <meta charset=\"UTF-8\">\n");
+    	    conteudoHtml.append("  <title>Manage Users</title>\n");
+    	    conteudoHtml.append("  <link rel=\"stylesheet\" type=\"text/css\" th:href=\"@{/webjars/bootstrap/css/bootstrap.min.css}\"  />\n");
+    	    conteudoHtml.append("</head>\n");
+    	    conteudoHtml.append("<body>\n");
+    	    conteudoHtml.append("<div class=\"container-fluid text-center\">\n");
+    	    conteudoHtml.append("  <div><h2>Manage Users</h2></div>\n");
+    	    conteudoHtml.append("  <div class=\"m-2\">\n");
+    	    conteudoHtml.append("    <a class=\"h3\" th:href=\"@{/users/new}\">Add New User</a>\n");
+    	    conteudoHtml.append("  </div>\n");
+    	    conteudoHtml.append("  <div th:if=\"${message}\" class=\"alert alert-success text-center\">\n");
+    	    conteudoHtml.append("    [[${message}]]\n");
+    	    conteudoHtml.append("  </div>\n");
+    	    conteudoHtml.append("  <div>\n");
+    	    conteudoHtml.append("    <table class=\"table table-bordered\">\n");
+    	    conteudoHtml.append("      <thead class=\"thead-dark\">\n");
+    	    conteudoHtml.append("        <tr>\n");
+    	    conteudoHtml.append("          <th>ID</th>\n");
+    	    conteudoHtml.append("          <th>E-mail</th>\n");
+    	    conteudoHtml.append("          <th>First Name</th>\n");
+    	    conteudoHtml.append("          <th>Last Name</th>\n");
+    	    conteudoHtml.append("          <th>Enabled</th>\n");
+    	    conteudoHtml.append("          <th></th>\n");
+    	    conteudoHtml.append("        </tr>\n");
+    	    conteudoHtml.append("      </thead>\n");
+    	    conteudoHtml.append("      <tbody>\n");
+    	    conteudoHtml.append("      <th:block th:each=\"user : ${listUsers}\">\n");
+    	    conteudoHtml.append("       <tr>\n");
+    	    conteudoHtml.append("         <td>[[${user.id}]]</td>\n");
+    	    conteudoHtml.append("         <td>[[${user.email}]]</td>\n");
+    	    conteudoHtml.append("         <td>[[${user.firstName}]]</td>\n");
+    	    conteudoHtml.append("         <td>[[${user.lastName}]]</td>\n");
+    	    conteudoHtml.append("         <td>[[${user.enabled}]]</td>\n");
+    	    conteudoHtml.append("         <td>\n");
+    	    conteudoHtml.append("           <a class=\"h4 mr-3\" th:href=\"@{'/users/edit/' + ${user.id}}\">Edit</a>\n");
+    	    conteudoHtml.append("           <a class=\"h4\" th:href=\"@{'/users/delete/' + ${user.id}}\">Delete</a>\n");
+    	    conteudoHtml.append("         </td>\n");
+    	    conteudoHtml.append("       </tr>\n");
+    	    conteudoHtml.append("      </th:block>\n");
+    	    conteudoHtml.append("      </tbody>\n");
+    	    conteudoHtml.append("    </table>\n");
+    	    conteudoHtml.append("  </div>\n");
+    	    conteudoHtml.append("</div>\n");
+    	    conteudoHtml.append("</body>\n");
+    	    conteudoHtml.append("</html>\n");
+    	    
+    	    String htmlDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\templates\\"+classe.getNomeClasse()+"s.html";
+    	    Files.write(Paths.get(htmlDestino), conteudoHtml.toString().getBytes());
+    	}
+    }
+    
+    //ajustar genericamente
+    private void criarFormulario(Projeto projeto) throws IOException {
+    	
+    	for(Classe classe : projeto.getClasses()) {
+	        StringBuilder conteudoFormHtml = new StringBuilder();
+	
+	        conteudoFormHtml.append("<!DOCTYPE html>\n");
+	        conteudoFormHtml.append("<html lang=\"en\" xmlns:th=\"http://www.thymeleaf.org\">\n");
+	        conteudoFormHtml.append("<head>\n");
+	        conteudoFormHtml.append("    <meta charset=\"UTF-8\">\n");
+	        conteudoFormHtml.append("    <title>[[${pageTitle}]]</title>\n");
+	        conteudoFormHtml.append("    <link rel=\"stylesheet\" type=\"text/css\" th:href=\"@{/webjars/bootstrap/css/bootstrap.min.css}\"  />\n");
+	        conteudoFormHtml.append("</head>\n");
+	        conteudoFormHtml.append("<body>\n");
+	        conteudoFormHtml.append("<div class=\"container-fluid\">\n");
+	        conteudoFormHtml.append("  <div class=\"text-center\"><h2>[[${pageTitle}]]</h2></div>\n");
+	        conteudoFormHtml.append("  <form th:action=\"@{/users/save}\" method=\"post\" th:object=\"${user}\"\n");
+	        conteudoFormHtml.append("      style=\"max-width: 500px; margin: 0 auto;\">\n");
+	        conteudoFormHtml.append("    <input type=\"hidden\" th:field=\"*{id}\">\n");
+	        conteudoFormHtml.append("    <div class=\"border border-secondary rounded p-3\">\n");
+	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
+	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">E-mail:</label>\n");
+	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
+	        conteudoFormHtml.append("          <input type=\"email\" th:field=\"*{email}\" class=\"form-control\" required minlength=\"8\" maxlength=\"45\"/>\n");
+	        conteudoFormHtml.append("        </div>\n");
+	        conteudoFormHtml.append("      </div>\n");
+	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
+	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">First Name:</label>\n");
+	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
+	        conteudoFormHtml.append("          <input type=\"text\" th:field=\"*{firstName}\" class=\"form-control\" required minlength=\"2\" maxlength=\"45\" />\n");
+	        conteudoFormHtml.append("        </div>\n");
+	        conteudoFormHtml.append("      </div>\n");
+	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
+	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">Last Name:</label>\n");
+	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
+	        conteudoFormHtml.append("          <input type=\"text\" th:field=\"*{lastName}\" class=\"form-control\" required minlength=\"2\" maxlength=\"45\" />\n");
+	        conteudoFormHtml.append("        </div>\n");
+	        conteudoFormHtml.append("      </div>\n");
+	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
+	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">Password:</label>\n");
+	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
+	        conteudoFormHtml.append("          <input type=\"password\" th:field=\"*{password}\" class=\"form-control\" required minlength=\"5\" maxlength=\"15\" />\n");
+	        conteudoFormHtml.append("        </div>\n");
+	        conteudoFormHtml.append("      </div>\n");
+	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
+	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">Enabled:</label>\n");
+	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
+	        conteudoFormHtml.append("          <input type=\"checkbox\" th:field=\"*{enabled}\" />\n");
+	        conteudoFormHtml.append("        </div>\n");
+	        conteudoFormHtml.append("      </div>\n");
+	        conteudoFormHtml.append("      <div class=\"text-center\">\n");
+	        conteudoFormHtml.append("        <button type=\"submit\" class=\"btn btn-primary m-2\">Save</button>\n");
+	        conteudoFormHtml.append("        <button type=\"button\" class=\"btn btn-secondary m-2\" onclick=\"cancelForm()\">Cancel</button>\n");
+	        conteudoFormHtml.append("      </div>\n");
+	        conteudoFormHtml.append("    </div>\n");
+	        conteudoFormHtml.append("  </form>\n");
+	        conteudoFormHtml.append("</div>\n");
+	        conteudoFormHtml.append("<script type=\"text/javascript\">\n");
+	        conteudoFormHtml.append("  function cancelForm() {\n");
+	        conteudoFormHtml.append("    window.location = \"[[@{/users}]]\";\n");
+	        conteudoFormHtml.append("  }\n");
+	        conteudoFormHtml.append("</script>\n");
+	        conteudoFormHtml.append("</body>\n");
+	        conteudoFormHtml.append("</html>\n");
+	        
+	        String formHtmlDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\templates\\"+classe.getNomeClasse()+"_form.html";
+	        Files.write(Paths.get(formHtmlDestino), conteudoFormHtml.toString().getBytes());
+    	}
+    }
+    
+    //VERIFICAR EM TUDO PARA VER COMO VAI SER TRATADO A QUESTAO DA CHAVE PRIMARIA
+    //(CAMINHO MAIS FACIL É PADRONIZAR PARA CÓDIGO OU ID) E AVISAR AO USUARIO QUE ISSO SERÁ PADRÃO PARA TODAS AS CLASSES
+    //VERIFICAR SOBRE A CONVERSÃO DOS TIPOS
+    //VERIFICAR QUESTÃO DE RELACIONAMENTOS
+    //VERIFICAR QUESTAO DE ANOTAÇÕES
+    
+    //Ajustar e depois criar a Classe ("USER"), verificar se vai ser necessario criar outro metodo ou se dá para utilizar o criarClasses
+    
+    public void criarClassesWeb(Projeto projeto) {
+    	for(Classe classe : projeto.getClasses()) {
+    		
+    	}
+    }
+    
+    //editar maiusculos e minusculos
+    private void montaControllerForClass(Projeto projeto) throws IOException {
+    	for(Classe classe : projeto.getClasses()) {
+    	    StringBuilder conteudoController = new StringBuilder();
+
+    	    conteudoController.append("package com."+projeto.getNomeProjeto()+"."+classe.getNomeClasse()+";\n\n");
+    	    conteudoController.append("import org.springframework.beans.factory.annotation.Autowired;\n");
+    	    conteudoController.append("import org.springframework.stereotype.Controller;\n");
+    	    conteudoController.append("import org.springframework.ui.Model;\n");
+    	    conteudoController.append("import org.springframework.web.bind.annotation.GetMapping;\n");
+    	    conteudoController.append("import org.springframework.web.bind.annotation.PathVariable;\n");
+    	    conteudoController.append("import org.springframework.web.bind.annotation.PostMapping;\n");
+    	    conteudoController.append("import org.springframework.web.servlet.mvc.support.RedirectAttributes;\n");
+    	    conteudoController.append("import java.util.List;\n\n");
+    	    conteudoController.append("@Controller\n");
+    	    conteudoController.append("public class "+classe.getNomeClasse()+"Controller {\n\n");
+    	    conteudoController.append("    @Autowired private "+classe.getNomeClasse()+"Service service;\n\n");
+    	    conteudoController.append("    @GetMapping(\"/"+classe.getNomeClasse()+"s\")\n"); /////////
+    	    conteudoController.append("    public String show"+classe.getNomeClasse()+"List(Model model) {\n");
+    	    conteudoController.append("        List<"+classe.getNomeClasse()+"> list"+classe.getNomeClasse()+"s = service.listAll();\n");
+    	    conteudoController.append("        model.addAttribute(\"list"+classe.getNomeClasse()+"\", list"+classe.getNomeClasse()+"s);\n");
+    	    conteudoController.append("        return \""+classe.getNomeClasse()+"s\";\n");
+    	    conteudoController.append("    }\n\n");
+    	    conteudoController.append("    @GetMapping(\"/"+classe.getNomeClasse()+"s/new\")\n");
+    	    conteudoController.append("    public String showNewForm(Model model) {\n");
+    	    conteudoController.append("        model.addAttribute(\""+classe.getNomeClasse()+"\", new "+classe.getNomeClasse()+"());\n");
+    	    conteudoController.append("        model.addAttribute(\"pageTitle\", \"Add New "+classe.getNomeClasse()+"\");\n");
+    	    conteudoController.append("        return \""+classe.getNomeClasse()+"_form\";\n");
+    	    conteudoController.append("    }\n\n");
+    	    conteudoController.append("    @PostMapping(\"/"+classe.getNomeClasse()+"s/save\")\n");
+    	    conteudoController.append("    public String save"+classe.getNomeClasse()+"("+classe.getNomeClasse()+" "+classe.getNomeClasse()+", RedirectAttributes ra) {\n");
+    	    conteudoController.append("        service.save("+classe.getNomeClasse()+");\n");
+    	    conteudoController.append("        ra.addFlashAttribute(\"message\", \""+classe.getNomeClasse()+" Salvo com Sucesso!.\");\n");
+    	    conteudoController.append("        return \"redirect:/"+classe.getNomeClasse()+"\";\n");
+    	    conteudoController.append("    }\n\n");
+    	    conteudoController.append("    @GetMapping(\"/"+classe.getNomeClasse()+"s/edit/{id}\")\n");
+    	    conteudoController.append("    public String showEditForm(@PathVariable(\"id\") Integer id, Model model, RedirectAttributes ra) {\n");
+    	    conteudoController.append("        try {\n");
+    	    conteudoController.append("            "+classe.getNomeClasse()+" "+classe.getNomeClasse()+" = service.get(id);\n");
+    	    conteudoController.append("            model.addAttribute(\""+classe.getNomeClasse()+"\", "+classe.getNomeClasse()+");\n");
+    	    conteudoController.append("            model.addAttribute(\"pageTitle\", \"Edit "+classe.getNomeClasse()+" (ID: \" + id + \")\");\n");
+    	    conteudoController.append("            return \""+classe.getNomeClasse()+"_form\";\n");
+    	    conteudoController.append("        } catch ("+classe.getNomeClasse()+"NotFoundException e) {\n");
+    	    conteudoController.append("            ra.addFlashAttribute(\"message\", e.getMessage());\n");
+    	    conteudoController.append("            return \"redirect:/"+classe.getNomeClasse()+"s\";\n");
+    	    conteudoController.append("        }\n");
+    	    conteudoController.append("    }\n\n");
+    	    conteudoController.append("    @GetMapping(\"/"+classe.getNomeClasse()+"s/delete/{id}\")\n");
+    	    conteudoController.append("    public String delete"+classe.getNomeClasse()+"(@PathVariable(\"id\") Integer id, RedirectAttributes ra) {\n");
+    	    conteudoController.append("        try {\n");
+    	    conteudoController.append("            service.delete(id);\n");
+    	    conteudoController.append("            ra.addFlashAttribute(\"message\", \""+classe.getNomeClasse()+" ID \" + id + \" foi Deletado!.\");\n");
+    	    conteudoController.append("        } catch ("+classe.getNomeClasse()+"NotFoundException e) {\n");
+    	    conteudoController.append("            ra.addFlashAttribute(\"message\", e.getMessage());\n");
+    	    conteudoController.append("        }\n");
+    	    conteudoController.append("        return \"redirect:/"+classe.getNomeClasse()+"s\";\n");
+    	    conteudoController.append("    }\n");
+    	    conteudoController.append("}\n");
+    	    
+	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
+	        Files.write(Paths.get(diretorioRepository + "\\" + classe.getNomeClasse() + "Controller.java"), conteudoController.toString().getBytes());
+    	}
+    }
+    
+    public void montaMainController(Projeto projeto) throws IOException {
+        StringBuilder conteudoMainController = new StringBuilder();
+        conteudoMainController.append("package com."+projeto.getNomeProjeto()+";\n\n");
+        conteudoMainController.append("import org.springframework.stereotype.Controller;\n");
+        conteudoMainController.append("import org.springframework.web.bind.annotation.GetMapping;\n\n");
+        conteudoMainController.append("@Controller\n");
+        conteudoMainController.append("public class MainController {\n\n");
+        conteudoMainController.append("    @GetMapping(\"\")\n");
+        conteudoMainController.append("    public String showHomePage() {\n");
+        conteudoMainController.append("        return \"index\";\n");
+        conteudoMainController.append("    }\n");
+        conteudoMainController.append("}\n");
+        String diretorioSrcMain = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto();
+        Files.createDirectories(Paths.get(diretorioSrcMain));
+        Files.write(Paths.get(diretorioSrcMain + "\\MainController.java"), conteudoMainController.toString().getBytes());
+        
+        StringBuilder conteudoMyWebAppApplication = new StringBuilder();
+        conteudoMyWebAppApplication.append("package com."+projeto.getNomeProjeto()+";\n\n");
+        conteudoMyWebAppApplication.append("import org.springframework.boot.SpringApplication;\n");
+        conteudoMyWebAppApplication.append("import org.springframework.boot.autoconfigure.SpringBootApplication;\n\n");
+        conteudoMyWebAppApplication.append("@SpringBootApplication\n");
+        conteudoMyWebAppApplication.append("public class MyWebAppApplication {\n\n");
+        conteudoMyWebAppApplication.append("    public static void main(String[] args) {\n");
+        conteudoMyWebAppApplication.append("        SpringApplication.run(MyWebAppApplication.class, args);\n");
+        conteudoMyWebAppApplication.append("    }\n");
+        conteudoMyWebAppApplication.append("}\n");
+        
+        Files.write(Paths.get(diretorioSrcMain + "\\MyWebAppApplication.java"), conteudoMyWebAppApplication.toString().getBytes());
+    }
 }
