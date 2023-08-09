@@ -1803,14 +1803,14 @@ public class Menu extends JFrame{
     	    conteudoHtml.append("<html lang=\"en\" xmlns:th=\"http://www.thymeleaf.org\">\n");
     	    conteudoHtml.append("<head>\n");
     	    conteudoHtml.append("  <meta charset=\"UTF-8\">\n");
-    	    conteudoHtml.append("  <title>Manage Users</title>\n");
+    	    conteudoHtml.append("  <title>Gerenciar "+classe.getNomeClasse()+"s</title>\n");
     	    conteudoHtml.append("  <link rel=\"stylesheet\" type=\"text/css\" th:href=\"@{/webjars/bootstrap/css/bootstrap.min.css}\"  />\n");
     	    conteudoHtml.append("</head>\n");
     	    conteudoHtml.append("<body>\n");
     	    conteudoHtml.append("<div class=\"container-fluid text-center\">\n");
-    	    conteudoHtml.append("  <div><h2>Manage Users</h2></div>\n");
+    	    conteudoHtml.append("  <div><h2>Gerenciar "+classe.getNomeClasse()+"s</h2></div>\n");
     	    conteudoHtml.append("  <div class=\"m-2\">\n");
-    	    conteudoHtml.append("    <a class=\"h3\" th:href=\"@{/users/new}\">Add New User</a>\n");
+    	    conteudoHtml.append("    <a class=\"h3\" th:href=\"@{/"+classe.getNomeClasse()+"s/new}\">Add Novo "+classe.getNomeClasse()+"</a>\n");
     	    conteudoHtml.append("  </div>\n");
     	    conteudoHtml.append("  <div th:if=\"${message}\" class=\"alert alert-success text-center\">\n");
     	    conteudoHtml.append("    [[${message}]]\n");
@@ -1819,25 +1819,38 @@ public class Menu extends JFrame{
     	    conteudoHtml.append("    <table class=\"table table-bordered\">\n");
     	    conteudoHtml.append("      <thead class=\"thead-dark\">\n");
     	    conteudoHtml.append("        <tr>\n");
-    	    conteudoHtml.append("          <th>ID</th>\n");
-    	    conteudoHtml.append("          <th>E-mail</th>\n");
-    	    conteudoHtml.append("          <th>First Name</th>\n");
-    	    conteudoHtml.append("          <th>Last Name</th>\n");
-    	    conteudoHtml.append("          <th>Enabled</th>\n");
+    	    
+    	    List<Atributo> atributos = classe.getAtributos();
+			if (Objects.nonNull(atributos) && !atributos.isEmpty()) {
+				for (Atributo attr : atributos) {
+					if (attr.getApareceNaConsulta()) {
+						conteudoHtml.append("          <th>"+attr.getNomeAtributo()+"</th>\n");
+					}
+				}
+			}
+    	    
     	    conteudoHtml.append("          <th></th>\n");
     	    conteudoHtml.append("        </tr>\n");
     	    conteudoHtml.append("      </thead>\n");
     	    conteudoHtml.append("      <tbody>\n");
-    	    conteudoHtml.append("      <th:block th:each=\"user : ${listUsers}\">\n");
+    	    conteudoHtml.append("      <th:block th:each=\""+classe.getNomeClasse()+" : ${list"+classe.getNomeClasse()+"s}\">\n");
     	    conteudoHtml.append("       <tr>\n");
-    	    conteudoHtml.append("         <td>[[${user.id}]]</td>\n");
-    	    conteudoHtml.append("         <td>[[${user.email}]]</td>\n");
-    	    conteudoHtml.append("         <td>[[${user.firstName}]]</td>\n");
-    	    conteudoHtml.append("         <td>[[${user.lastName}]]</td>\n");
-    	    conteudoHtml.append("         <td>[[${user.enabled}]]</td>\n");
+    	    
+    	    if(Objects.nonNull(atributos) && !atributos.isEmpty()) {
+    	    	for(Atributo attr : atributos) {
+    	    		if(attr.getApareceNaConsulta()) {
+			    	    conteudoHtml.append("         <td>[[${"+classe.getNomeClasse()+"."+attr.getNomeAtributo()+"}]]</td>\n");
+    	    		}
+    	    	}
+    	    }
+    	    
     	    conteudoHtml.append("         <td>\n");
-    	    conteudoHtml.append("           <a class=\"h4 mr-3\" th:href=\"@{'/users/edit/' + ${user.id}}\">Edit</a>\n");
-    	    conteudoHtml.append("           <a class=\"h4\" th:href=\"@{'/users/delete/' + ${user.id}}\">Delete</a>\n");
+    	    
+    	    //Ver chave primaria
+    	    conteudoHtml.append("           <a class=\"h4 mr-3\" th:href=\"@{'/"+classe.getNomeClasse()+"s/edit/' + ${"+classe.getNomeClasse()+".id}}\">Editar</a>\n");
+    	    conteudoHtml.append("           <a class=\"h4\" th:href=\"@{'/"+classe.getNomeClasse()+"s/delete/' + ${"+classe.getNomeClasse()+".id}}\">Deletar</a>\n");
+    	    //
+    	    
     	    conteudoHtml.append("         </td>\n");
     	    conteudoHtml.append("       </tr>\n");
     	    conteudoHtml.append("      </th:block>\n");
@@ -1869,50 +1882,44 @@ public class Menu extends JFrame{
 	        conteudoFormHtml.append("<body>\n");
 	        conteudoFormHtml.append("<div class=\"container-fluid\">\n");
 	        conteudoFormHtml.append("  <div class=\"text-center\"><h2>[[${pageTitle}]]</h2></div>\n");
-	        conteudoFormHtml.append("  <form th:action=\"@{/users/save}\" method=\"post\" th:object=\"${user}\"\n");
+	        conteudoFormHtml.append("  <form th:action=\"@{/"+classe.getNomeClasse()+"s/save}\" method=\"post\" th:object=\"${"+classe.getNomeClasse()+"}\"\n");
 	        conteudoFormHtml.append("      style=\"max-width: 500px; margin: 0 auto;\">\n");
+	        
+	        //chave primaria
 	        conteudoFormHtml.append("    <input type=\"hidden\" th:field=\"*{id}\">\n");
 	        conteudoFormHtml.append("    <div class=\"border border-secondary rounded p-3\">\n");
-	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
-	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">E-mail:</label>\n");
-	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
-	        conteudoFormHtml.append("          <input type=\"email\" th:field=\"*{email}\" class=\"form-control\" required minlength=\"8\" maxlength=\"45\"/>\n");
-	        conteudoFormHtml.append("        </div>\n");
-	        conteudoFormHtml.append("      </div>\n");
-	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
-	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">First Name:</label>\n");
-	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
-	        conteudoFormHtml.append("          <input type=\"text\" th:field=\"*{firstName}\" class=\"form-control\" required minlength=\"2\" maxlength=\"45\" />\n");
-	        conteudoFormHtml.append("        </div>\n");
-	        conteudoFormHtml.append("      </div>\n");
-	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
-	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">Last Name:</label>\n");
-	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
-	        conteudoFormHtml.append("          <input type=\"text\" th:field=\"*{lastName}\" class=\"form-control\" required minlength=\"2\" maxlength=\"45\" />\n");
-	        conteudoFormHtml.append("        </div>\n");
-	        conteudoFormHtml.append("      </div>\n");
-	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
-	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">Password:</label>\n");
-	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
-	        conteudoFormHtml.append("          <input type=\"password\" th:field=\"*{password}\" class=\"form-control\" required minlength=\"5\" maxlength=\"15\" />\n");
-	        conteudoFormHtml.append("        </div>\n");
-	        conteudoFormHtml.append("      </div>\n");
-	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
-	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">Enabled:</label>\n");
-	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
-	        conteudoFormHtml.append("          <input type=\"checkbox\" th:field=\"*{enabled}\" />\n");
-	        conteudoFormHtml.append("        </div>\n");
-	        conteudoFormHtml.append("      </div>\n");
+	        
+	        List<Atributo> atributos = classe.getAtributos();
+	        if(Objects.nonNull(atributos) && !atributos.isEmpty()) {
+	        	for(Atributo attr : atributos) {
+	        		if(!attr.getTipoAtributo().equals("Boolean")) {
+	        	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
+	        	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">"+attr.getNomeAtributo()+":</label>\n");
+	        	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
+	        	        conteudoFormHtml.append("          <input type=\"text\" th:field=\"*{"+attr.getNomeAtributo()+"}\" class=\"form-control\" required minlength=\"2\" maxlength=\"45\" />\n");
+	        	        conteudoFormHtml.append("        </div>\n");
+	        	        conteudoFormHtml.append("      </div>\n");
+	        		} else {
+	        	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
+	        	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">"+attr.getNomeAtributo()+":</label>\n");
+	        	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
+	        	        conteudoFormHtml.append("          <input type=\"checkbox\" th:field=\"*{"+attr.getNomeAtributo()+"}\" />\n");
+	        	        conteudoFormHtml.append("        </div>\n");
+	        	        conteudoFormHtml.append("      </div>\n");
+	        		}
+	        	}
+	        }
+	        
 	        conteudoFormHtml.append("      <div class=\"text-center\">\n");
-	        conteudoFormHtml.append("        <button type=\"submit\" class=\"btn btn-primary m-2\">Save</button>\n");
-	        conteudoFormHtml.append("        <button type=\"button\" class=\"btn btn-secondary m-2\" onclick=\"cancelForm()\">Cancel</button>\n");
+	        conteudoFormHtml.append("        <button type=\"submit\" class=\"btn btn-primary m-2\">Salvar</button>\n");
+	        conteudoFormHtml.append("        <button type=\"button\" class=\"btn btn-secondary m-2\" onclick=\"cancelForm()\">Cancelar</button>\n");
 	        conteudoFormHtml.append("      </div>\n");
 	        conteudoFormHtml.append("    </div>\n");
 	        conteudoFormHtml.append("  </form>\n");
 	        conteudoFormHtml.append("</div>\n");
 	        conteudoFormHtml.append("<script type=\"text/javascript\">\n");
 	        conteudoFormHtml.append("  function cancelForm() {\n");
-	        conteudoFormHtml.append("    window.location = \"[[@{/users}]]\";\n");
+	        conteudoFormHtml.append("    window.location = \"[[@{/"+classe.getNomeClasse()+"s}]]\";\n");
 	        conteudoFormHtml.append("  }\n");
 	        conteudoFormHtml.append("</script>\n");
 	        conteudoFormHtml.append("</body>\n");
@@ -2000,7 +2007,18 @@ public class Menu extends JFrame{
 	        Files.write(Paths.get(diretorioRepository + "\\" + classe.getNomeClasse() + "Controller.java"), conteudoController.toString().getBytes());
     	}
     }
-    
+    /*
+     * montaPomXmlWeb
+montaServiceForClass
+montaNotFoundException
+montaApplicationProperties
+criarIndex
+criarListar
+criarFormulario
+criarClassesWeb
+montaControllerForClass
+montaMainController
+     */
     public void montaMainController(Projeto projeto) throws IOException {
         StringBuilder conteudoMainController = new StringBuilder();
         conteudoMainController.append("package com."+projeto.getNomeProjeto()+";\n\n");

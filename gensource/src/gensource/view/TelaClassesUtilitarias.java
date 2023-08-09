@@ -10,10 +10,13 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.EtchedBorder;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class TelaClassesUtilitarias {
 
 	private JFrame frmGensourceTela;
+	private JButton btnCancelar;
 
 	/**
 	 * Launch the application.
@@ -55,7 +58,12 @@ public class TelaClassesUtilitarias {
 		frmGensourceTela.getContentPane().setLayout(null);
 		
 		JButton btnNewButton = new JButton("Finalizar");
-		btnNewButton.setBounds(50, 161, 112, 28);
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//tem certeza?
+			}
+		});
+		btnNewButton.setBounds(106, 160, 90, 28);
 		frmGensourceTela.getContentPane().add(btnNewButton);
 		
 		JPanel panel = new JPanel();
@@ -80,5 +88,13 @@ public class TelaClassesUtilitarias {
 		JCheckBox chckbxNewCheckBox = new JCheckBox("Datas/Horas");
 		chckbxNewCheckBox.setBounds(18, 21, 151, 23);
 		panel.add(chckbxNewCheckBox);
+		frmGensourceTela.getContentPane().add(getBtnCancelar());
+	}
+	private JButton getBtnCancelar() {
+		if (btnCancelar == null) {
+			btnCancelar = new JButton("Cancelar");
+			btnCancelar.setBounds(10, 160, 86, 28);
+		}
+		return btnCancelar;
 	}
 }
