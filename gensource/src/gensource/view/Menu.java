@@ -115,7 +115,7 @@ public class Menu extends JFrame{
 
         JLabel lblNewLabel = new JLabel("");
         lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel.setIcon(new ImageIcon("C:\\Users\\guilh\\git\\gensource\\gensource\\bin\\gensource_realese\\icon\\LogoPrincipal2.png"));
+        lblNewLabel.setIcon(new ImageIcon("C:\\Users\\guilh\\git\\gensource\\gensource\\src\\gensource\\icon\\LogoPrincipal2.png"));
         lblNewLabel.setBounds(0, 0, 701, 97);
         panelCabecalho.add(lblNewLabel);
 
@@ -577,6 +577,7 @@ public class Menu extends JFrame{
                                 @Override
                                 public void run() {
                                     JOptionPane.showMessageDialog(null, "Ocorreu um erro ao gerar o projeto:\n" + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+                                    ex.printStackTrace();
                                 }
                             });
                         }
@@ -739,6 +740,15 @@ public class Menu extends JFrame{
 	}
 	
 	private Projeto montaProjeto() {
+		
+        txtCaminho.setText("C:\\workspace");
+        txtNomeProjeto.setText("projetoweb");
+        txtNomeConexao.setText("teste");
+        txtUrl.setText("jdbc:mysql://localhost/teste");
+        txtDialect.setText("org.hibernate.dialect.MySQL57Dialect");
+        txtDriver.setText("com.mysql.jdbc.Driver");
+        txtUsuario.setText("root");
+        txtSenha.setText("1234");
 		montaClassesTeste();
 		
 		Conexao conexao = new Conexao();
@@ -750,6 +760,7 @@ public class Menu extends JFrame{
         conexao.setDriver(txtDriver.getText());
 		
 		Projeto projeto = new Projeto();
+		projeto.setNomeProjeto(txtNomeProjeto.getText());
 		projeto.setConexao(conexao);
 		projeto.setClasses(getListaClasses());	
 		projeto.setDiretorioProjeto(txtCaminho.getText() + "\\" + txtNomeProjeto.getText());
@@ -762,7 +773,7 @@ public class Menu extends JFrame{
 		classe1.setDiretorioClasse("com.classes");
 		classe1.setNomeClasse("Pessoa");
 		Atributo at1 = new Atributo();
-		at1.setNomeAtributo("codigo");
+		at1.setNomeAtributo("id");
 		at1.setTipoAtributo("Long");
 		at1.setConsultaPor(false);
 		at1.setApareceNaConsulta(true);
@@ -849,10 +860,25 @@ public class Menu extends JFrame{
             }
         }
         
-        montaPomXml(projeto);
-        criarClasses(projeto);
-        montaPersistenceXml(projeto);
-        gerarTelasCadastro(projeto);
+        //desktop
+//        montaPomXml(projeto);
+//        criarClasses(projeto, false);
+//        montaPersistenceXml(projeto);
+//        gerarTelasCadastro(projeto);
+        
+        //web
+        montaPomXmlWeb(projeto);
+        montaApplicationProperties(projeto);
+        montaNotFoundException(projeto);
+        montaMainController(projeto);
+        criarClasses(projeto, true);
+        montaRepositoryForClass(projeto);
+        montaServiceForClass(projeto);
+        montaControllerForClass(projeto);
+        criarIndex(projeto);
+        criarListar(projeto);
+        criarFormulario(projeto);
+        
         
         JOptionPane.showMessageDialog(null, "Projeto gerado com sucesso!");
         
@@ -1375,8 +1401,10 @@ public class Menu extends JFrame{
         }
     }
     
-    private void criarClasses(Projeto projeto) throws IOException {
-    	daoGenerico(projeto.getDiretorioProjeto(), projeto.getConexao().getNomeConexao());
+    private void criarClasses(Projeto projeto, boolean web) throws IOException {
+    	if(!web) {
+    		daoGenerico(projeto.getDiretorioProjeto(), projeto.getConexao().getNomeConexao());
+    	}
     	
         // Mapeamento entre tipos primitivos e seus imports correspondentes
         Map<String, String> tipoImportMap = new HashMap<>();
@@ -1389,7 +1417,13 @@ public class Menu extends JFrame{
             List<Atributo> atributos = classe.getAtributos();
 
             StringBuilder codigoClasse = new StringBuilder();
-            codigoClasse.append("package ").append(pacoteBase).append(";\n\n");
+            
+			if (!web) {
+				codigoClasse.append("package ").append(pacoteBase).append(";\n\n");
+			} else {
+				codigoClasse.append("package com.").append(projeto.getNomeProjeto()).append(".").append(classe.getNomeClasse())
+						.append(";\n\n");
+			}
             
             codigoClasse.append("import javax.persistence.*;\n\n");
             
@@ -1431,36 +1465,45 @@ public class Menu extends JFrame{
             }
 
             codigoClasse.append("}");
-            String diretorioSrc = projeto.getDiretorioProjeto() + "\\src\\main\\java\\" + pacoteBase.replace('.', '\\');
-            Files.createDirectories(Paths.get(diretorioSrc));
-            Files.write(Paths.get(diretorioSrc + "\\" + nomeClasse + ".java"), codigoClasse.toString().getBytes());
             
-            // Código para criar a classe DAO correspondente utilizando a GenericDAO
-            StringBuilder codigoDAO = new StringBuilder();
-            codigoDAO.append("package ").append("dao").append(";\n\n");
-            codigoDAO.append("import java.util.List").append(";\n\n");
-            codigoDAO.append("import ").append(classe.getDiretorioClasse()).append("."+nomeClasse).append(";\n\n");
-            codigoDAO.append("public class ").append(nomeClasse).append("DAO extends GenericDAO<").append(nomeClasse).append("> {\n\n");
-            codigoDAO.append("    public ").append(nomeClasse).append("DAO() {\n");
-            codigoDAO.append("        super(").append(nomeClasse).append(".class);\n");
-            codigoDAO.append("    }\n\n");
-            
-            for (Atributo atributo : atributos) {
-                if (atributo.getConsultaPor() != null && atributo.getConsultaPor()) {
-                    codigoDAO.append("    public List<").append(nomeClasse).append("> findBy").append(capitalize(atributo.getNomeAtributo())).append("(").append(atributo.getTipoAtributo()).append(" ").append(atributo.getNomeAtributo()).append(") {\n");
-                    codigoDAO.append("        return findByAttribute(\"").append(atributo.getNomeAtributo()).append("\", ").append(atributo.getNomeAtributo()).append(");\n");
-                    codigoDAO.append("    }\n\n");
-                }
+            if(!web) {
+	            String diretorioSrc = projeto.getDiretorioProjeto() + "\\src\\main\\java\\" + pacoteBase.replace('.', '\\');
+	            Files.createDirectories(Paths.get(diretorioSrc));
+	            Files.write(Paths.get(diretorioSrc + "\\" + nomeClasse + ".java"), codigoClasse.toString().getBytes());
+            } else {
+    	        String diretorioClasse = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\" + projeto.getNomeProjeto() + "\\" + classe.getNomeClasse();
+    	        Files.createDirectories(Paths.get(diretorioClasse));
+    	        Files.write(Paths.get(diretorioClasse + "\\" + classe.getNomeClasse() + ".java"), codigoClasse.toString().getBytes());
             }
             
-            codigoDAO.append("}");
-
-            // Criar a pasta do pacote base se ainda não existe
-            String diretorioSrcDAO = projeto.getDiretorioProjeto() + "\\src\\main\\java\\dao";
-            Files.createDirectories(Paths.get(diretorioSrcDAO));
-
-            // Escrever o código da classe DAO no arquivo .java
-            Files.write(Paths.get(diretorioSrcDAO + "\\" + nomeClasse + "DAO.java"), codigoDAO.toString().getBytes());
+            if(!web) {
+	            // Código para criar a classe DAO correspondente utilizando a GenericDAO
+	            StringBuilder codigoDAO = new StringBuilder();
+	            codigoDAO.append("package ").append("dao").append(";\n\n");
+	            codigoDAO.append("import java.util.List").append(";\n\n");
+	            codigoDAO.append("import ").append(classe.getDiretorioClasse()).append("."+nomeClasse).append(";\n\n");
+	            codigoDAO.append("public class ").append(nomeClasse).append("DAO extends GenericDAO<").append(nomeClasse).append("> {\n\n");
+	            codigoDAO.append("    public ").append(nomeClasse).append("DAO() {\n");
+	            codigoDAO.append("        super(").append(nomeClasse).append(".class);\n");
+	            codigoDAO.append("    }\n\n");
+	            
+	            for (Atributo atributo : atributos) {
+	                if (atributo.getConsultaPor() != null && atributo.getConsultaPor()) {
+	                    codigoDAO.append("    public List<").append(nomeClasse).append("> findBy").append(capitalize(atributo.getNomeAtributo())).append("(").append(atributo.getTipoAtributo()).append(" ").append(atributo.getNomeAtributo()).append(") {\n");
+	                    codigoDAO.append("        return findByAttribute(\"").append(atributo.getNomeAtributo()).append("\", ").append(atributo.getNomeAtributo()).append(");\n");
+	                    codigoDAO.append("    }\n\n");
+	                }
+	            }
+	            
+	            codigoDAO.append("}");
+	
+	            // Criar a pasta do pacote base se ainda não existe
+	            String diretorioSrcDAO = projeto.getDiretorioProjeto() + "\\src\\main\\java\\dao";
+	            Files.createDirectories(Paths.get(diretorioSrcDAO));
+	
+	            // Escrever o código da classe DAO no arquivo .java
+	            Files.write(Paths.get(diretorioSrcDAO + "\\" + nomeClasse + "DAO.java"), codigoDAO.toString().getBytes());
+            }
         }
     }
     
@@ -1469,12 +1512,12 @@ public class Menu extends JFrame{
 	        StringBuilder conteudoRepository = new StringBuilder();
 	        conteudoRepository.append("package com."+projeto.getNomeProjeto()+"."+classe.getNomeClasse()+";\n\n");
 	        conteudoRepository.append("import org.springframework.data.repository.CrudRepository;\n\n");
-	        conteudoRepository.append("public interface "+classe.getNomeClasse()+"Repository extends CrudRepository<User, Integer> {\n");
+	        conteudoRepository.append("public interface "+classe.getNomeClasse()+"Repository extends CrudRepository<"+classe.getNomeClasse()+", Integer> {\n");
 	        //Verificar isso, chave primaria
 	        conteudoRepository.append("    public Long countById(Integer id);\n");
 	        conteudoRepository.append("}\n");
 	        
-	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
+	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\" + projeto.getNomeProjeto() + "\\" + classe.getNomeClasse();
             Files.createDirectories(Paths.get(diretorioRepository));
 
             Files.write(Paths.get(diretorioRepository + "\\" + classe.getNomeClasse() + "Repository.java"), conteudoRepository.toString().getBytes());
@@ -1697,6 +1740,7 @@ public class Menu extends JFrame{
                 "</project>";
 
         String pomDestino = projeto.getDiretorioProjeto() + "\\pom.xml";
+        
         try {
             Files.write(Paths.get(pomDestino), conteudoPomXmlWeb.getBytes());
         } catch (IOException e) {
@@ -1737,7 +1781,7 @@ public class Menu extends JFrame{
 	        conteudoService.append("    }\n");
 	        conteudoService.append("}\n");
 	        
-	        String diretorioService = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
+	        String diretorioService = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\" + projeto.getNomeProjeto() + "\\" + classe.getNomeClasse();
 	        
 	        Files.write(Paths.get(diretorioService + "\\" + classe.getNomeClasse() + "Service.java"), conteudoService.toString().getBytes());
     	}
@@ -1754,7 +1798,8 @@ public class Menu extends JFrame{
 	        conteudoNotFoundException.append("    }\n");
 	        conteudoNotFoundException.append("}\n");
 	        
-	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
+	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\" + projeto.getNomeProjeto() + "\\" + classe.getNomeClasse();
+	        Files.createDirectories(Paths.get(diretorioRepository));
 	        Files.write(Paths.get(diretorioRepository + "\\" + classe.getNomeClasse() + "NotFoundException.java"), conteudoNotFoundException.toString().getBytes());
     	}
     }
@@ -1767,8 +1812,11 @@ public class Menu extends JFrame{
         conteudoApplicationProperties.append("spring.jpa.hibernate.ddl-auto=create\n");
         conteudoApplicationProperties.append("spring.jpa.properties.hibernate.show_sql=true\n");
         
-        String applicationPropertiesDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\application.properties";
-        Files.write(Paths.get(applicationPropertiesDestino), conteudoApplicationProperties.toString().getBytes());
+        String applicationPropertiesDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources";
+        Files.createDirectories(Paths.get(applicationPropertiesDestino));
+        
+        String txt = applicationPropertiesDestino + "\\\\application.properties";
+        Files.write(Paths.get(txt), conteudoApplicationProperties.toString().getBytes());
     }
     
     private void criarIndex(Projeto projeto) throws IOException {
@@ -1789,8 +1837,11 @@ public class Menu extends JFrame{
 	        conteudoIndexHtml.append("</body>\n");
 	        conteudoIndexHtml.append("</html>\n");
 	        
-	        String indexHtmlDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\templates\\index.html";
-	        Files.write(Paths.get(indexHtmlDestino), conteudoIndexHtml.toString().getBytes());
+	        String indexHtmlDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\templates";
+	        Files.createDirectories(Paths.get(indexHtmlDestino));
+	        
+	        String file = indexHtmlDestino + "\\\\index.html";
+	        Files.write(Paths.get(file), conteudoIndexHtml.toString().getBytes());
     	}
     }
     
@@ -1861,8 +1912,10 @@ public class Menu extends JFrame{
     	    conteudoHtml.append("</body>\n");
     	    conteudoHtml.append("</html>\n");
     	    
-    	    String htmlDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\templates\\"+classe.getNomeClasse()+"s.html";
-    	    Files.write(Paths.get(htmlDestino), conteudoHtml.toString().getBytes());
+    	    String htmlDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\templates";
+    	    Files.createDirectories(Paths.get(htmlDestino));
+    	    String file = htmlDestino + "\\\\"+classe.getNomeClasse()+"s.html";
+    	    Files.write(Paths.get(file), conteudoHtml.toString().getBytes());
     	}
     }
     
@@ -1925,8 +1978,11 @@ public class Menu extends JFrame{
 	        conteudoFormHtml.append("</body>\n");
 	        conteudoFormHtml.append("</html>\n");
 	        
-	        String formHtmlDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\templates\\"+classe.getNomeClasse()+"_form.html";
-	        Files.write(Paths.get(formHtmlDestino), conteudoFormHtml.toString().getBytes());
+	        String formHtmlDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\templates";
+	        Files.createDirectories(Paths.get(formHtmlDestino));
+	        
+	        String file = formHtmlDestino + "\\\\"+classe.getNomeClasse()+"_form.html";
+	        Files.write(Paths.get(file), conteudoFormHtml.toString().getBytes());
     	}
     }
     
@@ -1937,12 +1993,6 @@ public class Menu extends JFrame{
     //VERIFICAR QUESTAO DE ANOTAÇÕES
     
     //Ajustar e depois criar a Classe ("USER"), verificar se vai ser necessario criar outro metodo ou se dá para utilizar o criarClasses
-    
-    public void criarClassesWeb(Projeto projeto) {
-    	for(Classe classe : projeto.getClasses()) {
-    		
-    	}
-    }
     
     //editar maiusculos e minusculos
     private void montaControllerForClass(Projeto projeto) throws IOException {
@@ -2003,7 +2053,8 @@ public class Menu extends JFrame{
     	    conteudoController.append("    }\n");
     	    conteudoController.append("}\n");
     	    
-	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto() + "\\." + classe.getNomeClasse();
+	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\" + projeto.getNomeProjeto() + "\\" + classe.getNomeClasse();
+	        Files.createDirectories(Paths.get(diretorioRepository));
 	        Files.write(Paths.get(diretorioRepository + "\\" + classe.getNomeClasse() + "Controller.java"), conteudoController.toString().getBytes());
     	}
     }
@@ -2031,7 +2082,7 @@ montaMainController
         conteudoMainController.append("        return \"index\";\n");
         conteudoMainController.append("    }\n");
         conteudoMainController.append("}\n");
-        String diretorioSrcMain = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com." + projeto.getNomeProjeto();
+        String diretorioSrcMain = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\" + projeto.getNomeProjeto();
         Files.createDirectories(Paths.get(diretorioSrcMain));
         Files.write(Paths.get(diretorioSrcMain + "\\MainController.java"), conteudoMainController.toString().getBytes());
         
