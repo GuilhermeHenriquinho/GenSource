@@ -72,8 +72,8 @@ public class Menu extends JFrame{
 	private JCheckBox checkObrigatorio;
 	private JCheckBox checkRelacionamento;
 	private Boolean nova = true;
-	private JCheckBox chckbxWeb;
 	private JButton btnLimparClasse;
+	private JCheckBox cbIsWeb;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -158,15 +158,15 @@ public class Menu extends JFrame{
         txtNomeProjeto.setBounds(120, 28, 120, 23);
         panelProjeto.add(txtNomeProjeto);
         
-        JLabel lblNewLabel_1_3_1 = new JLabel("Caminho do Projeto:");
+        JLabel lblNewLabel_1_3_1 = new JLabel("Caminho:");
         lblNewLabel_1_3_1.setFont(new Font("Tahoma", Font.PLAIN, 13));
-        lblNewLabel_1_3_1.setBounds(250, 30, 127, 19);
+        lblNewLabel_1_3_1.setBounds(250, 30, 72, 19);
         panelProjeto.add(lblNewLabel_1_3_1);
         
         txtCaminho = new JTextField();
         txtCaminho.setFont(new Font("Tahoma", Font.PLAIN, 13));
         txtCaminho.setColumns(10);
-        txtCaminho.setBounds(375, 28, 179, 23);
+        txtCaminho.setBounds(319, 28, 136, 23);
         panelProjeto.add(txtCaminho);
         
         JPanel panelConexao = new JPanel();
@@ -282,8 +282,9 @@ public class Menu extends JFrame{
                 }
         	}
         });
-        btnSelecionarCaminhoProjeto.setBounds(564, 26, 101, 28);
+        btnSelecionarCaminhoProjeto.setBounds(465, 26, 101, 28);
         panelProjeto.add(btnSelecionarCaminhoProjeto);
+        panelProjeto.add(getCbIsWeb());
         
         JLabel lblNewLabel_4 = new JLabel("Para avan\u00E7ar para as outras guias \u00E9 necess\u00E1rio criar um projeto!");
         lblNewLabel_4.setHorizontalAlignment(SwingConstants.CENTER);
@@ -307,7 +308,7 @@ public class Menu extends JFrame{
         lbNomeClasse.setFont(new Font("Tahoma", Font.PLAIN, 13));
         
         txtNomeClasse = new JTextField();
-        txtNomeClasse.setBounds(58, 26, 121, 23);
+        txtNomeClasse.setBounds(58, 26, 155, 23);
         panelClass.add(txtNomeClasse);
         txtNomeClasse.setFont(new Font("Tahoma", Font.PLAIN, 13));
         txtNomeClasse.setColumns(10);
@@ -502,13 +503,13 @@ public class Menu extends JFrame{
 		
 		JLabel lblCaminhoDaClasse = new JLabel("Diret\u00F3rio:");
 		lblCaminhoDaClasse.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblCaminhoDaClasse.setBounds(189, 26, 65, 21);
+		lblCaminhoDaClasse.setBounds(223, 27, 65, 21);
 		panelClass.add(lblCaminhoDaClasse);
 		
 		txtCaminhoClasse = new JTextField();
 		txtCaminhoClasse.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		txtCaminhoClasse.setColumns(10);
-		txtCaminhoClasse.setBounds(248, 26, 208, 23);
+		txtCaminhoClasse.setBounds(282, 27, 238, 23);
 		panelClass.add(txtCaminhoClasse);
 		
 		JButton btnSelecionarCaminhoClasse = new JButton("Selecionar");
@@ -524,7 +525,7 @@ public class Menu extends JFrame{
                 }
 			}
 		});
-		btnSelecionarCaminhoClasse.setBounds(466, 24, 81, 28);
+		btnSelecionarCaminhoClasse.setBounds(530, 24, 113, 28);
 		panelClass.add(btnSelecionarCaminhoClasse);
 		
 		JButton btnSalvarClasse = new JButton("Salvar Classe");
@@ -638,7 +639,6 @@ public class Menu extends JFrame{
         });
         btnAdicionar.setBounds(511, 55, 112, 31);
         panel.add(btnAdicionar);
-        panelClass.add(getChckbxWeb());
         panelClass.add(getBtnLimparClasse());
     }
     
@@ -657,6 +657,7 @@ public class Menu extends JFrame{
     public Classe selecionaClasse() {
 		String nomeClasse = txtNomeClasse.getText();
 		Classe classe = new Classe();
+		
 		for(Classe classr : listaClasses) {
 			if(classr.getNomeClasse().equals(nomeClasse)) {
 				classe = classr;
@@ -685,6 +686,20 @@ public class Menu extends JFrame{
 			Classe classe = new Classe();
 			classe.setNomeClasse(nomeClasse);
 			classe.setDiretorioClasse(txtCaminhoClasse.getText());
+			Atributo attr = new Atributo();
+			attr.setNomeAtributo("id");
+			attr.setApareceNaConsulta(true);
+			attr.setConsultaPor(false);
+			attr.setIsObrigatorio(false);
+			attr.setIsRelacionamento(false);
+			attr.setTipoAtributo(cbIsWeb.isSelected() ? "Integer" : "Long");
+			List<String> anotacao = new ArrayList<String>();
+			anotacao.add(new String("@Id"));
+		    anotacao.add(new String("@GeneratedValue(strategy = GenerationType.IDENTITY)"));
+			attr.setAnotacao(anotacao);
+			List<Atributo> atributo = new ArrayList<>();
+			atributo.add(attr);
+			classe.setAtributos(atributo);
 			listaClasses.add(classe);
     	}
 		
@@ -742,15 +757,19 @@ public class Menu extends JFrame{
 	private Projeto montaProjeto() {
 		
         txtCaminho.setText("C:\\workspace");
-        txtNomeProjeto.setText("projetoweb");
+        txtNomeProjeto.setText("projetoDesktopGerado");
         txtNomeConexao.setText("teste");
         txtUrl.setText("jdbc:mysql://localhost/teste");
         txtDialect.setText("org.hibernate.dialect.MySQL57Dialect");
         txtDriver.setText("com.mysql.jdbc.Driver");
         txtUsuario.setText("root");
         txtSenha.setText("1234");
+        
+
 		montaClassesTeste();
 		
+		
+		//Conexão
 		Conexao conexao = new Conexao();
         conexao.setNomeConexao(txtNomeConexao.getText());
         conexao.setUrl(txtUrl.getText());
@@ -759,10 +778,17 @@ public class Menu extends JFrame{
         conexao.setSenha(txtSenha.getText());
         conexao.setDriver(txtDriver.getText());
 		
+        
+        //Projeto
 		Projeto projeto = new Projeto();
 		projeto.setNomeProjeto(txtNomeProjeto.getText());
+		projeto.setProjetoWeb(cbIsWeb.isSelected());
 		projeto.setConexao(conexao);
-		projeto.setClasses(getListaClasses());	
+		
+		//Classes
+		projeto.setClasses(getListaClasses());
+		
+		
 		projeto.setDiretorioProjeto(txtCaminho.getText() + "\\" + txtNomeProjeto.getText());
 		
 		return projeto;
@@ -861,23 +887,23 @@ public class Menu extends JFrame{
         }
         
         //desktop
-//        montaPomXml(projeto);
-//        criarClasses(projeto, false);
-//        montaPersistenceXml(projeto);
-//        gerarTelasCadastro(projeto);
+        montaPomXml(projeto);
+        criarClasses(projeto, false);
+        montaPersistenceXml(projeto);
+        gerarTelasCadastro(projeto);
         
         //web
-        montaPomXmlWeb(projeto);
-        montaApplicationProperties(projeto);
-        montaNotFoundException(projeto);
-        montaMainController(projeto);
-        criarClasses(projeto, true);
-        montaRepositoryForClass(projeto);
-        montaServiceForClass(projeto);
-        montaControllerForClass(projeto);
-        criarIndex(projeto);
-        criarListar(projeto);
-        criarFormulario(projeto);
+//        montaPomXmlWeb(projeto);
+//        montaApplicationProperties(projeto);
+//        montaNotFoundException(projeto);
+//        montaMainController(projeto);
+//        criarClasses(projeto, true);
+//        montaRepositoryForClass(projeto);
+//        montaServiceForClass(projeto);
+//        montaControllerForClass(projeto);
+//        criarIndex(projeto);
+//        criarListar(projeto);
+//        criarFormulario(projeto);
         
         
         JOptionPane.showMessageDialog(null, "Projeto gerado com sucesso!");
@@ -890,13 +916,13 @@ public class Menu extends JFrame{
     }
     
     private void gerarTelasCadastro(Projeto projeto) throws IOException {
-        String diretorioTelas = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\telasCadastro";
+        String diretorioTelas = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\"+projeto.getNomeProjeto()+"\\view";
         Files.createDirectories(Paths.get(diretorioTelas));
 
         for (Classe classe : projeto.getClasses()) {
             
             StringBuilder codigoTela = new StringBuilder();
-            codigoTela.append("package com.telasCadastro;\n\n");
+            codigoTela.append("package com."+projeto.getNomeProjeto()+".view;\n\n");
             codigoTela.append("import java.awt.EventQueue;\n");
             codigoTela.append("import javax.swing.JFrame;\n");
             codigoTela.append("import java.awt.Color;\n");
@@ -907,8 +933,8 @@ public class Menu extends JFrame{
             codigoTela.append("import javax.swing.UIManager;\n");
             codigoTela.append("import javax.swing.table.DefaultTableModel;\n");
 
-            codigoTela.append("import ").append(classe.getDiretorioClasse()).append(".").append(classe.getNomeClasse()).append(";\n\n");
-            codigoTela.append("import ").append("dao.").append(classe.getNomeClasse()).append("DAO;\n\n");
+            codigoTela.append("import ").append("com."+projeto.getNomeProjeto()).append(".model.").append(classe.getNomeClasse()).append(";\n\n");
+            codigoTela.append("import ").append("com.").append(projeto.getNomeProjeto()).append(".dao.").append(classe.getNomeClasse()).append("DAO;\n\n");
 
             codigoTela.append("import java.awt.Font;\n");
             codigoTela.append("import javax.swing.JTabbedPane;\n");
@@ -1183,7 +1209,7 @@ public class Menu extends JFrame{
 	        			if(Objects.nonNull(anot) && anot.contains("@Id")){
 	        				notid = false;
 	        				codigoTela.append("                  ").append("if(!txt").append(atr.getNomeAtributo()).append(".getText().isEmpty()){\n");
-	        				codigoTela.append("                            ").append("obj.setCodigo(Long.parseLong(txt").append(atr.getNomeAtributo()).append(".getText()));\n");
+	        				codigoTela.append("                            ").append("obj.setId(Long.parseLong(txt").append(atr.getNomeAtributo()).append(".getText()));\n");
 	        				codigoTela.append("}\n");
 	        			}
 	        		}
@@ -1221,7 +1247,7 @@ public class Menu extends JFrame{
             codigoTela.append("        btnExcluir = new JButton(\"Excluir\");\n");
             codigoTela.append("        btnExcluir.addActionListener(new ActionListener() {\n");
             codigoTela.append("            public void actionPerformed(ActionEvent e) {\n");
-            codigoTela.append("                if (!txtcodigo.getText().isEmpty()) {\n"); //modificar para identificar chave primaria
+            codigoTela.append("                if (!txtid.getText().isEmpty()) {\n"); //modificar para identificar chave primaria
             codigoTela.append("                    ").append(classe.getNomeClasse()).append("DAO dao = new ").append(classe.getNomeClasse()).append("DAO();\n");
             codigoTela.append("                    ").append(classe.getNomeClasse()).append(" obj = buildObject()").append(";\n");
             codigoTela.append("                    dao.delete(obj);\n");
@@ -1403,7 +1429,7 @@ public class Menu extends JFrame{
     
     private void criarClasses(Projeto projeto, boolean web) throws IOException {
     	if(!web) {
-    		daoGenerico(projeto.getDiretorioProjeto(), projeto.getConexao().getNomeConexao());
+    		daoGenerico(projeto);
     	}
     	
         // Mapeamento entre tipos primitivos e seus imports correspondentes
@@ -1411,8 +1437,9 @@ public class Menu extends JFrame{
         tipoImportMap.put("BigDecimal", "java.math.BigDecimal");
         // Adicione outros mapeamentos conforme necessário
     	
+        String pacoteBase = "com." + projeto.getNomeProjeto() + ".model";
+        
         for (Classe classe : projeto.getClasses()) {
-            String pacoteBase = classe.getDiretorioClasse();
             String nomeClasse = classe.getNomeClasse();
             List<Atributo> atributos = classe.getAtributos();
 
@@ -1479,9 +1506,9 @@ public class Menu extends JFrame{
             if(!web) {
 	            // Código para criar a classe DAO correspondente utilizando a GenericDAO
 	            StringBuilder codigoDAO = new StringBuilder();
-	            codigoDAO.append("package ").append("dao").append(";\n\n");
+	            codigoDAO.append("package ").append("com."+projeto.getNomeProjeto()+".dao").append(";\n\n");
 	            codigoDAO.append("import java.util.List").append(";\n\n");
-	            codigoDAO.append("import ").append(classe.getDiretorioClasse()).append("."+nomeClasse).append(";\n\n");
+	            codigoDAO.append("import ").append("com."+projeto.getNomeProjeto()).append(".model."+nomeClasse).append(";\n\n");
 	            codigoDAO.append("public class ").append(nomeClasse).append("DAO extends GenericDAO<").append(nomeClasse).append("> {\n\n");
 	            codigoDAO.append("    public ").append(nomeClasse).append("DAO() {\n");
 	            codigoDAO.append("        super(").append(nomeClasse).append(".class);\n");
@@ -1498,8 +1525,8 @@ public class Menu extends JFrame{
 	            codigoDAO.append("}");
 	
 	            // Criar a pasta do pacote base se ainda não existe
-	            String diretorioSrcDAO = projeto.getDiretorioProjeto() + "\\src\\main\\java\\dao";
-	            Files.createDirectories(Paths.get(diretorioSrcDAO));
+	            String diretorioSrcDAO = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\"+projeto.getNomeProjeto()+"\\dao";
+//	            Files.createDirectories(Paths.get(diretorioSrcDAO));
 	
 	            // Escrever o código da classe DAO no arquivo .java
 	            Files.write(Paths.get(diretorioSrcDAO + "\\" + nomeClasse + "DAO.java"), codigoDAO.toString().getBytes());
@@ -1524,9 +1551,9 @@ public class Menu extends JFrame{
     	}
     }
     
-    private void daoGenerico(String diretorioProjeto, String nomeConexao) throws IOException {
+    private void daoGenerico(Projeto projeto) throws IOException {
         StringBuilder codigoGenericDAO = new StringBuilder();
-        codigoGenericDAO.append("package dao;\n");
+        codigoGenericDAO.append("package com."+projeto.getNomeProjeto()+".dao;\n");
         codigoGenericDAO.append("import javax.persistence.EntityManager;\n");
         codigoGenericDAO.append("import javax.persistence.EntityManagerFactory;\n");
         codigoGenericDAO.append("import javax.persistence.Persistence;\n");
@@ -1535,7 +1562,7 @@ public class Menu extends JFrame{
         codigoGenericDAO.append("import javax.persistence.criteria.Root;\n");
         codigoGenericDAO.append("import java.util.List;\n\n");
         codigoGenericDAO.append("public class GenericDAO<T> {\n\n");
-        codigoGenericDAO.append("    private static final String PERSISTENCE_UNIT_NAME = \""+nomeConexao+"\"; // Nome da unidade de persistência no persistence.xml\n\n");
+        codigoGenericDAO.append("    private static final String PERSISTENCE_UNIT_NAME = \""+projeto.getConexao().getNomeConexao()+"\"; // Nome da unidade de persistência no persistence.xml\n\n");
         codigoGenericDAO.append("    private Class<T> entityType;\n");
         codigoGenericDAO.append("    private EntityManagerFactory entityManagerFactory;\n\n");
         codigoGenericDAO.append("    public GenericDAO(Class<T> entityType) {\n");
@@ -1604,7 +1631,7 @@ public class Menu extends JFrame{
         codigoGenericDAO.append("}\n");
 
         // Criar a pasta do pacote base se ainda não existe
-        String diretorioSrcDAO = diretorioProjeto + "\\src\\main\\java\\dao";
+        String diretorioSrcDAO = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\"+projeto.getNomeProjeto()+"\\dao";
         Files.createDirectories(Paths.get(diretorioSrcDAO));
 
         // Escrever o código da classe DAO no arquivo .java
@@ -1646,13 +1673,6 @@ public class Menu extends JFrame{
 		chckbxConsultaPor.setSelected(false);
 		checkObrigatorio.setSelected(false);
 		checkRelacionamento.setSelected(false);
-	}
-	private JCheckBox getChckbxWeb() {
-		if (chckbxWeb == null) {
-			chckbxWeb = new JCheckBox("Desktop");
-			chckbxWeb.setBounds(553, 27, 90, 23);
-		}
-		return chckbxWeb;
 	}
 	private JButton getBtnLimparClasse() {
 		if (btnLimparClasse == null) {
@@ -2099,4 +2119,12 @@ montaMainController
         
         Files.write(Paths.get(diretorioSrcMain + "\\MyWebAppApplication.java"), conteudoMyWebAppApplication.toString().getBytes());
     }
+	private JCheckBox getCbIsWeb() {
+		if (cbIsWeb == null) {
+			cbIsWeb = new JCheckBox("Projeto Web");
+			cbIsWeb.setSelected(false);
+			cbIsWeb.setBounds(572, 29, 93, 23);
+		}
+		return cbIsWeb;
+	}
 }

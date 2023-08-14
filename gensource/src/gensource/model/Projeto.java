@@ -5,6 +5,7 @@ import java.util.List;
 public class Projeto {
 	private String nomeProjeto;
 	private String diretorioProjeto;
+	private Boolean projetoWeb;
 	public String getDiretorioProjeto() {
 		return diretorioProjeto;
 	}
@@ -31,6 +32,12 @@ public class Projeto {
 	}
 	public void setConexao(Conexao conexao) {
 		this.conexao = conexao;
+	}
+	public Boolean getProjetoWeb() {
+		return projetoWeb;
+	}
+	public void setProjetoWeb(Boolean projetoWeb) {
+		this.projetoWeb = projetoWeb;
 	}
 	
 }
