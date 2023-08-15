@@ -887,23 +887,23 @@ public class Menu extends JFrame{
         }
         
         //desktop
-        montaPomXml(projeto);
-        criarClasses(projeto, false);
-        montaPersistenceXml(projeto);
-        gerarTelasCadastro(projeto);
+//        montaPomXml(projeto);
+//        criarClasses(projeto, false);
+//        montaPersistenceXml(projeto);
+//        gerarTelasCadastro(projeto);
         
         //web
-//        montaPomXmlWeb(projeto);
-//        montaApplicationProperties(projeto);
-//        montaNotFoundException(projeto);
-//        montaMainController(projeto);
-//        criarClasses(projeto, true);
-//        montaRepositoryForClass(projeto);
-//        montaServiceForClass(projeto);
-//        montaControllerForClass(projeto);
-//        criarIndex(projeto);
-//        criarListar(projeto);
-//        criarFormulario(projeto);
+        montaPomXmlWeb(projeto);
+        montaApplicationProperties(projeto);
+        montaNotFoundException(projeto);
+        montaMainController(projeto);
+        criarClasses(projeto, true);
+        montaRepositoryForClass(projeto);
+        montaServiceForClass(projeto);
+        montaControllerForClass(projeto);
+        criarIndex(projeto);
+        criarListar(projeto);
+        criarFormulario(projeto);
         
         
         JOptionPane.showMessageDialog(null, "Projeto gerado com sucesso!");

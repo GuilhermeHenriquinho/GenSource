@@ -1,23 +1,26 @@
 package gensource.view.anotations;
 
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
 import java.awt.Color;
-import javax.swing.JLabel;
+import java.awt.EventQueue;
 import java.awt.Font;
-import javax.swing.JComboBox;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 
-public class TelaGeneratedValue extends JFrame{
+public class TelaGeneratedValue extends JDialog {
 	private JLabel lblNewLabel;
 	private JComboBox cbGenerationType;
 	private JLabel lblGenerator;
 	private JTextField txtGenerator;
 	private JButton btnSalvar;
 	private JButton btnCancelar;
+	private String anotacao;
 
 	/**
 	 * Launch the application.
@@ -46,10 +49,10 @@ public class TelaGeneratedValue extends JFrame{
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		setModal(true);
 		getContentPane().setBackground(new Color(255, 255, 255));
 		setTitle("GeneratedValue");
 		setBounds(100, 100, 286, 170);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(null);
 		getContentPane().add(getLblNewLabel());
 		getContentPane().add(getCbGenerationType());
@@ -95,6 +98,27 @@ public class TelaGeneratedValue extends JFrame{
 	private JButton getBtnSalvar() {
 		if (btnSalvar == null) {
 			btnSalvar = new JButton("Salvar");
+			btnSalvar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					String anot = "@GeneratedValue(strategy = GenerationType.";
+					String generatedValue = cbGenerationType.getSelectedItem().toString();
+					
+					if(generatedValue.length() > 0) {
+						anot += generatedValue;
+					}
+					
+					if(txtGenerator.getText().length() > 0) {
+						if(generatedValue.length() > 0) {
+							anot += ", ";
+						}
+						anot += "generator = \"" + txtGenerator.getText() + "\"";
+					}
+					
+					anot += ")";
+					setAnotacao(anot);
+					dispose();
+				}
+			});
 			btnSalvar.setBounds(160, 87, 89, 30);
 		}
 		return btnSalvar;
@@ -102,8 +126,22 @@ public class TelaGeneratedValue extends JFrame{
 	private JButton getBtnCancelar() {
 		if (btnCancelar == null) {
 			btnCancelar = new JButton("Cancelar");
+			btnCancelar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					dispose();
+				}
+			});
 			btnCancelar.setBounds(61, 87, 89, 30);
 		}
 		return btnCancelar;
 	}
+
+	public String getAnotacao() {
+		return anotacao;
+	}
+
+	public void setAnotacao(String anotacao) {
+		this.anotacao = anotacao;
+	}
+	
 }

@@ -5,23 +5,27 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import java.awt.Color;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
-public class TelaColumn extends JFrame{
+public class TelaColumn extends JDialog {
 	private JLabel lblNewLabel;
-	private JTextField textField;
+	private JTextField txtName;
 	private JLabel lblLength;
-	private JTextField textField_1;
-	private JCheckBox chckbxNewCheckBox;
+	private JTextField txtLength;
+	private JCheckBox cbNullable;
 	private JButton btnSalvar;
 	private JButton btnCancelar;
-	private JTextField textField_2;
-	private JLabel lblA;
-	private JCheckBox chckbxUnique;
+	private JCheckBox cbUnique;
+	private String anotacao;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -47,21 +51,19 @@ public class TelaColumn extends JFrame{
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		setModal(true);
 		setTitle("Column");
 		getContentPane().setBackground(new Color(255, 255, 255));
 		setBounds(100, 100, 236, 193);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(null);
 		getContentPane().add(getLblNewLabel());
-		getContentPane().add(getTextField());
+		getContentPane().add(getTxtName());
 		getContentPane().add(getLblLength());
-		getContentPane().add(getTextField_1());
-		getContentPane().add(getChckbxNewCheckBox());
+		getContentPane().add(getTxtLength());
+		getContentPane().add(getCbNullable());
 		getContentPane().add(getBtnSalvar());
 		getContentPane().add(getBtnCancelar());
-		getContentPane().add(getTextField_2());
-		getContentPane().add(getLblA());
-		getContentPane().add(getChckbxUnique());
+		getContentPane().add(getCbUnique());
 	}
 
 	private JLabel getLblNewLabel() {
@@ -72,13 +74,13 @@ public class TelaColumn extends JFrame{
 		}
 		return lblNewLabel;
 	}
-	private JTextField getTextField() {
-		if (textField == null) {
-			textField = new JTextField();
-			textField.setBounds(72, 24, 129, 22);
-			textField.setColumns(10);
+	private JTextField getTxtName() {
+		if (txtName == null) {
+			txtName = new JTextField();
+			txtName.setBounds(72, 24, 129, 22);
+			txtName.setColumns(10);
 		}
-		return textField;
+		return txtName;
 	}
 	private JLabel getLblLength() {
 		if (lblLength == null) {
@@ -88,24 +90,60 @@ public class TelaColumn extends JFrame{
 		}
 		return lblLength;
 	}
-	private JTextField getTextField_1() {
-		if (textField_1 == null) {
-			textField_1 = new JTextField();
-			textField_1.setColumns(10);
-			textField_1.setBounds(72, 57, 55, 22);
+	private JTextField getTxtLength() {
+		if (txtLength == null) {
+			txtLength = new JTextField();
+			txtLength.setColumns(10);
+			txtLength.setBounds(72, 57, 129, 22);
 		}
-		return textField_1;
+		return txtLength;
 	}
-	private JCheckBox getChckbxNewCheckBox() {
-		if (chckbxNewCheckBox == null) {
-			chckbxNewCheckBox = new JCheckBox("Nullable");
-			chckbxNewCheckBox.setBounds(135, 86, 66, 23);
+	private JCheckBox getCbNullable() {
+		if (cbNullable == null) {
+			cbNullable = new JCheckBox("Nullable");
+			cbNullable.setBounds(135, 86, 66, 23);
 		}
-		return chckbxNewCheckBox;
+		return cbNullable;
 	}
 	private JButton getBtnSalvar() {
 		if (btnSalvar == null) {
 			btnSalvar = new JButton("Salvar");
+			btnSalvar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					String anot = "@Column(";
+					if (txtName.getText().length() > 0) {
+					    anot += "name = \"" + txtName.getText() + "\"";
+					}
+					
+					if (txtLength.getText().length() > 0) {
+					    if (anot.endsWith("\"") ) {
+					        anot += ", ";
+					    }
+					    anot += "length = " + txtLength.getText();
+					}
+
+					if (cbUnique.isSelected()) {
+					    if (anot.endsWith("\"") || anot.endsWith(", ") || !anot.endsWith("(")) {
+					        anot += ", ";
+					    }
+					    anot += "unique = true";
+					}
+
+					if (cbNullable.isSelected()) {
+					    if (anot.endsWith("\"") || anot.endsWith(", ") || !anot.endsWith("(")) {
+					        anot += ", ";
+					    }
+					    anot += "nullable = true";
+					}
+
+					anot += ")";
+
+					
+					setAnotacao(anot);
+					dispose();
+					
+				}
+			});
 			btnSalvar.setBounds(112, 116, 89, 30);
 		}
 		return btnSalvar;
@@ -113,32 +151,28 @@ public class TelaColumn extends JFrame{
 	private JButton getBtnCancelar() {
 		if (btnCancelar == null) {
 			btnCancelar = new JButton("Cancelar");
+			btnCancelar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					dispose();
+				}
+			});
 			btnCancelar.setBounds(13, 116, 89, 30);
 		}
 		return btnCancelar;
 	}
-	private JTextField getTextField_2() {
-		if (textField_2 == null) {
-			textField_2 = new JTextField();
-			textField_2.setColumns(10);
-			textField_2.setBounds(145, 57, 56, 22);
+	private JCheckBox getCbUnique() {
+		if (cbUnique == null) {
+			cbUnique = new JCheckBox("Unique");
+			cbUnique.setBounds(55, 86, 72, 23);
 		}
-		return textField_2;
+		return cbUnique;
 	}
-	private JLabel getLblA() {
-		if (lblA == null) {
-			lblA = new JLabel("a");
-			lblA.setHorizontalAlignment(SwingConstants.CENTER);
-			lblA.setFont(new Font("Tahoma", Font.PLAIN, 13));
-			lblA.setBounds(125, 57, 22, 22);
-		}
-		return lblA;
+
+	public String getAnotacao() {
+		return anotacao;
 	}
-	private JCheckBox getChckbxUnique() {
-		if (chckbxUnique == null) {
-			chckbxUnique = new JCheckBox("Unique");
-			chckbxUnique.setBounds(55, 86, 72, 23);
-		}
-		return chckbxUnique;
+
+	public void setAnotacao(String anotacao) {
+		this.anotacao = anotacao;
 	}
 }

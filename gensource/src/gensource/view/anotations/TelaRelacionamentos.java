@@ -3,6 +3,7 @@ package gensource.view.anotations;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
+import java.awt.Color;
 
 public class TelaRelacionamentos extends JFrame{
 
@@ -33,7 +34,9 @@ public class TelaRelacionamentos extends JFrame{
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		setBounds(100, 100, 450, 300);
+		getContentPane().setBackground(new Color(255, 255, 255));
+		setTitle("Relacionamento");
+		setBounds(100, 100, 385, 300);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 

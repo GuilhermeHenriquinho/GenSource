@@ -21,6 +21,8 @@ import gensource.model.AnotacaoString;
 import gensource.model.Atributo;
 import gensource.model.enumAndModel.Anotacao;
 import gensource.model.enumAndModel.AnotacaoModel;
+import gensource.view.anotations.TelaColumn;
+import gensource.view.anotations.TelaGeneratedValue;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -108,10 +110,58 @@ public class TelaAnotacao extends JDialog {
 		JButton btnAdicionar = new JButton("Adicionar");
 		btnAdicionar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				AnotacaoString anotacao = new AnotacaoString();
-				anotacao.setAnotacao("@Column(name = \"product_name\", nullable = false, length = 100)");
-				anotacoesString.add(anotacao);
-				carregaTableString(anotacoesString);
+				
+				AnotacaoModel am = model.getValue(table.getSelectedRow());
+				
+				if(Objects.nonNull(am)) {
+					//Column
+					if(am.getTitulo().contains("Column")) {
+						TelaColumn screen = new TelaColumn();
+						screen.setVisible(true);
+						if(Objects.nonNull(screen.getAnotacao()) && screen.getAnotacao().length() > 0) {
+							AnotacaoString anotacao = new AnotacaoString();
+							anotacao.setAnotacao(screen.getAnotacao());
+							anotacoesString.add(anotacao);
+							carregaTableString(anotacoesString);
+						}
+					}
+					
+					//Relacionamentos
+//					if() {
+//						
+//					}
+					
+					//GeneratedValue
+					if(getAtributo().getNomeAtributo().equals("id") && am.getTitulo().contains("GeneratedValue")) {
+						TelaGeneratedValue screen = new TelaGeneratedValue();
+						screen.setVisible(true);
+						if(Objects.nonNull(screen.getAnotacao()) && screen.getAnotacao().length() > 0) {
+							AnotacaoString anotacao = new AnotacaoString();
+							anotacao.setAnotacao(screen.getAnotacao());
+							anotacoesString.add(anotacao);
+							
+							for (int i = 0; i < anotacoesString.size(); i++) {
+								if (anotacoesString.get(i).getAnotacao().contains("GeneratedValue")) {
+									anotacoesString.remove(i);
+
+									for (int j = 0; j < getAtributo().getAnotacao().size(); j++) {
+										if (getAtributo().getAnotacao().get(j).contains("GeneratedValue")) {
+											getAtributo().getAnotacao().remove(j);
+											break;
+										}
+									}
+									break;
+								}
+							}
+							
+							carregaTableString(anotacoesString);
+						}
+					}
+					
+					
+					
+					
+				}
 			}
 		});
 		btnAdicionar.setBounds(417, 217, 89, 23);
