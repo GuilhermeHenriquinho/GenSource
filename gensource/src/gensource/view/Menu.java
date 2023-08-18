@@ -758,7 +758,7 @@ public class Menu extends JFrame{
 	private Projeto montaProjeto() {
 		
         txtCaminho.setText("C:\\workspace");
-        txtNomeProjeto.setText("projetoDesktopGerado1");
+        txtNomeProjeto.setText("projetoDesktopGerado13");
         txtNomeConexao.setText("teste");
         txtUrl.setText("jdbc:mysql://localhost/teste");
         txtDialect.setText("org.hibernate.dialect.MySQL57Dialect");
@@ -828,6 +828,7 @@ public class Menu extends JFrame{
 		Atributo at4 = new Atributo();
 		at4.setConsultaPor(false);
 		at4.setApareceNaConsulta(true);
+		at4.setIsRelacionamento(true);
 		at4.setNomeAtributo("animal");
 		at4.setTipoAtributo("Animal");
 		
@@ -946,7 +947,19 @@ public class Menu extends JFrame{
             codigoTela.append("import javax.swing.SwingConstants;\n");
             codigoTela.append("import javax.swing.UIManager;\n");
             codigoTela.append("import javax.swing.table.DefaultTableModel;\n");
-
+            codigoTela.append("import java.util.Objects;\n");
+            
+            for(int i=0; i<classe.getAtributos().size(); i++) {
+            	if(Objects.nonNull(classe.getAtributos().get(i).getIsRelacionamento()) && classe.getAtributos().get(i).getIsRelacionamento()) {
+            		codigoTela.append("import com."+projeto.getNomeProjeto()+".dao."+classe.getAtributos().get(i).getTipoAtributo()+"DAO;\n");
+            		codigoTela.append("import com."+projeto.getNomeProjeto()+".model."+classe.getAtributos().get(i).getTipoAtributo()+";\n");
+            		
+            	}
+            }
+            
+            
+            
+            
             codigoTela.append("import ").append("com."+projeto.getNomeProjeto()).append(".model.").append(classe.getNomeClasse()).append(";\n\n");
             codigoTela.append("import ").append("com.").append(projeto.getNomeProjeto()).append(".dao.").append(classe.getNomeClasse()).append("DAO;\n\n");
 
@@ -984,13 +997,13 @@ public class Menu extends JFrame{
         		codigoTela.append("	private JLabel lb").append(atr.getNomeAtributo()).append(";\n");
         		codigoTela.append("	private JTextField txt").append(atr.getNomeAtributo()).append(";\n");
         		
-        		if(atr.getIsRelacionamento()) {
+        		if(Objects.nonNull(atr.getIsRelacionamento()) && atr.getIsRelacionamento()) {
         			codigoTela.append("	private JButton btnBuscar"+atr.getTipoAtributo()+";\n");
         			
         			codigoTela.append("	private "+atr.getTipoAtributo()+" retorno;\n");
         		}
         	}
-        	
+            codigoTela.append("	private "+classe.getNomeClasse()+" retorno"+classe.getNomeClasse()+";\n");
         	codigoTela.append("	private Boolean subtela;\n");
         	
         	codigoTela.append("	public static void main(String[] args) {\n");
@@ -1022,11 +1035,12 @@ public class Menu extends JFrame{
             codigoTela.append("				}\n");
             codigoTela.append("        }\n");
             codigoTela.append("    });\n");
+            codigoTela.append("    setModal(true);;\n");
             codigoTela.append("    setTitle(\"Tela de ").append(classe.getNomeClasse()).append("\");\n");
             codigoTela.append("    getContentPane().setBackground(new Color(255, 255, 255));\n");
             codigoTela.append("    setBackground(new Color(255, 255, 255));\n");
             codigoTela.append("    this.setBounds(100, 100, 605, 512);\n");
-            codigoTela.append("    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);\n");
+            codigoTela.append("    this.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);\n");
             codigoTela.append("    getContentPane().setLayout(null);\n");
             codigoTela.append("    getContentPane().add(getPanelCabecalho());\n");
             codigoTela.append("    getContentPane().add(getTabbedPane());\n");
@@ -1079,7 +1093,7 @@ public class Menu extends JFrame{
         		codigoTela.append("        panelCampos.add(getTxt").append(atr.getNomeAtributo()).append("());\n");
         		codigoTela.append("        panelCampos.add(getLb").append(atr.getNomeAtributo()).append("());\n");
         		
-        		if(atr.getIsRelacionamento()) {
+        		if(Objects.nonNull(atr.getIsRelacionamento()) && atr.getIsRelacionamento()) {
         			codigoTela.append("		   panelCampos.add(getBtnBuscar"+atr.getTipoAtributo()+"());");
         		}
         	}
@@ -1121,7 +1135,11 @@ public class Menu extends JFrame{
         	    codigoTela.append("private JTextField getTxt"+nomeAtributo+"() {\n");
         		codigoTela.append("    if (txt"+nomeAtributo+" == null) {\n");
         		codigoTela.append("        txt"+nomeAtributo+" = new JTextField();\n");
-//        		codigoTela.append("        txt"+nomeAtributo+".setEditable(false);\n");
+        		
+        		if("id".equals(atr.getNomeAtributo())) {
+        			codigoTela.append("        txt"+nomeAtributo+".setEditable(false);\n");
+        		}
+        		
         		codigoTela.append("        txt"+nomeAtributo+".setFont(new Font(\"Tahoma\", Font.PLAIN, 13));\n");
         		codigoTela.append("        txt"+nomeAtributo+".setBounds("+z+", "+(y-2)+", 144, 20);\n");
         		codigoTela.append("        txt"+nomeAtributo+".setColumns(10);\n");
@@ -1129,7 +1147,7 @@ public class Menu extends JFrame{
         		codigoTela.append("    return txt"+nomeAtributo+";\n");
         		codigoTela.append("}\n");
         	    
-        		if(atr.getIsRelacionamento()) {
+        		if(Objects.nonNull(atr.getIsRelacionamento()) && atr.getIsRelacionamento()) {
         			codigoTela.append("    private JButton getBtnBuscar"+atr.getTipoAtributo()+"() {\n");
         			codigoTela.append("        if (btnBuscar"+atr.getTipoAtributo()+" == null) {\n");
         			codigoTela.append("            btnBuscar"+atr.getTipoAtributo()+" = new JButton(\"Buscar\");\n");
@@ -1138,10 +1156,21 @@ public class Menu extends JFrame{
         			codigoTela.append("                    Tela"+atr.getTipoAtributo()+" screen = new Tela"+atr.getTipoAtributo()+"();\n");
         			codigoTela.append("                    screen.setSubtela(true);\n");
         			codigoTela.append("                    screen.setVisible(true);\n");
-        			codigoTela.append("                    if (Objects.nonNull(screen.getRetorno())) {\n");
+        			codigoTela.append("                    if (Objects.nonNull(screen.getRetorno"+atr.getTipoAtributo()+"())) {\n");
         			
-        			//ver isso
-        			codigoTela.append("                        txt"+atr.getNomeAtributo()+".setText(screen.getRetorno().getNome());\n");
+        			String searchByField = "";
+        			for(int i=0; i<listaClasses.size(); i++) {
+        				if(listaClasses.get(i).getNomeClasse().equals(atr.getTipoAtributo())) {
+        					for(int j=0; j<listaClasses.get(i).getAtributos().size(); j++) {
+        						if(listaClasses.get(i).getAtributos().get(j).getConsultaPor()) {
+        							searchByField = listaClasses.get(i).getAtributos().get(j).getNomeAtributo();
+        							searchByField = searchByField.substring(0, 1).toUpperCase() + searchByField.substring(1);
+
+        						}
+        					}
+        				}
+        			}
+        			codigoTela.append("                        txt"+atr.getNomeAtributo()+".setText(screen.getRetorno"+atr.getTipoAtributo()+"().get"+searchByField+"());\n");
         			
         			
         			codigoTela.append("                    }\n");
@@ -1212,12 +1241,24 @@ public class Menu extends JFrame{
         	for(Atributo atr : classe.getAtributos()){
     			String nomeAtributo = atr.getNomeAtributo();
     			String nomeAtrMaiusculo = nomeAtributo.substring(0, 1).toUpperCase() + nomeAtributo.substring(1);
-        		if(atr.getApareceNaConsulta()){
+        		if(atr.getApareceNaConsulta() && Objects.isNull(atr.getIsRelacionamento()) || !atr.getIsRelacionamento()){
         			codigoTela.append("                        obj.get").append(nomeAtrMaiusculo).append("(),\n");
         		}
-        		if(atr.getIsRelacionamento()) {
-        			//ver depois
-        			codigoTela.append("                        obj.get").append(atr.getTipoAtributo()).append(".get").append("Nome(),\n");
+        		if(Objects.nonNull(atr.getIsRelacionamento()) && atr.getIsRelacionamento()) {
+        			String searchByField = "";
+        			for(int i=0; i<listaClasses.size(); i++) {
+        				if(listaClasses.get(i).getNomeClasse().equals(atr.getTipoAtributo())) {
+        					for(int j=0; j<listaClasses.get(i).getAtributos().size(); j++) {
+        						if(listaClasses.get(i).getAtributos().get(j).getConsultaPor()) {
+        							searchByField = listaClasses.get(i).getAtributos().get(j).getNomeAtributo();
+        							searchByField = searchByField.substring(0, 1).toUpperCase() + searchByField.substring(1);
+
+        						}
+        					}
+        				}
+        			}
+        			
+        			codigoTela.append("                        obj.get").append(atr.getTipoAtributo()).append("().get").append(searchByField+"(),\n");
         		}
         	}
         	
@@ -1283,8 +1324,23 @@ public class Menu extends JFrame{
         			if(atr.getTipoAtributo().equals("Integer")) {
         				codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(Integer.parseInt(").append("(txt").append(atr.getNomeAtributo()).append(".getText())));\n");
         			} 
-        			else if (atr.getIsRelacionamento()) {
-        				codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("");//continuar aqui
+        			else if(Objects.nonNull(atr.getIsRelacionamento()) && atr.getIsRelacionamento()) {
+            			String searchByField = "";
+            			for(int i=0; i<listaClasses.size(); i++) {
+            				if(listaClasses.get(i).getNomeClasse().equals(atr.getTipoAtributo())) {
+            					for(int j=0; j<listaClasses.get(i).getAtributos().size(); j++) {
+            						if(listaClasses.get(i).getAtributos().get(j).getConsultaPor()) {
+            							searchByField = listaClasses.get(i).getAtributos().get(j).getNomeAtributo();
+            							searchByField = searchByField.substring(0, 1).toUpperCase() + searchByField.substring(1);
+
+            						}
+            					}
+            				}
+            			}
+        				
+        				codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(new ")
+        				.append(atr.getTipoAtributo()+"DAO().findBy"+searchByField+"(txt")
+        				.append(atr.getNomeAtributo()+".getText()).get(0));\n");
         			}
         			else {
         				codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(txt").append(atr.getNomeAtributo()).append(".getText());\n");
@@ -1347,7 +1403,7 @@ public class Menu extends JFrame{
             codigoTela.append("            public void mouseClicked(MouseEvent e) {\n");
             
             
-            codigoTela.append("					if(!Objects.nonNull(getSubtela()) && getSubtela()) {\n");
+            codigoTela.append("					if(Objects.isNull(getSubtela()) || !getSubtela()) {\n");
             
             codigoTela.append("                tabbedPane.setSelectedIndex(0);\n");
             for(int i=0; i<classe.getAtributos().size(); i++){
@@ -1395,13 +1451,31 @@ public class Menu extends JFrame{
             codigoTela.append("    for(").append(classe.getNomeClasse()).append(" obj : lista)").append("{\n");
             codigoTela.append("        dados.addRow(new Object[]{\n");
             
-            for(Atributo atr : classe.getAtributos()){
-    			String nomeAtributo = atr.getNomeAtributo();
-    			String nomeAtrMaiusculo = nomeAtributo.substring(0, 1).toUpperCase() + nomeAtributo.substring(1);
-        		if(atr.getApareceNaConsulta()){
-        			codigoTela.append("            obj.get").append(nomeAtrMaiusculo).append("(),\n");
-        		}
-        	}
+			for (Atributo atr : classe.getAtributos()) {
+				String nomeAtributo = atr.getNomeAtributo();
+				String nomeAtrMaiusculo = nomeAtributo.substring(0, 1).toUpperCase() + nomeAtributo.substring(1);
+				if (atr.getApareceNaConsulta()) {
+	        		if(Objects.nonNull(atr.getIsRelacionamento()) && atr.getIsRelacionamento()) {
+            			String searchByField = "";
+            			for(int i=0; i<listaClasses.size(); i++) {
+            				if(listaClasses.get(i).getNomeClasse().equals(atr.getTipoAtributo())) {
+            					for(int j=0; j<listaClasses.get(i).getAtributos().size(); j++) {
+            						if(listaClasses.get(i).getAtributos().get(j).getConsultaPor()) {
+            							searchByField = listaClasses.get(i).getAtributos().get(j).getNomeAtributo();
+            							searchByField = searchByField.substring(0, 1).toUpperCase() + searchByField.substring(1);
+
+            						}
+            					}
+            				}
+            			}
+						
+            			codigoTela.append("            obj.get").append(nomeAtrMaiusculo).append("().get"+searchByField+"(),\n");
+						
+					} else {
+						codigoTela.append("            obj.get").append(nomeAtrMaiusculo).append("(),\n");
+					}
+				}
+			}
             
             codigoTela.append("        });\n");
             codigoTela.append("    }\n");
@@ -1417,18 +1491,24 @@ public class Menu extends JFrame{
             
             
             
-            codigoTela.append("        	public Animal getRetorno() {\n");
-            codigoTela.append("        		return retorno;\n");
-            codigoTela.append("        	}\n\n");
-            
-            
+            for(int i=0; i<classe.getAtributos().size(); i++) {
+            	if(Objects.nonNull(classe.getAtributos().get(i).getIsRelacionamento()) && classe.getAtributos().get(i).getIsRelacionamento()) {
+                    codigoTela.append("        	public void setRetorno("+classe.getAtributos().get(i).getTipoAtributo()+" retorno) {\n");
+                    codigoTela.append("        		this.retorno = retorno;\n");
+                    codigoTela.append("        	}\n\n");
 
+                    codigoTela.append("        	public "+classe.getAtributos().get(i).getTipoAtributo()+" getRetorno() {\n");
+                    codigoTela.append("        		return this.retorno;\n");
+                    codigoTela.append("        	}\n\n");
+            	}
+            }
+            
             codigoTela.append("        	public void setRetorno("+classe.getNomeClasse()+" retorno) {\n");
-            codigoTela.append("        		this.retorno = retorno;\n");
+            codigoTela.append("        		this.retorno"+classe.getNomeClasse()+" = retorno;\n");
             codigoTela.append("        	}\n\n");
-
-            codigoTela.append("        	public "+classe.getNomeClasse()+" getRetorno() {\n");
-            codigoTela.append("        		return retorno;\n");
+            
+            codigoTela.append("        	public "+classe.getNomeClasse()+" getRetorno"+classe.getNomeClasse()+"() {\n");
+            codigoTela.append("        		return this.retorno"+classe.getNomeClasse()+";\n");
             codigoTela.append("        	}\n\n");
 
             codigoTela.append("        	public void setSubtela(Boolean subtela) {\n");
