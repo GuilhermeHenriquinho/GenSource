@@ -801,7 +801,9 @@ public class Menu extends JFrame{
 		classe1.setNomeClasse("Pessoa");
 		Atributo at1 = new Atributo();
 		at1.setNomeAtributo("id");
-		at1.setTipoAtributo("Long");
+//		at1.setTipoAtributo("Long"); //desktop
+		at1.setTipoAtributo("Integer"); //web
+		
 		at1.setConsultaPor(false);
 		at1.setApareceNaConsulta(true);
 		String anotacao1 = "@Id";
@@ -838,7 +840,7 @@ public class Menu extends JFrame{
 		anotacoes1.add(anotacao3);
 		anotacoes1.add(anotacao4);
 		at4.setAnotacao(anotacoes1);
-		
+//		
 		atributos.add(at4);
 		classe1.setAtributos(atributos);
 		listaClasses.add(classe1);
@@ -902,23 +904,23 @@ public class Menu extends JFrame{
         }
         
         //desktop
-        montaPomXml(projeto);
-        criarClasses(projeto, false);
-        montaPersistenceXml(projeto);
-        gerarTelasCadastro(projeto);
+//        montaPomXml(projeto);
+//        criarClasses(projeto, false);
+//        montaPersistenceXml(projeto);
+//        gerarTelasCadastro(projeto);
         
         //web
-//        montaPomXmlWeb(projeto);
-//        montaApplicationProperties(projeto);
-//        montaNotFoundException(projeto);
-//        montaMainController(projeto);
-//        criarClasses(projeto, true);
-//        montaRepositoryForClass(projeto);
-//        montaServiceForClass(projeto);
-//        montaControllerForClass(projeto);
-//        criarIndex(projeto);
-//        criarListar(projeto);
-//        criarFormulario(projeto);
+        montaPomXmlWeb(projeto);
+        montaApplicationProperties(projeto);
+        montaNotFoundException(projeto);
+        montaMainController(projeto);
+        criarClasses(projeto, true);
+        montaRepositoryForClass(projeto);
+        montaServiceForClass(projeto);
+        montaControllerForClass(projeto);
+        criarIndex(projeto);
+        criarListar(projeto);
+        criarFormulario(projeto);
         
         
         JOptionPane.showMessageDialog(null, "Projeto gerado com sucesso!");
@@ -2087,13 +2089,13 @@ public class Menu extends JFrame{
     	    conteudoHtml.append("        </tr>\n");
     	    conteudoHtml.append("      </thead>\n");
     	    conteudoHtml.append("      <tbody>\n");
-    	    conteudoHtml.append("      <th:block th:each=\""+classe.getNomeClasse()+" : ${list"+classe.getNomeClasse()+"s}\">\n");
+    	    conteudoHtml.append("      <th:block th:each=\""+classe.getNomeClasse().toLowerCase()+" : ${list"+classe.getNomeClasse()+"s}\">\n");
     	    conteudoHtml.append("       <tr>\n");
     	    
     	    if(Objects.nonNull(atributos) && !atributos.isEmpty()) {
     	    	for(Atributo attr : atributos) {
     	    		if(attr.getApareceNaConsulta()) {
-			    	    conteudoHtml.append("         <td>[[${"+classe.getNomeClasse()+"."+attr.getNomeAtributo()+"}]]</td>\n");
+			    	    conteudoHtml.append("         <td>[[${"+classe.getNomeClasse().toLowerCase()+"."+attr.getNomeAtributo()+"}]]</td>\n");
     	    		}
     	    	}
     	    }
@@ -2101,8 +2103,8 @@ public class Menu extends JFrame{
     	    conteudoHtml.append("         <td>\n");
     	    
     	    //Ver chave primaria
-    	    conteudoHtml.append("           <a class=\"h4 mr-3\" th:href=\"@{'/"+classe.getNomeClasse()+"s/edit/' + ${"+classe.getNomeClasse()+".id}}\">Editar</a>\n");
-    	    conteudoHtml.append("           <a class=\"h4\" th:href=\"@{'/"+classe.getNomeClasse()+"s/delete/' + ${"+classe.getNomeClasse()+".id}}\">Deletar</a>\n");
+    	    conteudoHtml.append("           <a class=\"h4 mr-3\" th:href=\"@{'/"+classe.getNomeClasse()+"s/edit/' + ${"+classe.getNomeClasse().toLowerCase()+".id}}\">Editar</a>\n");
+    	    conteudoHtml.append("           <a class=\"h4\" th:href=\"@{'/"+classe.getNomeClasse()+"s/delete/' + ${"+classe.getNomeClasse().toLowerCase()+".id}}\">Deletar</a>\n");
     	    //
     	    
     	    conteudoHtml.append("         </td>\n");
@@ -2214,29 +2216,80 @@ public class Menu extends JFrame{
     	    conteudoController.append("@Controller\n");
     	    conteudoController.append("public class "+classe.getNomeClasse()+"Controller {\n\n");
     	    conteudoController.append("    @Autowired private "+classe.getNomeClasse()+"Service service;\n\n");
+    	    for(int i=0; i<classe.getAtributos().size(); i++) {
+    	    	if(classe.getAtributos().get(i).getIsRelacionamento()) {
+    	    		conteudoController.append("    @Autowired private "+classe.getAtributos().get(i).getTipoAtributo()+"Service "+classe.getAtributos().get(i).getTipoAtributo().toLowerCase()+"Service;\n\n");
+    	    	}
+    	    }
+    	    
     	    conteudoController.append("    @GetMapping(\"/"+classe.getNomeClasse()+"s\")\n"); /////////
+    	    
+    	    
     	    conteudoController.append("    public String show"+classe.getNomeClasse()+"List(Model model) {\n");
     	    conteudoController.append("        List<"+classe.getNomeClasse()+"> list"+classe.getNomeClasse()+"s = service.listAll();\n");
-    	    conteudoController.append("        model.addAttribute(\"list"+classe.getNomeClasse()+"\", list"+classe.getNomeClasse()+"s);\n");
+    	    conteudoController.append("        model.addAttribute(\"list"+classe.getNomeClasse()+"s\", list"+classe.getNomeClasse()+"s);\n");
     	    conteudoController.append("        return \""+classe.getNomeClasse()+"s\";\n");
     	    conteudoController.append("    }\n\n");
+    	    
+    	    
     	    conteudoController.append("    @GetMapping(\"/"+classe.getNomeClasse()+"s/new\")\n");
     	    conteudoController.append("    public String showNewForm(Model model) {\n");
     	    conteudoController.append("        model.addAttribute(\""+classe.getNomeClasse()+"\", new "+classe.getNomeClasse()+"());\n");
+    	    
+    	    for(int i=0; i<classe.getAtributos().size(); i++) {
+    	    	if(classe.getAtributos().get(i).getIsRelacionamento()) {
+    	    		conteudoController.append("        model.addAttribute(\"list"+classe.getAtributos().get(i).getTipoAtributo()+"s\", "+classe.getAtributos().get(i).getTipoAtributo().toLowerCase()+"Service.listAll());\n");
+    	    	}
+    	    }
+    	    
     	    conteudoController.append("        model.addAttribute(\"pageTitle\", \"Add New "+classe.getNomeClasse()+"\");\n");
     	    conteudoController.append("        return \""+classe.getNomeClasse()+"_form\";\n");
     	    conteudoController.append("    }\n\n");
+    	    
+    	    
     	    conteudoController.append("    @PostMapping(\"/"+classe.getNomeClasse()+"s/save\")\n");
     	    conteudoController.append("    public String save"+classe.getNomeClasse()+"("+classe.getNomeClasse()+" "+classe.getNomeClasse()+", RedirectAttributes ra) {\n");
+    	    
+    	    
+    	    conteudoController.append("    	try {\n");
+    	    String tipoAtr = "";
+    	    for(int i=0; i<classe.getAtributos().size(); i++) {
+    	    	if(classe.getAtributos().get(i).getIsRelacionamento()) {
+    	    		String nomeAtributo = classe.getAtributos().get(i).getNomeAtributo();
+    	    		String nomeAtributoComPrimeiraMaiuscula = nomeAtributo.substring(0, 1).toUpperCase() + nomeAtributo.substring(1);
+    	    		tipoAtr = classe.getAtributos().get(i).getTipoAtributo();
+
+    	    		conteudoController.append(classe.getNomeClasse()+".set"+nomeAtributoComPrimeiraMaiuscula+"("+classe.getAtributos().get(i).getTipoAtributo().toLowerCase()+"Service.get("+classe.getNomeClasse()+".get"+nomeAtributoComPrimeiraMaiuscula+"().getId()));\n");
+    	    	}
+    	    }
+    	    
     	    conteudoController.append("        service.save("+classe.getNomeClasse()+");\n");
     	    conteudoController.append("        ra.addFlashAttribute(\"message\", \""+classe.getNomeClasse()+" Salvo com Sucesso!.\");\n");
-    	    conteudoController.append("        return \"redirect:/"+classe.getNomeClasse()+"\";\n");
+    	    conteudoController.append("        return \"redirect:/"+classe.getNomeClasse()+"s\";\n");
+    	    
+    	    conteudoController.append("    	}catch("+tipoAtr+"NotFoundException e) {\n");
+    	    conteudoController.append("    		e.printStackTrace();");
+    	    conteudoController.append("    	}\n");
+    	    conteudoController.append("    	return null;\n");
+    	    
+    	    
+    	    
     	    conteudoController.append("    }\n\n");
+    	    
+    	    
     	    conteudoController.append("    @GetMapping(\"/"+classe.getNomeClasse()+"s/edit/{id}\")\n");
     	    conteudoController.append("    public String showEditForm(@PathVariable(\"id\") Integer id, Model model, RedirectAttributes ra) {\n");
     	    conteudoController.append("        try {\n");
     	    conteudoController.append("            "+classe.getNomeClasse()+" "+classe.getNomeClasse()+" = service.get(id);\n");
     	    conteudoController.append("            model.addAttribute(\""+classe.getNomeClasse()+"\", "+classe.getNomeClasse()+");\n");
+    	    
+			for (int i = 0; i < classe.getAtributos().size(); i++) {
+				if (classe.getAtributos().get(i).getIsRelacionamento()) {
+					conteudoController.append("			   model.addAttribute(\"list"
+							+ classe.getAtributos().get(i).getTipoAtributo() + "s\", "+classe.getAtributos().get(i).getTipoAtributo().toLowerCase()+"Service.listAll());\n");
+				}
+			}
+    	    
     	    conteudoController.append("            model.addAttribute(\"pageTitle\", \"Edit "+classe.getNomeClasse()+" (ID: \" + id + \")\");\n");
     	    conteudoController.append("            return \""+classe.getNomeClasse()+"_form\";\n");
     	    conteudoController.append("        } catch ("+classe.getNomeClasse()+"NotFoundException e) {\n");
@@ -2244,6 +2297,8 @@ public class Menu extends JFrame{
     	    conteudoController.append("            return \"redirect:/"+classe.getNomeClasse()+"s\";\n");
     	    conteudoController.append("        }\n");
     	    conteudoController.append("    }\n\n");
+    	    
+    	    
     	    conteudoController.append("    @GetMapping(\"/"+classe.getNomeClasse()+"s/delete/{id}\")\n");
     	    conteudoController.append("    public String delete"+classe.getNomeClasse()+"(@PathVariable(\"id\") Integer id, RedirectAttributes ra) {\n");
     	    conteudoController.append("        try {\n");
