@@ -767,7 +767,7 @@ public class Menu extends JFrame{
         txtSenha.setText("1234");
         
 
-//		montaClassesTeste();
+		montaClassesTeste();
 		
 		
 		//Conexão
@@ -933,6 +933,95 @@ public class Menu extends JFrame{
         process.waitFor();
     }
     
+    private void gerarMenu(Projeto projeto) throws IOException {
+        String diretorioTelas = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\"+projeto.getNomeProjeto()+"\\view";
+        Files.createDirectories(Paths.get(diretorioTelas));
+    	
+    	StringBuilder stringBuilder = new StringBuilder();
+    	stringBuilder.append("package com."+projeto.getNomeProjeto()+".view;\n\n");
+    	stringBuilder.append("import java.awt.EventQueue;\n\n");
+    	stringBuilder.append("import javax.swing.JFrame;\n");
+    	stringBuilder.append("import java.awt.Color;\n");
+    	stringBuilder.append("import javax.swing.JMenuBar;\n");
+    	stringBuilder.append("import javax.swing.JMenu;\n");
+    	stringBuilder.append("import javax.swing.JMenuItem;\n");
+    	stringBuilder.append("import javax.swing.UIManager;\n");
+    	stringBuilder.append("import java.awt.event.ActionListener;\n");
+    	stringBuilder.append("import java.awt.event.ActionEvent;\n\n");
+    	stringBuilder.append("public class TelaMenu extends JFrame {\n");
+    	stringBuilder.append("    private JMenuBar menuBar;\n");
+    	stringBuilder.append("    private JMenu mnCadastros;\n");
+    	
+    	for(Classe classe : projeto.getClasses()) {
+        	stringBuilder.append("    private JMenuItem menuItem"+classe.getNomeClasse()+";\n");
+    	}
+    	
+    	stringBuilder.append("    public static void main(String[] args) {\n");
+    	stringBuilder.append("        EventQueue.invokeLater(new Runnable() {\n");
+    	stringBuilder.append("            public void run() {\n");
+    	stringBuilder.append("                try {\n");
+    	stringBuilder.append("                    UIManager.setLookAndFeel(\"com.sun.java.swing.plaf.windows.WindowsLookAndFeel\");\n");
+    	stringBuilder.append("                    TelaMenu window = new TelaMenu();\n");
+    	stringBuilder.append("                    window.setVisible(true);\n");
+    	stringBuilder.append("                } catch (Exception e) {\n");
+    	stringBuilder.append("                    e.printStackTrace();\n");
+    	stringBuilder.append("                }\n");
+    	stringBuilder.append("            }\n");
+    	stringBuilder.append("        });\n");
+    	stringBuilder.append("    }\n\n");
+    	stringBuilder.append("    public TelaMenu() {\n");
+    	stringBuilder.append("        initialize();\n");
+    	stringBuilder.append("    }\n\n");
+    	stringBuilder.append("    private void initialize() {\n");
+    	stringBuilder.append("        getContentPane().setBackground(new Color(255, 255, 255));\n");
+    	stringBuilder.append("        setTitle(\"Menu\");\n");
+    	stringBuilder.append("        setBounds(100, 100, 450, 300);\n");
+    	stringBuilder.append("        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);\n");
+    	stringBuilder.append("        getContentPane().setLayout(null);\n");
+    	stringBuilder.append("        getContentPane().add(getMenuBar_1());\n");
+    	stringBuilder.append("    }\n\n");
+    	stringBuilder.append("    private JMenuBar getMenuBar_1() {\n");
+    	stringBuilder.append("        if (menuBar == null) {\n");
+    	stringBuilder.append("            menuBar = new JMenuBar();\n");
+    	stringBuilder.append("            menuBar.setBounds(0, 0, 434, 51);\n");
+    	stringBuilder.append("            menuBar.add(getMnCadastros());\n");
+    	stringBuilder.append("        }\n");
+    	stringBuilder.append("        return menuBar;\n");
+    	stringBuilder.append("    }\n\n");
+    	stringBuilder.append("    private JMenu getMnCadastros() {\n");
+    	stringBuilder.append("        if (mnCadastros == null) {\n");
+    	stringBuilder.append("            mnCadastros = new JMenu(\"Cadastros\");\n");
+    	
+    	
+    	for(Classe classe : projeto.getClasses()) {
+    		stringBuilder.append("            mnCadastros.add(getMenuItem"+classe.getNomeClasse()+"());\n");
+    	}
+    	
+    	stringBuilder.append("        }\n");
+    	stringBuilder.append("        return mnCadastros;\n");
+    	stringBuilder.append("    }\n\n");
+    	
+    	
+    	for(Classe classe : projeto.getClasses()) {
+        	stringBuilder.append("    private JMenuItem getMenuItem"+classe.getNomeClasse()+"() {\n");
+        	stringBuilder.append("        if (menuItem"+classe.getNomeClasse()+" == null) {\n");
+        	stringBuilder.append("            menuItem"+classe.getNomeClasse()+" = new JMenuItem(\""+classe.getNomeClasse()+"\");\n");
+        	stringBuilder.append("            menuItem"+classe.getNomeClasse()+".addActionListener(new ActionListener() {\n");
+        	stringBuilder.append("                public void actionPerformed(ActionEvent e) {\n");
+        	stringBuilder.append("                    Tela"+classe.getNomeClasse()+" screen = new Tela"+classe.getNomeClasse()+"();\n");
+        	stringBuilder.append("                    screen.setVisible(true);\n");
+        	stringBuilder.append("                }\n");
+        	stringBuilder.append("            });\n");
+        	stringBuilder.append("        }\n");
+        	stringBuilder.append("        return menuItem"+classe.getNomeClasse()+";\n");
+        	stringBuilder.append("    }\n\n");
+    	}    	
+    	
+    	stringBuilder.append("}\n");
+    	
+    	Files.write(Paths.get(diretorioTelas + "\\" + "TelaMenu.java"), stringBuilder.toString().getBytes());
+    }
+    
     private void gerarTelasCadastro(Projeto projeto) throws IOException {
         String diretorioTelas = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\"+projeto.getNomeProjeto()+"\\view";
         Files.createDirectories(Paths.get(diretorioTelas));
@@ -1070,7 +1159,7 @@ public class Menu extends JFrame{
         	codigoTela.append("	private JPanel getPanelCabecalho() {\n");
             codigoTela.append("    if (panelCabecalho == null) {\n");
             codigoTela.append("        panelCabecalho = new JPanel();\n");
-            codigoTela.append("        panelCabecalho.setBackground(new Color(255, 165, 0));\n");
+            codigoTela.append("        panelCabecalho.setBackground(new Color(30, 144, 255));\n");
             codigoTela.append("        panelCabecalho.setBounds(0, 0, 589, 57);\n");
             codigoTela.append("        panelCabecalho.setLayout(null);\n");
             codigoTela.append("        panelCabecalho.add(getLbCabecalho());\n");
@@ -1081,6 +1170,7 @@ public class Menu extends JFrame{
             codigoTela.append("	private JLabel getLbCabecalho() {\n");
             codigoTela.append("    if (lbCabecalho == null) {\n");
         	codigoTela.append("		   lbCabecalho = new JLabel(\"Tela de ").append(classe.getNomeClasse()).append("\");\n");
+        	codigoTela.append("        lbCabecalho.setForeground(new Color(255, 255, 255));\n");
             codigoTela.append("        lbCabecalho.setFont(new Font(\"Tahoma\", Font.PLAIN, 28));\n");
             codigoTela.append("        lbCabecalho.setHorizontalAlignment(SwingConstants.CENTER);\n");
             codigoTela.append("        lbCabecalho.setBounds(0, 0, 589, 57);\n");
@@ -1396,6 +1486,7 @@ public class Menu extends JFrame{
             codigoTela.append("                ").append(classe.getNomeClasse()).append(" obj = buildObject()").append(";\n");
             codigoTela.append("                dao.save(obj);\n");
             codigoTela.append("                JOptionPane.showMessageDialog(null, \"").append(classe.getNomeClasse()).append(" editado(a) com Sucesso!\");\n");
+            codigoTela.append("                btnSalvar.setEnabled(true);\n");
             codigoTela.append("                limpaTela();\n");
             codigoTela.append("            }\n");
             codigoTela.append("        });\n");
@@ -1451,7 +1542,7 @@ public class Menu extends JFrame{
         			codigoTela.append("                txt").append(atr.getNomeAtributo()).append(".setText(table.getValueAt(table.getSelectedRow(),").append(i).append(").toString());\n");
         		}
         	}
-            
+            codigoTela.append("                btnSalvar.setEnabled(false);\n");
             codigoTela.append("					} else {\n");
             codigoTela.append("						setRetorno(new "+classe.getNomeClasse()+"DAO().findById((Long) table.getValueAt(table.getSelectedRow(), 0)));\n");
             codigoTela.append("						dispose();\n");
@@ -1569,6 +1660,10 @@ public class Menu extends JFrame{
             codigoTela.append("	}");
             
             Files.write(Paths.get(diretorioTelas + "\\" + "Tela" +classe.getNomeClasse() + ".java"), codigoTela.toString().getBytes());
+            
+            if(!projeto.getProjetoWeb()) {
+            	gerarMenu(projeto);
+            }
         }
     }
 
@@ -2074,29 +2169,73 @@ public class Menu extends JFrame{
     }
     
     private void criarIndex(Projeto projeto) throws IOException {
+        StringBuilder htmlBuilder = new StringBuilder();
+        
+        htmlBuilder.append("<!DOCTYPE html>\n");
+        htmlBuilder.append("<html lang=\"en\" xmlns:th=\"http://www.thymeleaf.org\">\n");
+        htmlBuilder.append("<head>\n");
+        htmlBuilder.append("    <meta charset=\"UTF-8\">\n");
+        htmlBuilder.append("    <title>"+projeto.getNomeProjeto()+"</title>\n");
+        htmlBuilder.append("    <link rel=\"stylesheet\" type=\"text/css\" th:href=\"@{/webjars/bootstrap/css/bootstrap.min.css}\" />\n");
+        htmlBuilder.append("    <style>\n");
+        htmlBuilder.append("        body {\n");
+        htmlBuilder.append("            background-color: #f5f5f5;\n");
+        htmlBuilder.append("            font-family: Arial, sans-serif;\n");
+        htmlBuilder.append("        }\n");
+        htmlBuilder.append("\n");
+        htmlBuilder.append("        .container {\n");
+        htmlBuilder.append("            max-width: 800px;\n");
+        htmlBuilder.append("            margin: 0 auto;\n");
+        htmlBuilder.append("            padding: 20px;\n");
+        htmlBuilder.append("            text-align: center;\n");
+        htmlBuilder.append("        }\n");
+        htmlBuilder.append("\n");
+        htmlBuilder.append("        h1 {\n");
+        htmlBuilder.append("            color: #333;\n");
+        htmlBuilder.append("            margin-bottom: 20px;\n");
+        htmlBuilder.append("        }\n");
+        htmlBuilder.append("\n");
+        htmlBuilder.append("        .menu {\n");
+        htmlBuilder.append("            list-style: none;\n");
+        htmlBuilder.append("            padding: 0;\n");
+        htmlBuilder.append("        }\n");
+        htmlBuilder.append("\n");
+        htmlBuilder.append("        .menu-item {\n");
+        htmlBuilder.append("            display: inline-block;\n");
+        htmlBuilder.append("            margin-right: 20px;\n");
+        htmlBuilder.append("        }\n");
+        htmlBuilder.append("\n");
+        htmlBuilder.append("        .menu-item a {\n");
+        htmlBuilder.append("            text-decoration: none;\n");
+        htmlBuilder.append("            color: #007bff;\n");
+        htmlBuilder.append("            font-size: 18px;\n");
+        htmlBuilder.append("            transition: color 0.3s;\n");
+        htmlBuilder.append("        }\n");
+        htmlBuilder.append("\n");
+        htmlBuilder.append("        .menu-item a:hover {\n");
+        htmlBuilder.append("            color: #0056b3;\n");
+        htmlBuilder.append("        }\n");
+        htmlBuilder.append("    </style>\n");
+        htmlBuilder.append("</head>\n");
+        htmlBuilder.append("<body>\n");
+        htmlBuilder.append("<div class=\"container\">\n");
+        htmlBuilder.append("    <h1>"+projeto.getNomeProjeto()+"</h1>\n");
+        htmlBuilder.append("    <ul class=\"menu\">\n");
+    	
     	for(Classe classe : projeto.getClasses()) {
-	        StringBuilder conteudoIndexHtml = new StringBuilder();
-	        conteudoIndexHtml.append("<!DOCTYPE html>\n");
-	        conteudoIndexHtml.append("<html lang=\"en\" xmlns:th=\"http://www.thymeleaf.org\">\n");
-	        conteudoIndexHtml.append("<head>\n");
-	        conteudoIndexHtml.append("    <meta charset=\"UTF-8\">\n");
-	        conteudoIndexHtml.append("    <title>"+projeto.getNomeProjeto()+"</title>\n");
-	        conteudoIndexHtml.append("    <link rel=\"stylesheet\" type=\"text/css\" th:href=\"@{/webjars/bootstrap/css/bootstrap.min.css}\"  />\n");
-	        conteudoIndexHtml.append("</head>\n");
-	        conteudoIndexHtml.append("<body>\n");
-	        conteudoIndexHtml.append("<div class=\"container-fluid text-center\">\n");
-	        conteudoIndexHtml.append("    <h1>Seja Bem vindo ao "+projeto.getNomeProjeto()+"</h1>\n");
-	        conteudoIndexHtml.append("    <a class=\"h2\" th:href=\"@{/"+classe.getNomeClasse()+"s}\">Gerenciar "+classe.getNomeClasse()+"s</a>\n");
-	        conteudoIndexHtml.append("</div>\n");
-	        conteudoIndexHtml.append("</body>\n");
-	        conteudoIndexHtml.append("</html>\n");
-	        
-	        String indexHtmlDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\templates";
-	        Files.createDirectories(Paths.get(indexHtmlDestino));
-	        
-	        String file = indexHtmlDestino + "\\\\index.html";
-	        Files.write(Paths.get(file), conteudoIndexHtml.toString().getBytes());
+	        htmlBuilder.append("        <li class=\"menu-item\"><a th:href=\"@{/"+classe.getNomeClasse()+"s}\">Gerenciar "+classe.getNomeClasse()+"s</a></li>\n");
     	}
+    	
+        htmlBuilder.append("    </ul>\n");
+        htmlBuilder.append("</div>\n");
+        htmlBuilder.append("</body>\n");
+        htmlBuilder.append("</html>\n");
+        
+        String indexHtmlDestino = projeto.getDiretorioProjeto() + "\\src\\main\\resources\\templates";
+        Files.createDirectories(Paths.get(indexHtmlDestino));
+        
+        String file = indexHtmlDestino + "\\\\index.html";
+        Files.write(Paths.get(file), htmlBuilder.toString().getBytes());
     }
     
     //ajustar genericamente
@@ -2177,6 +2316,13 @@ public class Menu extends JFrame{
     	    conteudoHtml.append("      </tbody>\n");
     	    conteudoHtml.append("    </table>\n");
     	    conteudoHtml.append("  </div>\n");
+    	    
+    	    conteudoHtml.append("  <div class=\"mt-4\">\n");
+    	    conteudoHtml.append("    <a class=\"btn btn-secondary\" th:href=\"@{/}\">\n");
+    	    conteudoHtml.append("      Voltar ao Menu\n");
+    	    conteudoHtml.append("    </a>\n");
+    	    conteudoHtml.append("  </div>\n");
+    	    
     	    conteudoHtml.append("</div>\n");
     	    conteudoHtml.append("</body>\n");
     	    conteudoHtml.append("</html>\n");
@@ -2329,7 +2475,7 @@ public class Menu extends JFrame{
     	    	}
     	    }
     	    
-    	    conteudoController.append("        model.addAttribute(\"pageTitle\", \"Add New "+classe.getNomeClasse()+"\");\n");
+    	    conteudoController.append("        model.addAttribute(\"pageTitle\", \"Adicionar "+classe.getNomeClasse()+"\");\n");
     	    conteudoController.append("        return \""+classe.getNomeClasse()+"_form\";\n");
     	    conteudoController.append("    }\n\n");
     	    
