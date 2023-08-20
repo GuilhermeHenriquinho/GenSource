@@ -26,7 +26,6 @@ public class TelaRelacionamentos extends JDialog {
 	private JComboBox cbCascade;
 	private JLabel lblFetch;
 	private JComboBox cbFetch;
-	private JCheckBox ckOrphan;
 	private JButton btnSalvar;
 	private JButton btnCancelar;
 	private JLabel lblField;
@@ -74,7 +73,6 @@ public class TelaRelacionamentos extends JDialog {
 		getContentPane().setLayout(null);
 		getContentPane().add(getBtnSalvar());
 		getContentPane().add(getBtnCancelar());
-		getContentPane().add(getCkOrphan());
 		getContentPane().add(getCbCascade());
 		getContentPane().add(getLblMappedby());
 		getContentPane().add(getLblFetch());
@@ -114,14 +112,6 @@ public class TelaRelacionamentos extends JDialog {
 		}
 		return cbFetch;
 	}
-	private JCheckBox getCkOrphan() {
-		if (ckOrphan == null) {
-			ckOrphan = new JCheckBox("OrphanRemoval");
-			ckOrphan.setBounds(120, 126, 103, 23);
-			ckOrphan.setHorizontalAlignment(SwingConstants.RIGHT);
-		}
-		return ckOrphan;
-	}
 	private JButton getBtnSalvar() {
 		if (btnSalvar == null) {
 			btnSalvar = new JButton("Salvar");
@@ -154,7 +144,11 @@ public class TelaRelacionamentos extends JDialog {
 					if (anot.endsWith("\"") || !anot.endsWith("(")) {
 						anot += ", ";
 					}
-					anot += "orphanRemoval = "+ (ckOrphan.isSelected() ? "true" : "false") +")";
+					anot += ")";
+					
+					if (fetch == null || fetch.isEmpty() && cascade == null || cascade.isEmpty() && field == null || field.isEmpty()) {
+				        anot = anot.substring(0, anot.length() - 2);
+					}
 					
 					setAnotacao(anot);
 					dispose();

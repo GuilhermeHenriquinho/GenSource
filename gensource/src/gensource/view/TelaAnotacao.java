@@ -23,6 +23,7 @@ import gensource.model.enumAndModel.Anotacao;
 import gensource.model.enumAndModel.AnotacaoModel;
 import gensource.view.anotations.TelaColumn;
 import gensource.view.anotations.TelaGeneratedValue;
+import gensource.view.anotations.TelaJoinColumn;
 import gensource.view.anotations.TelaRelacionamentos;
 
 import javax.swing.JLabel;
@@ -117,8 +118,26 @@ public class TelaAnotacao extends JDialog {
 
 				if (Objects.nonNull(am)) {
 					
+					//JoinColumn
+					if(am.getTitulo().contains("JoinColumn")) {
+						TelaJoinColumn screen = new TelaJoinColumn();
+						screen.setVisible(true);
+						if (Objects.nonNull(screen.getAnotacao()) && screen.getAnotacao().length() > 0) {
+							AnotacaoString anotacao = new AnotacaoString();
+							anotacao.setAnotacao(screen.getAnotacao());
+							for (int i = 0; i < anotacoesString.size(); i++) {
+								if (anotacoesString.get(i).getAnotacao().contains("@JoinColumn")) {
+									anotacoesString.remove(i);
+									break;
+								}
+							}
+							anotacoesString.add(anotacao);
+							carregaTableString(anotacoesString);
+						}
+					}
+					
 					// Column
-					if (am.getTitulo().contains("Column")) {
+					if (am.getTitulo().contains("Column") && !am.getTitulo().contains("Join")) {
 						TelaColumn screen = new TelaColumn();
 						screen.setVisible(true);
 						if (Objects.nonNull(screen.getAnotacao()) && screen.getAnotacao().length() > 0) {
