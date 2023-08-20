@@ -758,7 +758,7 @@ public class Menu extends JFrame{
 	private Projeto montaProjeto() {
 		
         txtCaminho.setText("C:\\workspace");
-        txtNomeProjeto.setText("projetoDesktopGerado13");
+        txtNomeProjeto.setText("projetoWebGerado");
         txtNomeConexao.setText("teste");
         txtUrl.setText("jdbc:mysql://localhost/teste");
         txtDialect.setText("org.hibernate.dialect.MySQL57Dialect");
@@ -853,7 +853,7 @@ public class Menu extends JFrame{
 		at5.setConsultaPor(false);
 		at5.setApareceNaConsulta(true);
 		at5.setNomeAtributo("id");
-		at5.setTipoAtributo("Long");
+		at5.setTipoAtributo("Integer");
 		String anotacao5 = "@Id";
 		String anotacao6 = "@GeneratedValue(strategy = GenerationType.IDENTITY)";
 		List<String> anotacoes2 = new ArrayList<>();
@@ -1635,6 +1635,11 @@ public class Menu extends JFrame{
 			} else {
 				codigoClasse.append("package com.").append(projeto.getNomeProjeto()).append(".").append(classe.getNomeClasse())
 						.append(";\n\n");
+				for(int i=0; i<classe.getAtributos().size(); i++) {
+					if(Objects.nonNull(classe.getAtributos().get(i).getIsRelacionamento()) && classe.getAtributos().get(i).getIsRelacionamento()) {
+						codigoClasse.append("import com."+projeto.getNomeProjeto()+"."+classe.getAtributos().get(i).getTipoAtributo()+"."+classe.getAtributos().get(i).getTipoAtributo()+";\n");
+					}
+				}
 			}
             
             codigoClasse.append("import javax.persistence.*;\n\n");
@@ -2036,7 +2041,7 @@ public class Menu extends JFrame{
 	        conteudoIndexHtml.append("</head>\n");
 	        conteudoIndexHtml.append("<body>\n");
 	        conteudoIndexHtml.append("<div class=\"container-fluid text-center\">\n");
-	        conteudoIndexHtml.append("    <h1>Welcome to my application</h1>\n");
+	        conteudoIndexHtml.append("    <h1>Seja Bem vindo ao "+projeto.getNomeProjeto()+"</h1>\n");
 	        conteudoIndexHtml.append("    <a class=\"h2\" th:href=\"@{/"+classe.getNomeClasse()+"s}\">Gerenciar "+classe.getNomeClasse()+"s</a>\n");
 	        conteudoIndexHtml.append("</div>\n");
 	        conteudoIndexHtml.append("</body>\n");
@@ -2066,7 +2071,7 @@ public class Menu extends JFrame{
     	    conteudoHtml.append("<div class=\"container-fluid text-center\">\n");
     	    conteudoHtml.append("  <div><h2>Gerenciar "+classe.getNomeClasse()+"s</h2></div>\n");
     	    conteudoHtml.append("  <div class=\"m-2\">\n");
-    	    conteudoHtml.append("    <a class=\"h3\" th:href=\"@{/"+classe.getNomeClasse()+"s/new}\">Add Novo "+classe.getNomeClasse()+"</a>\n");
+    	    conteudoHtml.append("    <a class=\"h3\" th:href=\"@{/"+classe.getNomeClasse()+"s/new}\">Adicionar "+classe.getNomeClasse()+"</a>\n");
     	    conteudoHtml.append("  </div>\n");
     	    conteudoHtml.append("  <div th:if=\"${message}\" class=\"alert alert-success text-center\">\n");
     	    conteudoHtml.append("    [[${message}]]\n");
@@ -2093,9 +2098,24 @@ public class Menu extends JFrame{
     	    conteudoHtml.append("       <tr>\n");
     	    
     	    if(Objects.nonNull(atributos) && !atributos.isEmpty()) {
+    	    	String nomeSearch = "";
     	    	for(Atributo attr : atributos) {
     	    		if(attr.getApareceNaConsulta()) {
-			    	    conteudoHtml.append("         <td>[[${"+classe.getNomeClasse().toLowerCase()+"."+attr.getNomeAtributo()+"}]]</td>\n");
+    	    			if(Objects.nonNull(attr.getIsRelacionamento()) && attr.getIsRelacionamento()) {
+    	    				for(int i=0; i<listaClasses.size(); i++) {
+    	    					if(attr.getTipoAtributo().equals(listaClasses.get(i).getNomeClasse())) {
+    	    						for(int j=0; j<listaClasses.get(i).getAtributos().size(); j++) {
+    	    							if(Objects.nonNull(listaClasses.get(i).getAtributos().get(j).getConsultaPor()) && listaClasses.get(i).getAtributos().get(j).getConsultaPor()) {
+    	    								nomeSearch = listaClasses.get(i).getAtributos().get(j).getNomeAtributo();
+    	    							}
+    	    						}
+    	    					}
+    	    				}
+    	    				
+    	    				conteudoHtml.append("         <td>[[${"+classe.getNomeClasse().toLowerCase()+"."+attr.getNomeAtributo()+"."+nomeSearch+"}]]</td>\n");
+    	    			}else {
+    	    				conteudoHtml.append("         <td>[[${"+classe.getNomeClasse().toLowerCase()+"."+attr.getNomeAtributo()+"}]]</td>\n");
+    	    			}
     	    		}
     	    	}
     	    }
@@ -2150,22 +2170,35 @@ public class Menu extends JFrame{
 	        List<Atributo> atributos = classe.getAtributos();
 	        if(Objects.nonNull(atributos) && !atributos.isEmpty()) {
 	        	for(Atributo attr : atributos) {
-	        		if(!attr.getTipoAtributo().equals("Boolean")) {
-	        	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
-	        	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">"+attr.getNomeAtributo()+":</label>\n");
-	        	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
-	        	        conteudoFormHtml.append("          <input type=\"text\" th:field=\"*{"+attr.getNomeAtributo()+"}\" class=\"form-control\" required minlength=\"2\" maxlength=\"45\" />\n");
-	        	        conteudoFormHtml.append("        </div>\n");
-	        	        conteudoFormHtml.append("      </div>\n");
-	        		} else {
-	        	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
-	        	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">"+attr.getNomeAtributo()+":</label>\n");
-	        	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
-	        	        conteudoFormHtml.append("          <input type=\"checkbox\" th:field=\"*{"+attr.getNomeAtributo()+"}\" />\n");
-	        	        conteudoFormHtml.append("        </div>\n");
-	        	        conteudoFormHtml.append("      </div>\n");
+	        		if(!("id".equals(attr.getNomeAtributo()))) {
+		        		if(!attr.getTipoAtributo().equals("Boolean")) {
+		        			if(Objects.nonNull(attr.getIsRelacionamento()) && attr.getIsRelacionamento()) {
+		        				conteudoFormHtml.append("      <div class=\"form-group row\">\n");
+		        				conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">"+attr.getNomeAtributo()+":</label>\n");
+		        				conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
+		        				conteudoFormHtml.append("          <select th:field=\"*{"+attr.getNomeAtributo()+"}\" class=\"form-control\">\n");
+		        				conteudoFormHtml.append("            <option th:each=\""+attr.getNomeAtributo()+" : ${list"+attr.getTipoAtributo()+"s}\" th:value=\"${"+attr.getNomeAtributo()+".id}\" th:text=\"${"+attr.getNomeAtributo()+".nome}\"></option>\n");
+		        				conteudoFormHtml.append("          </select>\n");
+		        				conteudoFormHtml.append("        </div>\n");
+		        				conteudoFormHtml.append("      </div>\n");
+		        			}else {
+			        	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
+			        	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">"+attr.getNomeAtributo()+":</label>\n");
+			        	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
+			        	        conteudoFormHtml.append("          <input type=\"text\" th:field=\"*{"+attr.getNomeAtributo()+"}\" class=\"form-control\" required minlength=\"2\" maxlength=\"45\" />\n");
+			        	        conteudoFormHtml.append("        </div>\n");
+			        	        conteudoFormHtml.append("      </div>\n");
+		        			}
+		        		} else {
+		        	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
+		        	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">"+attr.getNomeAtributo()+":</label>\n");
+		        	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
+		        	        conteudoFormHtml.append("          <input type=\"checkbox\" th:field=\"*{"+attr.getNomeAtributo()+"}\" />\n");
+		        	        conteudoFormHtml.append("        </div>\n");
+		        	        conteudoFormHtml.append("      </div>\n");
+		        		}
+		        	}
 	        		}
-	        	}
 	        }
 	        
 	        conteudoFormHtml.append("      <div class=\"text-center\">\n");
@@ -2212,12 +2245,20 @@ public class Menu extends JFrame{
     	    conteudoController.append("import org.springframework.web.bind.annotation.PathVariable;\n");
     	    conteudoController.append("import org.springframework.web.bind.annotation.PostMapping;\n");
     	    conteudoController.append("import org.springframework.web.servlet.mvc.support.RedirectAttributes;\n");
-    	    conteudoController.append("import java.util.List;\n\n");
+    	    conteudoController.append("import java.util.List;\n");
+    	    
+    	    for(int i=0; i<classe.getAtributos().size(); i++) {
+    	    	if(Objects.nonNull(classe.getAtributos().get(i).getIsRelacionamento()) && classe.getAtributos().get(i).getIsRelacionamento()) {
+    	    		conteudoController.append("import com."+projeto.getNomeProjeto()+"."+classe.getAtributos().get(i).getTipoAtributo()+"."+classe.getAtributos().get(i).getTipoAtributo()+"NotFoundException;\n");
+    	    		conteudoController.append("import com."+projeto.getNomeProjeto()+"."+classe.getAtributos().get(i).getTipoAtributo()+"."+classe.getAtributos().get(i).getTipoAtributo()+"Service;;\n\n");
+    	    	}
+    	    }
+    	    
     	    conteudoController.append("@Controller\n");
     	    conteudoController.append("public class "+classe.getNomeClasse()+"Controller {\n\n");
     	    conteudoController.append("    @Autowired private "+classe.getNomeClasse()+"Service service;\n\n");
     	    for(int i=0; i<classe.getAtributos().size(); i++) {
-    	    	if(classe.getAtributos().get(i).getIsRelacionamento()) {
+    	    	if(Objects.nonNull(classe.getAtributos().get(i).getIsRelacionamento()) && classe.getAtributos().get(i).getIsRelacionamento()) {
     	    		conteudoController.append("    @Autowired private "+classe.getAtributos().get(i).getTipoAtributo()+"Service "+classe.getAtributos().get(i).getTipoAtributo().toLowerCase()+"Service;\n\n");
     	    	}
     	    }
@@ -2236,8 +2277,10 @@ public class Menu extends JFrame{
     	    conteudoController.append("    public String showNewForm(Model model) {\n");
     	    conteudoController.append("        model.addAttribute(\""+classe.getNomeClasse()+"\", new "+classe.getNomeClasse()+"());\n");
     	    
+    	    Boolean temRelacionamento = false;
     	    for(int i=0; i<classe.getAtributos().size(); i++) {
-    	    	if(classe.getAtributos().get(i).getIsRelacionamento()) {
+    	    	if(Objects.nonNull(classe.getAtributos().get(i).getIsRelacionamento()) && classe.getAtributos().get(i).getIsRelacionamento()) {
+    	    		temRelacionamento = true;
     	    		conteudoController.append("        model.addAttribute(\"list"+classe.getAtributos().get(i).getTipoAtributo()+"s\", "+classe.getAtributos().get(i).getTipoAtributo().toLowerCase()+"Service.listAll());\n");
     	    	}
     	    }
@@ -2250,16 +2293,17 @@ public class Menu extends JFrame{
     	    conteudoController.append("    @PostMapping(\"/"+classe.getNomeClasse()+"s/save\")\n");
     	    conteudoController.append("    public String save"+classe.getNomeClasse()+"("+classe.getNomeClasse()+" "+classe.getNomeClasse()+", RedirectAttributes ra) {\n");
     	    
-    	    
-    	    conteudoController.append("    	try {\n");
     	    String tipoAtr = "";
+    	    if(temRelacionamento) {   	    	
+    	    	conteudoController.append("    	try {\n");
+    	    }
     	    for(int i=0; i<classe.getAtributos().size(); i++) {
-    	    	if(classe.getAtributos().get(i).getIsRelacionamento()) {
+    	    	if(Objects.nonNull(classe.getAtributos().get(i).getIsRelacionamento()) && classe.getAtributos().get(i).getIsRelacionamento()) {
     	    		String nomeAtributo = classe.getAtributos().get(i).getNomeAtributo();
     	    		String nomeAtributoComPrimeiraMaiuscula = nomeAtributo.substring(0, 1).toUpperCase() + nomeAtributo.substring(1);
     	    		tipoAtr = classe.getAtributos().get(i).getTipoAtributo();
 
-    	    		conteudoController.append(classe.getNomeClasse()+".set"+nomeAtributoComPrimeiraMaiuscula+"("+classe.getAtributos().get(i).getTipoAtributo().toLowerCase()+"Service.get("+classe.getNomeClasse()+".get"+nomeAtributoComPrimeiraMaiuscula+"().getId()));\n");
+    	    		conteudoController.append("        "+classe.getNomeClasse()+".set"+nomeAtributoComPrimeiraMaiuscula+"("+classe.getAtributos().get(i).getTipoAtributo().toLowerCase()+"Service.get("+classe.getNomeClasse()+".get"+nomeAtributoComPrimeiraMaiuscula+"().getId()));\n");
     	    	}
     	    }
     	    
@@ -2267,11 +2311,12 @@ public class Menu extends JFrame{
     	    conteudoController.append("        ra.addFlashAttribute(\"message\", \""+classe.getNomeClasse()+" Salvo com Sucesso!.\");\n");
     	    conteudoController.append("        return \"redirect:/"+classe.getNomeClasse()+"s\";\n");
     	    
-    	    conteudoController.append("    	}catch("+tipoAtr+"NotFoundException e) {\n");
-    	    conteudoController.append("    		e.printStackTrace();");
-    	    conteudoController.append("    	}\n");
-    	    conteudoController.append("    	return null;\n");
-    	    
+    	    if(temRelacionamento) {
+	    	    conteudoController.append("    	}catch("+tipoAtr+"NotFoundException e) {\n");
+	    	    conteudoController.append("    		e.printStackTrace();");
+	    	    conteudoController.append("    	}\n");
+	    	    conteudoController.append("    	return null;\n");
+    	    }
     	    
     	    
     	    conteudoController.append("    }\n\n");
@@ -2284,7 +2329,7 @@ public class Menu extends JFrame{
     	    conteudoController.append("            model.addAttribute(\""+classe.getNomeClasse()+"\", "+classe.getNomeClasse()+");\n");
     	    
 			for (int i = 0; i < classe.getAtributos().size(); i++) {
-				if (classe.getAtributos().get(i).getIsRelacionamento()) {
+				if(Objects.nonNull(classe.getAtributos().get(i).getIsRelacionamento()) && classe.getAtributos().get(i).getIsRelacionamento()) {
 					conteudoController.append("			   model.addAttribute(\"list"
 							+ classe.getAtributos().get(i).getTipoAtributo() + "s\", "+classe.getAtributos().get(i).getTipoAtributo().toLowerCase()+"Service.listAll());\n");
 				}
