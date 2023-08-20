@@ -821,7 +821,7 @@ public class Menu extends JFrame{
 		List<String> anotacoes21 = new ArrayList<>();
 		anotacoes21.add(new String("@Column(name = \"nome\", length = 11, nullable = true)"));
 		at2.setAnotacao(anotacoes21);
-		
+		at2.setIsObrigatorio(true);
 		
 		at2.setNomeAtributo("nome");
 		at2.setTipoAtributo("String");
@@ -1421,9 +1421,13 @@ public class Menu extends JFrame{
             codigoTela.append("            public void actionPerformed(ActionEvent e) {\n");
             codigoTela.append("                ").append(classe.getNomeClasse()).append("DAO dao = new ").append(classe.getNomeClasse()).append("DAO();\n");
             codigoTela.append("                ").append(classe.getNomeClasse()).append(" obj = buildObject()").append(";\n");
-            codigoTela.append("                dao.save(obj);\n");
-            codigoTela.append("                JOptionPane.showMessageDialog(null, \"").append(classe.getNomeClasse()).append(" salvo(a) com Sucesso!\");\n");
-            codigoTela.append("                limpaTela();\n");
+            
+            codigoTela.append("                if (Objects.nonNull(obj)) {\n");
+            codigoTela.append("                		dao.save(obj);\n");
+            codigoTela.append("                		JOptionPane.showMessageDialog(null, \"").append(classe.getNomeClasse()).append(" salvo(a) com Sucesso!\");\n");
+            codigoTela.append("                		limpaTela();\n");
+            codigoTela.append("        		   }\n");
+            
             codigoTela.append("            }\n");
             codigoTela.append("        });\n");
             codigoTela.append("        btnSalvar.setBounds(193, 421, 89, 30);\n");
@@ -1450,11 +1454,12 @@ public class Menu extends JFrame{
 	        		}
         		}
         		if(notid){
-        			
+        			Boolean isrelacionamento = false;
         			if(atr.getTipoAtributo().equals("Integer")) {
         				codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(Integer.parseInt(").append("(txt").append(atr.getNomeAtributo()).append(".getText())));\n");
         			} 
         			else if(Objects.nonNull(atr.getIsRelacionamento()) && atr.getIsRelacionamento()) {
+        				isrelacionamento = true;
             			String searchByField = "";
             			for(int i=0; i<listaClasses.size(); i++) {
             				if(listaClasses.get(i).getNomeClasse().equals(atr.getTipoAtributo())) {
@@ -1462,7 +1467,6 @@ public class Menu extends JFrame{
             						if(listaClasses.get(i).getAtributos().get(j).getConsultaPor()) {
             							searchByField = listaClasses.get(i).getAtributos().get(j).getNomeAtributo();
             							searchByField = searchByField.substring(0, 1).toUpperCase() + searchByField.substring(1);
-
             						}
             					}
             				}
@@ -1472,11 +1476,49 @@ public class Menu extends JFrame{
         				.append(atr.getTipoAtributo()+"DAO().findBy"+searchByField+"(txt")
         				.append(atr.getNomeAtributo()+".getText()).get(0));\n");
         			}
+        			
+        			
         			else if ("Boolean".equals(atr.getTipoAtributo())) {
         				codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(cb").append(atr.getNomeAtributo()).append(".isSelected());\n");
         			}
+        			
+        			if(Objects.nonNull(atr.getIsObrigatorio()) && atr.getIsObrigatorio()) {
+        				codigoTela.append("if (txt"+atr.getNomeAtributo()+".getText().isEmpty()) {\n");
+        				codigoTela.append("    JOptionPane.showMessageDialog(null, \"O campo "+atr.getNomeAtributo()+" é obrigatório!\");\n");
+        				codigoTela.append("    txt"+atr.getNomeAtributo()+".selectAll();\n");
+        				codigoTela.append("    txt"+atr.getNomeAtributo()+".requestFocus();\n");
+        				codigoTela.append("    return null;\n");
+        				codigoTela.append("}\n");
+        			}
+        			
+        			if(Objects.nonNull(atr.getAnotacao()) && !isrelacionamento) {
+        				String length = null;
+        				for(String anot : atr.getAnotacao()) {
+        					
+        					String[] parts = anot.split(",");
+
+        	                for (String part : parts) {
+        	                    if (part.contains("length")) {
+        	                        length = part.split("=")[1].trim();
+        	                    }
+        	                }
+            				break;
+        				}
+        				
+        				codigoTela.append("if (txt"+atr.getNomeAtributo()+".getText().length() > "+length+") {\n");
+        				codigoTela.append("    obj.set"+nomeAtrMaiusculo+"(txt"+atr.getNomeAtributo()+".getText());\n");
+        				codigoTela.append("} else {\n");
+        				codigoTela.append("    JOptionPane.showMessageDialog(null, \"Quantidade mínima de caracteres para o campo "+atr.getNomeAtributo()+" é 11!\");\n");
+        				codigoTela.append("    txt"+atr.getNomeAtributo()+".selectAll();\n");
+        				codigoTela.append("    txt"+atr.getNomeAtributo()+".requestFocus();\n");
+        				codigoTela.append("    return null;\n");
+        				codigoTela.append("}\n");
+        			}
+        			
         			else {
-        				codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(txt").append(atr.getNomeAtributo()).append(".getText());\n");
+        				if(!isrelacionamento) {
+        					codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(txt").append(atr.getNomeAtributo()).append(".getText());\n");
+        				}
         			}
         		}
         	}
@@ -1490,10 +1532,15 @@ public class Menu extends JFrame{
             codigoTela.append("            public void actionPerformed(ActionEvent e) {\n");
             codigoTela.append("                ").append(classe.getNomeClasse()).append("DAO dao = new ").append(classe.getNomeClasse()).append("DAO();\n");
             codigoTela.append("                ").append(classe.getNomeClasse()).append(" obj = buildObject()").append(";\n");
-            codigoTela.append("                dao.save(obj);\n");
-            codigoTela.append("                JOptionPane.showMessageDialog(null, \"").append(classe.getNomeClasse()).append(" editado(a) com Sucesso!\");\n");
-            codigoTela.append("                btnSalvar.setEnabled(true);\n");
-            codigoTela.append("                limpaTela();\n");
+            
+            codigoTela.append("                if (Objects.nonNull(obj)) {\n");
+            codigoTela.append("                		dao.save(obj);\n");
+            codigoTela.append("                		JOptionPane.showMessageDialog(null, \"").append(classe.getNomeClasse()).append(" editado(a) com Sucesso!\");\n");
+            codigoTela.append("                		btnSalvar.setEnabled(true);\n");
+            codigoTela.append("                		limpaTela();\n");
+            codigoTela.append("       		   }\n");
+            
+            
             codigoTela.append("            }\n");
             codigoTela.append("        });\n");
             codigoTela.append("        btnEditar.setBounds(301, 421, 89, 30);\n");
