@@ -50,6 +50,8 @@ import gensource.model.Atributo;
 import gensource.model.Classe;
 import gensource.model.Conexao;
 import gensource.model.Projeto;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class Menu extends JFrame{
     private JTextField txtNomeClasse;
@@ -309,6 +311,17 @@ public class Menu extends JFrame{
         lbNomeClasse.setFont(new Font("Tahoma", Font.PLAIN, 13));
         
         txtNomeClasse = new JTextField();
+        txtNomeClasse.addKeyListener(new KeyAdapter() {
+        	@Override
+        	public void keyTyped(KeyEvent e) {
+                String text = txtNomeClasse.getText();
+                if (text.length() == 0) {
+                    e.setKeyChar(Character.toUpperCase(e.getKeyChar()));
+                } else if (text.length() == 1 && Character.isLowerCase(text.charAt(0))) {
+                    txtNomeClasse.setText(text.toUpperCase());
+                }
+        	}
+        });
         txtNomeClasse.setBounds(58, 26, 155, 23);
         panelClass.add(txtNomeClasse);
         txtNomeClasse.setFont(new Font("Tahoma", Font.PLAIN, 13));
@@ -339,7 +352,7 @@ public class Menu extends JFrame{
         
         cbTipoAtributo = new JComboBox();
         //Adicionar nome das Classes já adicionadas
-        cbTipoAtributo.setModel(new DefaultComboBoxModel(new String[] {"", "Int", "Long", "Boolean", "Char", "Float", "Double", "String"}));
+        cbTipoAtributo.setModel(new DefaultComboBoxModel(new String[] {"", "Integer", "Long", "Boolean", "Char", "Float", "Double", "String"}));
         cbTipoAtributo.setBounds(267, 24, 127, 23);
         panel.add(cbTipoAtributo);
         
@@ -417,7 +430,7 @@ public class Menu extends JFrame{
 		btnEditar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//abre uma tela com os campos de atributo para preencher e dps salva e recarrega a lista
-				String nomeAtributo = txtNomeAtributo.getText();
+				String nomeAtributo = model.getValue(table.getSelectedRow()).getNomeAtributo();
 				
 				Classe classe = selecionaClasse();
 				
@@ -767,8 +780,7 @@ public class Menu extends JFrame{
         txtSenha.setText("1234");
         
 
-		montaClassesTeste();
-		
+//		montaClassesTeste();
 		
 		//Conexão
 		Conexao conexao = new Conexao();
@@ -786,9 +798,21 @@ public class Menu extends JFrame{
 		projeto.setProjetoWeb(cbIsWeb.isSelected());
 		projeto.setConexao(conexao);
 		
+		
+        for(int i=0; i<listaClasses.size(); i++) {
+        	for(int j=0; j<listaClasses.get(i).getAtributos().size(); j++) {
+        		if("id".equals(listaClasses.get(i).getAtributos().get(j).getNomeAtributo())) {
+        			if(projeto.getProjetoWeb()) {
+        				listaClasses.get(i).getAtributos().get(j).setTipoAtributo("Integer");
+        			}else {
+        				listaClasses.get(i).getAtributos().get(j).setTipoAtributo("Long");
+        			}
+        		}
+        	}
+        }
+		
 		//Classes
 		projeto.setClasses(getListaClasses());
-		
 		
 		projeto.setDiretorioProjeto(txtCaminho.getText() + "\\" + txtNomeProjeto.getText());
 		
@@ -1455,9 +1479,29 @@ public class Menu extends JFrame{
         		}
         		if(notid){
         			Boolean isrelacionamento = false;
-        			if(atr.getTipoAtributo().equals("Integer")) {
-        				codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(Integer.parseInt(").append("(txt").append(atr.getNomeAtributo()).append(".getText())));\n");
-        			} 
+        			Boolean isboolean = false;
+        			Boolean isNumber = false;
+        			
+					if (atr.getTipoAtributo().equals("Integer") || atr.getTipoAtributo().equals("Long")
+							|| atr.getTipoAtributo().equals("Float")) {
+						isNumber = true;
+
+						if (atr.getTipoAtributo().equals("Integer")) {
+							codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(Integer.parseInt(txt")
+									.append(atr.getNomeAtributo()).append(".getText()));\n");
+						}
+
+						if (atr.getTipoAtributo().equals("Long")) {
+							codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(Long.parseLong(txt")
+									.append(atr.getNomeAtributo()).append(".getText()));\n");
+						}
+
+						if (atr.getTipoAtributo().equals("Float")) {
+							codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(Float.parseFloat(txt")
+									.append(atr.getNomeAtributo()).append(".getText()));\n");
+						}
+
+					} 
         			else if(Objects.nonNull(atr.getIsRelacionamento()) && atr.getIsRelacionamento()) {
         				isrelacionamento = true;
             			String searchByField = "";
@@ -1479,10 +1523,11 @@ public class Menu extends JFrame{
         			
         			
         			else if ("Boolean".equals(atr.getTipoAtributo())) {
+        				isboolean = true;
         				codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(cb").append(atr.getNomeAtributo()).append(".isSelected());\n");
         			}
         			
-        			if(Objects.nonNull(atr.getIsObrigatorio()) && atr.getIsObrigatorio()) {
+        			if(Objects.nonNull(atr.getIsObrigatorio()) && atr.getIsObrigatorio() && !isboolean && !isNumber) {
         				codigoTela.append("if (txt"+atr.getNomeAtributo()+".getText().isEmpty()) {\n");
         				codigoTela.append("    JOptionPane.showMessageDialog(null, \"O campo "+atr.getNomeAtributo()+" é obrigatório!\");\n");
         				codigoTela.append("    txt"+atr.getNomeAtributo()+".selectAll();\n");
@@ -1491,7 +1536,7 @@ public class Menu extends JFrame{
         				codigoTela.append("}\n");
         			}
         			
-        			if(Objects.nonNull(atr.getAnotacao()) && !isrelacionamento) {
+        			if(Objects.nonNull(atr.getAnotacao()) && !isrelacionamento && !isboolean) {
         				String length = null;
         				for(String anot : atr.getAnotacao()) {
         					
@@ -1516,7 +1561,7 @@ public class Menu extends JFrame{
         			}
         			
         			else {
-        				if(!isrelacionamento) {
+        				if(!isrelacionamento && !isboolean && !isNumber) {
         					codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(txt").append(atr.getNomeAtributo()).append(".getText());\n");
         				}
         			}

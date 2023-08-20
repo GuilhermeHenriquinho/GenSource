@@ -154,7 +154,7 @@ public class TelaEditarAtributo extends JDialog{
 	private JComboBox getCbTipo() {
 		if (cbTipo == null) {
 			cbTipo = new JComboBox();
-			cbTipo.setModel(new DefaultComboBoxModel(new String[] {"", "Int", "Long", "Boolean", "Char", "Float", "Double", "String"}));
+			cbTipo.setModel(new DefaultComboBoxModel(new String[] {"", "Integer", "Long", "Boolean", "Char", "Float", "Double", "String"}));
 			cbTipo.setBounds(95, 50, 127, 22);
 		}
 		return cbTipo;
