@@ -817,6 +817,12 @@ public class Menu extends JFrame{
 		Atributo at2 = new Atributo();
 		at2.setConsultaPor(true);
 		at2.setApareceNaConsulta(true);
+//		at2.setIsObrigatorio(true);
+		List<String> anotacoes21 = new ArrayList<>();
+		anotacoes21.add(new String("@Column(name = \"nome\", length = 11, nullable = true)"));
+		at2.setAnotacao(anotacoes21);
+		
+		
 		at2.setNomeAtributo("nome");
 		at2.setTipoAtributo("String");
 		atributos.add(at2);
@@ -2375,7 +2381,67 @@ public class Menu extends JFrame{
 			        	        conteudoFormHtml.append("      <div class=\"form-group row\">\n");
 			        	        conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">"+attr.getNomeAtributo()+":</label>\n");
 			        	        conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
-			        	        conteudoFormHtml.append("          <input type=\"text\" th:field=\"*{"+attr.getNomeAtributo()+"}\" class=\"form-control\" required minlength=\"2\" maxlength=\"45\" />\n");
+			        	        
+			        	        String restrictions = "";
+			        	        if(Objects.nonNull(attr.getAnotacao())) {
+				        	        for(String anot : attr.getAnotacao()) {
+				        	        	if(anot.contains("@Column") && !anot.contains("@Join")) {
+				        	        		
+				        	                String[] parts = anot.split(",");
+
+				        	                String length = null;
+				        	                Boolean nullable = null;
+
+				        	                if(Objects.nonNull(attr.getIsObrigatorio()) && attr.getIsObrigatorio()) {
+				        	                	nullable = true;
+				        	                }
+				        	                
+				        	                for (String part : parts) {
+				        	                    if (part.contains("length")) {
+				        	                        length = part.split("=")[1].trim();
+				        	                    } else if (part.contains("nullable") && Objects.isNull(nullable)) {
+				        	                        String nullableValue = part.split("=")[1].trim();
+				        	                        nullableValue = nullableValue.substring(0, nullableValue.length() - 1); // Removendo o último caractere
+				        	                        nullable = Boolean.valueOf(nullableValue);
+				        	                    }
+				        	                }
+				        	                
+				        	                String minlength = " minlength=\""+length+"\"";
+				        	                String required = " ";
+				        	                if(Objects.nonNull(nullable) && nullable) {
+				        	                	required += "required";
+				        	                }
+				        	        		
+				        	                if(Objects.nonNull(length)) {
+				        	                	restrictions = minlength;
+				        	                }
+				        	                if(Objects.nonNull(nullable)) {
+				        	                	restrictions += required; 
+				        	                }
+				        	                
+				        	        	}
+				        	        }
+			        	        }else {
+		        	                Boolean nullable = null;
+
+		        	                if(Objects.nonNull(attr.getIsObrigatorio()) && attr.getIsObrigatorio()) {
+		        	                	nullable = true;
+		        	                }
+		        	                
+		        	                String required = " ";
+		        	                if(Objects.nonNull(nullable) && nullable) {
+		        	                	required += "required";
+		        	                }
+		        	                
+		        	                if(Objects.nonNull(nullable)) {
+		        	                	restrictions += required; 
+		        	                }
+			        	        }
+			        	        
+			        	        
+			        	        conteudoFormHtml.append("          <input type=\"text\" th:field=\"*{"+attr.getNomeAtributo()+"}\" class=\"form-control\" "+restrictions+" />\n");
+			        	        
+			        	        
 			        	        conteudoFormHtml.append("        </div>\n");
 			        	        conteudoFormHtml.append("      </div>\n");
 		        			}
