@@ -2827,7 +2827,7 @@ public class Menu extends JFrame{
     	    for(int i=0; i<classe.getAtributos().size(); i++) {
     	    	if(Objects.nonNull(classe.getAtributos().get(i).getIsRelacionamento()) && classe.getAtributos().get(i).getIsRelacionamento()) {
     	    		conteudoController.append("import com."+projeto.getNomeProjeto()+"."+classe.getAtributos().get(i).getTipoAtributo()+"."+classe.getAtributos().get(i).getTipoAtributo()+"NotFoundException;\n");
-    	    		conteudoController.append("import com."+projeto.getNomeProjeto()+"."+classe.getAtributos().get(i).getTipoAtributo()+"."+classe.getAtributos().get(i).getTipoAtributo()+"Service;;\n\n");
+    	    		conteudoController.append("import com."+projeto.getNomeProjeto()+"."+classe.getAtributos().get(i).getTipoAtributo()+"."+classe.getAtributos().get(i).getTipoAtributo()+"Service;\n\n");
     	    	}
     	    }
     	    
@@ -2889,8 +2889,14 @@ public class Menu extends JFrame{
     	    conteudoController.append("        return \"redirect:/"+classe.getNomeClasse()+"s\";\n");
     	    
     	    if(temRelacionamento) {
-	    	    conteudoController.append("    	}catch("+tipoAtr+"NotFoundException e) {\n");
-	    	    conteudoController.append("    		e.printStackTrace();");
+    	    	
+    	    	for(int i=0; i<classe.getAtributos().size(); i++) {
+    	    		if(Objects.nonNull(classe.getAtributos().get(i).getIsRelacionamento()) && classe.getAtributos().get(i).getIsRelacionamento()) {
+			    	    conteudoController.append("    	}catch("+classe.getAtributos().get(i).getTipoAtributo()+"NotFoundException e"+(i+1)+") {\n");
+			    	    conteudoController.append("    		e"+(i+1)+".printStackTrace();\n");
+    	    		}
+    	    	}
+	    	    
 	    	    conteudoController.append("    	}\n");
 	    	    conteudoController.append("    	return null;\n");
     	    }
