@@ -1899,6 +1899,7 @@ public class Menu extends JFrame{
             codigoTela.append("    for(").append(classe.getNomeClasse()).append(" obj : lista)").append("{\n");
             codigoTela.append("        dados.addRow(new Object[]{\n");
             
+			Boolean teste =false;
 			for (Atributo atr : classe.getAtributos()) {
 				String nomeAtributo = atr.getNomeAtributo();
 				String nomeAtrMaiusculo = nomeAtributo.substring(0, 1).toUpperCase() + nomeAtributo.substring(1);
@@ -1909,12 +1910,29 @@ public class Menu extends JFrame{
             				if(listaClasses.get(i).getNomeClasse().equals(atr.getTipoAtributo())) {
             					for(int j=0; j<listaClasses.get(i).getAtributos().size(); j++) {
             						if(listaClasses.get(i).getAtributos().get(j).getConsultaPor()) {
-            							searchByField = listaClasses.get(i).getAtributos().get(j).getNomeAtributo();
-            							searchByField = searchByField.substring(0, 1).toUpperCase() + searchByField.substring(1);
+            							
+            							for(String anot : listaClasses.get(i).getAtributos().get(j).getAnotacao()) {
+            								if(anot.contains("@Column") && anot.contains("Join")) {
+                    							searchByField = listaClasses.get(i).getAtributos().get(j).getNomeAtributo();
+                    							searchByField = searchByField.substring(0, 1).toUpperCase() + searchByField.substring(1);
+                    							teste = true;
+                    							break;
+            								}
+            							}
+            							if(teste) {
+            								break;
+            							}
 
+
+            						}
+            						if(teste) {
+            							break;
             						}
             					}
             				}
+    						if(teste) {
+    							break;
+    						}
             			}
 						
             			codigoTela.append("            obj.get").append(nomeAtrMaiusculo).append("().get"+searchByField+"(),\n");
@@ -1922,6 +1940,9 @@ public class Menu extends JFrame{
 					} else {
 						codigoTela.append("            obj.get").append(nomeAtrMaiusculo).append("(),\n");
 					}
+				}
+				if(teste) {
+					break;
 				}
 			}
             
@@ -2609,16 +2630,37 @@ public class Menu extends JFrame{
     	    
     	    if(Objects.nonNull(atributos) && !atributos.isEmpty()) {
     	    	String nomeSearch = "";
+				Boolean teste = false;
     	    	for(Atributo attr : atributos) {
     	    		if(attr.getApareceNaConsulta()) {
     	    			if(Objects.nonNull(attr.getIsRelacionamento()) && attr.getIsRelacionamento()) {
     	    				for(int i=0; i<listaClasses.size(); i++) {
     	    					if(attr.getTipoAtributo().equals(listaClasses.get(i).getNomeClasse())) {
     	    						for(int j=0; j<listaClasses.get(i).getAtributos().size(); j++) {
-    	    							if(Objects.nonNull(listaClasses.get(i).getAtributos().get(j).getConsultaPor()) && listaClasses.get(i).getAtributos().get(j).getConsultaPor()) {
-    	    								nomeSearch = listaClasses.get(i).getAtributos().get(j).getNomeAtributo();
+    	    							if(Objects.nonNull(listaClasses.get(i).getAtributos().get(j).getConsultaPor()) 
+    	    									&& listaClasses.get(i).getAtributos().get(j).getConsultaPor()) {
+    	    								
+    	    								List<String> anotacoes = listaClasses.get(i).getAtributos().get(j).getAnotacao();
+    	    								if(Objects.nonNull(anotacoes) && !anotacoes.isEmpty()) {
+        	    								for(String anot : anotacoes) {
+        	    									if(anot.contains("@Column") && !anot.contains("Join")) {
+        	    										nomeSearch = listaClasses.get(i).getAtributos().get(j).getNomeAtributo();
+        	    										teste = true;
+        	    										break;
+        	    									}
+        	    								}
+    	    								}
+    	            						if(teste) {
+    	            							break;
+    	            						}
     	    							}
+                						if(teste) {
+                							break;
+                						}
     	    						}
+    	    					}
+    	    					if(teste) {
+    	    						break;
     	    					}
     	    				}
     	    				
@@ -2627,6 +2669,9 @@ public class Menu extends JFrame{
     	    				conteudoHtml.append("         <td>[[${"+classe.getNomeClasse().toLowerCase()+"."+attr.getNomeAtributo()+"}]]</td>\n");
     	    			}
     	    		}
+					if(teste) {
+						break;
+					}
     	    	}
     	    }
     	    
