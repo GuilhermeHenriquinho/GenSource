@@ -312,10 +312,12 @@ public class Menu extends JFrame{
         txtNomeClasse = new JTextField();
         txtNomeClasse.addKeyListener(new KeyAdapter() {
         	@Override
-        	public void keyTyped(KeyEvent e) {
+        	public void keyTyped(KeyEvent e) {        		
                 String text = txtNomeClasse.getText();
                 if (text.length() == 0) {
                     e.setKeyChar(Character.toUpperCase(e.getKeyChar()));
+                } else if(Character.isDigit(e.getKeyChar()) && text.length() == 1) {
+                	txtNomeClasse.setText("");
                 } else if (text.length() == 1 && Character.isLowerCase(text.charAt(0))) {
                     txtNomeClasse.setText(text.toUpperCase());
                 }
@@ -339,6 +341,19 @@ public class Menu extends JFrame{
         panel.add(lblNomeDoAtributo);
         
         txtNomeAtributo = new JTextField();
+		txtNomeAtributo.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+		        String text = txtNomeAtributo.getText();
+		        char keyChar = e.getKeyChar();
+		        if (text.length() == 0 && Character.isDigit(keyChar)) {
+		            e.consume(); // Ignora a entrada de número no início
+		        }
+		        if (text.length() == 0) {
+		            e.setKeyChar(Character.toLowerCase(keyChar));
+		        }
+			}
+		});
         txtNomeAtributo.setFont(new Font("Tahoma", Font.PLAIN, 13));
         txtNomeAtributo.setColumns(10);
         txtNomeAtributo.setBounds(67, 24, 153, 23);
@@ -666,7 +681,7 @@ public class Menu extends JFrame{
 			Atributo attr = new Atributo();
 			attr.setNomeAtributo("id");
 			attr.setApareceNaConsulta(true);
-			attr.setConsultaPor(false);
+			attr.setConsultaPor(true);
 			attr.setIsObrigatorio(false);
 			attr.setIsRelacionamento(false);
 			attr.setTipoAtributo(cbIsWeb.isSelected() ? "Integer" : "Long");
@@ -1297,6 +1312,9 @@ public class Menu extends JFrame{
             codigoTela.append("import java.awt.Font;\n");
             codigoTela.append("import javax.swing.JTabbedPane;\n");
             codigoTela.append("import javax.swing.JTable;\n");
+            codigoTela.append("import java.util.ArrayList;\n");
+            
+            
             codigoTela.append("import javax.swing.JTextField;\n");
             codigoTela.append("import javax.swing.JButton;\n");
             codigoTela.append("import javax.swing.JScrollPane;\n");
@@ -1520,20 +1538,7 @@ public class Menu extends JFrame{
         			codigoTela.append("                    screen.setSubtela(true);\n");
         			codigoTela.append("                    screen.setVisible(true);\n");
         			codigoTela.append("                    if (Objects.nonNull(screen.getRetorno"+atr.getTipoAtributo()+"())) {\n");
-        			
-        			String searchByField = "";
-        			for(int i=0; i<listaClasses.size(); i++) {
-        				if(listaClasses.get(i).getNomeClasse().equals(atr.getTipoAtributo())) {
-        					for(int j=0; j<listaClasses.get(i).getAtributos().size(); j++) {
-        						if(listaClasses.get(i).getAtributos().get(j).getConsultaPor()) {
-        							searchByField = listaClasses.get(i).getAtributos().get(j).getNomeAtributo();
-        							searchByField = searchByField.substring(0, 1).toUpperCase() + searchByField.substring(1);
-
-        						}
-        					}
-        				}
-        			}
-        			codigoTela.append("                        txt"+atr.getNomeAtributo()+".setText(screen.getRetorno"+atr.getTipoAtributo()+"().get"+searchByField+"());\n");
+        			codigoTela.append("                        txt"+atr.getNomeAtributo()+".setText(screen.getRetorno"+atr.getTipoAtributo()+"().getId().toString());\n");
         			
         			
         			codigoTela.append("                    }\n");
@@ -1578,17 +1583,12 @@ public class Menu extends JFrame{
             codigoTela.append("        btnBuscar.addActionListener(new ActionListener() {\n");
             codigoTela.append("            public void actionPerformed(ActionEvent e) {\n");
         	codigoTela.append("                ").append(classe.getNomeClasse()).append("DAO dao = new ").append(classe.getNomeClasse()).append("DAO();\n");
-            codigoTela.append("                List<").append(classe.getNomeClasse()).append("> lista = dao.findBy");
-            
-            for(Atributo atr : classe.getAtributos()){
-        		if(atr.getConsultaPor()){
-        			String nomeAtributo = atr.getNomeAtributo();
-        			String nomeAtrMaiusculo = nomeAtributo.substring(0, 1).toUpperCase() + nomeAtributo.substring(1);
-
-        			codigoTela.append(nomeAtrMaiusculo).append("(txtBuscar.getText());\n");
-        			break;
-        		}
-        	}
+        	
+        	
+            codigoTela.append("                List<").append(classe.getNomeClasse()).append("> lista = new ArrayList<"+classe.getNomeClasse()+">();\n");
+            codigoTela.append("                if(txtBuscar.getText().length()>0) {\n");
+            codigoTela.append("                lista = dao.findByAttributtes(txtBuscar.getText());\n");
+            codigoTela.append("                }\n");
             
             codigoTela.append("			if(lista.isEmpty()) {\n");
             codigoTela.append("				lista = dao.findAll();\n");
@@ -1621,7 +1621,7 @@ public class Menu extends JFrame{
         				}
         			}
         			
-        			codigoTela.append("                        obj.get").append(atr.getTipoAtributo()).append("().get").append(searchByField+"(),\n");
+        			codigoTela.append("                        obj.get").append(nomeAtrMaiusculo).append("().get").append(searchByField+"(),\n");
         		}
         	}
         	
@@ -1692,7 +1692,7 @@ public class Menu extends JFrame{
         			Boolean isNumber = false;
         			
 					if (atr.getTipoAtributo().equals("Integer") || atr.getTipoAtributo().equals("Long")
-							|| atr.getTipoAtributo().equals("Float")) {
+							|| atr.getTipoAtributo().equals("Float") || atr.getTipoAtributo().equals("Double")) {
 						isNumber = true;
 
 						if (atr.getTipoAtributo().equals("Integer")) {
@@ -1700,34 +1700,27 @@ public class Menu extends JFrame{
 									.append(atr.getNomeAtributo()).append(".getText()));\n");
 						}
 
-						if (atr.getTipoAtributo().equals("Long")) {
+						else if (atr.getTipoAtributo().equals("Long")) {
 							codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(Long.parseLong(txt")
 									.append(atr.getNomeAtributo()).append(".getText()));\n");
 						}
 
-						if (atr.getTipoAtributo().equals("Float")) {
+						else if (atr.getTipoAtributo().equals("Float")) {
 							codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(Float.parseFloat(txt")
+									.append(atr.getNomeAtributo()).append(".getText()));\n");
+						}
+						
+						else if (atr.getTipoAtributo().equals("Double")) {
+							codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(Double.parseDouble(txt")
 									.append(atr.getNomeAtributo()).append(".getText()));\n");
 						}
 
 					} 
         			else if(Objects.nonNull(atr.getIsRelacionamento()) && atr.getIsRelacionamento()) {
         				isrelacionamento = true;
-            			String searchByField = "";
-            			for(int i=0; i<listaClasses.size(); i++) {
-            				if(listaClasses.get(i).getNomeClasse().equals(atr.getTipoAtributo())) {
-            					for(int j=0; j<listaClasses.get(i).getAtributos().size(); j++) {
-            						if(listaClasses.get(i).getAtributos().get(j).getConsultaPor()) {
-            							searchByField = listaClasses.get(i).getAtributos().get(j).getNomeAtributo();
-            							searchByField = searchByField.substring(0, 1).toUpperCase() + searchByField.substring(1);
-            						}
-            					}
-            				}
-            			}
-        				
         				codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(new ")
-        				.append(atr.getTipoAtributo()+"DAO().findBy"+searchByField+"(txt")
-        				.append(atr.getNomeAtributo()+".getText()).get(0));\n");
+        				.append(atr.getTipoAtributo()+"DAO().findById(Long.parseLong(txt")
+        				.append(atr.getNomeAtributo()+".getText())));\n");
         			}
         			
         			
@@ -1736,7 +1729,7 @@ public class Menu extends JFrame{
         				codigoTela.append("obj.set").append(nomeAtrMaiusculo).append("(cb").append(atr.getNomeAtributo()).append(".isSelected());\n");
         			}
         			
-        			if(Objects.nonNull(atr.getIsObrigatorio()) && atr.getIsObrigatorio() && !isboolean && !isNumber) {
+        			if(Objects.nonNull(atr.getIsObrigatorio()) && atr.getIsObrigatorio() && !isboolean && !isNumber && !atr.getIsRelacionamento()) {
         				codigoTela.append("if (txt"+atr.getNomeAtributo()+".getText().isEmpty()) {\n");
         				codigoTela.append("    JOptionPane.showMessageDialog(null, \"O campo "+atr.getNomeAtributo()+" é obrigatório!\");\n");
         				codigoTela.append("    txt"+atr.getNomeAtributo()+".selectAll();\n");
@@ -1841,13 +1834,29 @@ public class Menu extends JFrame{
             codigoTela.append("					if(Objects.isNull(getSubtela()) || !getSubtela()) {\n");
             
             codigoTela.append("                tabbedPane.setSelectedIndex(0);\n");
+            
+            codigoTela.append("                "+classe.getNomeClasse()+" obj = new "+classe.getNomeClasse()+"DAO().findById(Long.parseLong(table.getValueAt(table.getSelectedRow(), 0).toString()));\n");
+            
+            
             for(int i=0; i<classe.getAtributos().size(); i++){
         		Atributo atr = classe.getAtributos().get(i);
-        		if("Boolean".equals(atr.getTipoAtributo())) {
-        			codigoTela.append("                cb").append(atr.getNomeAtributo()).append(".setSelected(Boolean.parseBoolean(table.getValueAt(table.getSelectedRow(), ").append(i).append(").toString()));\n");
-        		}else {
-        			codigoTela.append("                txt").append(atr.getNomeAtributo()).append(".setText(table.getValueAt(table.getSelectedRow(),").append(i).append(").toString());\n");
+        		String attributeName = atr.getNomeAtributo();
+        		String attributeNameCapitalized = attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
+
+        		
+        		if("String".equals(atr.getTipoAtributo())) {
+        			codigoTela.append("                txt"+atr.getNomeAtributo()+".setText(obj.get"+attributeNameCapitalized+"());\n");
+        		} else if ("Boolean".equals(atr.getTipoAtributo())) {
+        			codigoTela.append("                cb"+atr.getNomeAtributo()+".setSelected(obj.get"+attributeNameCapitalized+"());\n");
+        		} else if ("Integer".equals(atr.getTipoAtributo()) || "Double".equals(atr.getTipoAtributo()) || "Long".equals(atr.getTipoAtributo()) || "Float".equals(atr.getTipoAtributo())) {
+        			codigoTela.append("                txt"+atr.getNomeAtributo()+".setText(obj.get"+attributeNameCapitalized+"().toString());\n");
+        		} else if (atr.getIsRelacionamento()) {
+        			codigoTela.append("                txt"+atr.getNomeAtributo()+".setText(obj.get"+attributeNameCapitalized+"().getId().toString());\n");
         		}
+        		
+        		
+        		
+        		
         	}
             codigoTela.append("                btnSalvar.setEnabled(false);\n");
             codigoTela.append("					} else {\n");
@@ -2140,19 +2149,27 @@ public class Menu extends JFrame{
 	            StringBuilder codigoDAO = new StringBuilder();
 	            codigoDAO.append("package ").append("com."+projeto.getNomeProjeto()+".dao").append(";\n\n");
 	            codigoDAO.append("import java.util.List").append(";\n\n");
+	            codigoDAO.append("import java.util.ArrayList;\n");
 	            codigoDAO.append("import ").append("com."+projeto.getNomeProjeto()).append(".model."+nomeClasse).append(";\n\n");
 	            codigoDAO.append("public class ").append(nomeClasse).append("DAO extends GenericDAO<").append(nomeClasse).append("> {\n\n");
 	            codigoDAO.append("    public ").append(nomeClasse).append("DAO() {\n");
 	            codigoDAO.append("        super(").append(nomeClasse).append(".class);\n");
 	            codigoDAO.append("    }\n\n");
 	            
+	            
+	            codigoDAO.append("public List<"+nomeClasse+"> findByAttributtes(String valueAttribute) {\n");
+	            codigoDAO.append("    List<String> fields = new ArrayList<>();\n");
+	            
 	            for (Atributo atributo : atributos) {
 	                if (atributo.getConsultaPor() != null && atributo.getConsultaPor()) {
-	                    codigoDAO.append("    public List<").append(nomeClasse).append("> findBy").append(capitalize(atributo.getNomeAtributo())).append("(").append(atributo.getTipoAtributo()).append(" ").append(atributo.getNomeAtributo()).append(") {\n");
-	                    codigoDAO.append("        return findByAttribute(\"").append(atributo.getNomeAtributo()).append("\", ").append(atributo.getNomeAtributo()).append(");\n");
-	                    codigoDAO.append("    }\n\n");
+	                	codigoDAO.append("    fields.add(new String(\""+atributo.getNomeAtributo()+"\"));\n");
 	                }
 	            }
+	            
+	            codigoDAO.append("\n");
+	            codigoDAO.append("    return findByAttributes(fields, valueAttribute);\n");
+	            codigoDAO.append("}\n");
+	            
 	            
 	            codigoDAO.append("}");
 	
@@ -2192,6 +2209,7 @@ public class Menu extends JFrame{
         codigoGenericDAO.append("import javax.persistence.criteria.CriteriaBuilder;\n");
         codigoGenericDAO.append("import javax.persistence.criteria.CriteriaQuery;\n");
         codigoGenericDAO.append("import javax.persistence.criteria.Root;\n");
+        codigoGenericDAO.append("import javax.persistence.criteria.Predicate;\n");
         codigoGenericDAO.append("import java.util.List;\n\n");
         codigoGenericDAO.append("public class GenericDAO<T> {\n\n");
         codigoGenericDAO.append("    private static final String PERSISTENCE_UNIT_NAME = \""+projeto.getConexao().getNomeConexao()+"\"; // Nome da unidade de persistência no persistence.xml\n\n");
@@ -2247,18 +2265,26 @@ public class Menu extends JFrame{
         codigoGenericDAO.append("        }\n");
         codigoGenericDAO.append("    }\n\n");
         // Parte adicionada - findByAttribute
-        codigoGenericDAO.append("    public List<T> findByAttribute(String attributeName, Object attributeValue) {\n");
+        codigoGenericDAO.append("    public List<T> findByAttributes(List<String> attributeNames, Object attributeValue) {\n");
         codigoGenericDAO.append("        EntityManager entityManager = entityManagerFactory.createEntityManager();\n");
         codigoGenericDAO.append("        try {\n");
         codigoGenericDAO.append("            CriteriaBuilder cb = entityManager.getCriteriaBuilder();\n");
         codigoGenericDAO.append("            CriteriaQuery<T> query = cb.createQuery(entityType);\n");
         codigoGenericDAO.append("            Root<T> root = query.from(entityType);\n");
-        codigoGenericDAO.append("            query.select(root).where(cb.equal(root.get(attributeName), attributeValue));\n");
+        codigoGenericDAO.append("\n");
+        codigoGenericDAO.append("            Predicate[] predicates = new Predicate[attributeNames.size()];\n");
+        codigoGenericDAO.append("            for (int i = 0; i < attributeNames.size(); i++) {\n");
+        codigoGenericDAO.append("                predicates[i] = cb.equal(root.get(attributeNames.get(i)), attributeValue);\n");
+        codigoGenericDAO.append("            }\n");
+        codigoGenericDAO.append("\n");
+        codigoGenericDAO.append("            query.select(root).where(cb.or(predicates));\n");
+        codigoGenericDAO.append("\n");
         codigoGenericDAO.append("            return entityManager.createQuery(query).getResultList();\n");
         codigoGenericDAO.append("        } finally {\n");
         codigoGenericDAO.append("            entityManager.close();\n");
         codigoGenericDAO.append("        }\n");
         codigoGenericDAO.append("    }\n");
+
 
         codigoGenericDAO.append("}\n");
 
