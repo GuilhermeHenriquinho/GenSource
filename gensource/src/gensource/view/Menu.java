@@ -67,7 +67,6 @@ public class Menu extends JFrame{
 	private JTextField txtSenha;
 	private JTextField txtNomeProjeto;
 	private JTextField txtCaminho;
-	private JTextField txtCaminhoClasse;
 	private JTextField txtDriver;
 	private JComboBox cbTipoAtributo;
 	private JCheckBox chckbxApareceNaConsulta;
@@ -322,7 +321,7 @@ public class Menu extends JFrame{
                 }
         	}
         });
-        txtNomeClasse.setBounds(58, 26, 155, 23);
+        txtNomeClasse.setBounds(58, 26, 195, 23);
         panelClass.add(txtNomeClasse);
         txtNomeClasse.setFont(new Font("Tahoma", Font.PLAIN, 13));
         txtNomeClasse.setColumns(10);
@@ -515,33 +514,6 @@ public class Menu extends JFrame{
 		btnEditarClasse.setBounds(329, 351, 130, 34);
 		panelClass.add(btnEditarClasse);
 		
-		JLabel lblCaminhoDaClasse = new JLabel("Diret\u00F3rio:");
-		lblCaminhoDaClasse.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		lblCaminhoDaClasse.setBounds(223, 27, 65, 21);
-		panelClass.add(lblCaminhoDaClasse);
-		
-		txtCaminhoClasse = new JTextField();
-		txtCaminhoClasse.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		txtCaminhoClasse.setColumns(10);
-		txtCaminhoClasse.setBounds(282, 27, 238, 23);
-		panelClass.add(txtCaminhoClasse);
-		
-		JButton btnSelecionarCaminhoClasse = new JButton("Selecionar");
-		btnSelecionarCaminhoClasse.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-                int result = fileChooser.showOpenDialog(null);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    txtCaminhoClasse.setText(selectedFile.getAbsolutePath());
-                }
-			}
-		});
-		btnSelecionarCaminhoClasse.setBounds(530, 24, 113, 28);
-		panelClass.add(btnSelecionarCaminhoClasse);
-		
 		JButton btnSalvarClasse = new JButton("Salvar Classe");
 		btnSalvarClasse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -551,7 +523,6 @@ public class Menu extends JFrame{
 				} else {
 					for(int i=0; i<listaClasses.size(); i++) {
 						if(txtNomeClasse.getText().equals(listaClasses.get(i).getNomeClasse())) {
-							listaClasses.get(i).setDiretorioClasse(txtCaminhoClasse.getText());
 							listaClasses.get(i).setAtributos(model.getData());
 						}
 					}
@@ -560,7 +531,6 @@ public class Menu extends JFrame{
 				carregaTable(new ArrayList<Atributo>());
 				
 				txtNomeClasse.setText("");
-				txtCaminhoClasse.setText("");
 				txtNomeAtributo.setText("");
 				cbTipoAtributo.setSelectedIndex(0);
 				chckbxApareceNaConsulta.setSelected(false);
@@ -682,12 +652,6 @@ public class Menu extends JFrame{
     
     public Boolean verificaClasse_Atributo() {
     	String nomeClasse = txtNomeClasse.getText();
-    	String caminhoClasse = txtCaminhoClasse.getText();
-    	
-    	if(Objects.nonNull(nomeClasse) && Objects.nonNull(caminhoClasse) && nomeClasse.isEmpty() && caminhoClasse.isEmpty()) {
-    		JOptionPane.showMessageDialog(null, "Por favor informe o Nome e o Caminho da Classe!");
-    		return false;
-    	}
     	
     	boolean teste = true;
     	for(Classe classr : listaClasses) {
@@ -699,7 +663,6 @@ public class Menu extends JFrame{
     	if(teste) {
 			Classe classe = new Classe();
 			classe.setNomeClasse(nomeClasse);
-			classe.setDiretorioClasse(txtCaminhoClasse.getText());
 			Atributo attr = new Atributo();
 			attr.setNomeAtributo("id");
 			attr.setApareceNaConsulta(true);
@@ -952,6 +915,10 @@ public class Menu extends JFrame{
 			criarClasses(projeto, false);
 			montaPersistenceXml(projeto);
 			gerarTelasCadastro(projeto);
+            if(!projeto.getProjetoWeb()) {
+            	gerarMenu(projeto);
+            }
+			gerarClassesUtilitarias(projeto);
 		}
         
         JOptionPane.showMessageDialog(null, "Projeto gerado com sucesso!");
@@ -961,6 +928,248 @@ public class Menu extends JFrame{
         builder.redirectErrorStream(true);
         Process process = builder.start();
         process.waitFor();
+    }
+    
+    //ajustar para web tambem
+    public void gerarClassesUtilitarias(Projeto projeto) throws IOException {
+    	TelaClassesUtilitarias screen = new TelaClassesUtilitarias();
+    	screen.setVisible(true);
+    	
+    	if(Objects.nonNull(screen.getDataHora()) || Objects.nonNull(screen.getValoresConversoes()) || Objects.nonNull(screen.getStringConversoes())) {
+    		
+            String diretorioUtilitario = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\"+projeto.getNomeProjeto()+"\\utilitarios";
+            Files.createDirectories(Paths.get(diretorioUtilitario));
+    		
+            
+            
+    		if(Objects.nonNull(screen.getDataHora()) && screen.getDataHora()) {
+    			StringBuilder stringBuilder = new StringBuilder();
+    			stringBuilder.append("package com."+projeto.getNomeProjeto()+".utilitarios;\n\n");
+    			stringBuilder.append("import java.text.DateFormat;\n");
+    			stringBuilder.append("import java.text.SimpleDateFormat;\n");
+    			stringBuilder.append("import java.util.Calendar;\n");
+    			stringBuilder.append("import java.util.Date;\n");
+    			stringBuilder.append("import java.util.concurrent.TimeUnit;\n\n");
+    			stringBuilder.append("import com.google.protobuf.TextFormat.ParseException;\n\n");
+    			stringBuilder.append("public class DateUtils {\n");
+    			stringBuilder.append("    private static final String DEFAULT_DATE_FORMAT = \"yyyy-MM-dd HH:mm:ss\";\n\n");
+    			stringBuilder.append("    public static String dateToString(Date date) {\n");
+    			stringBuilder.append("        return dateToString(date, DEFAULT_DATE_FORMAT);\n");
+    			stringBuilder.append("    }\n\n");
+    			stringBuilder.append("    public static String dateToString(Date date, String format) {\n");
+    			stringBuilder.append("        DateFormat dateFormat = new SimpleDateFormat(format);\n");
+    			stringBuilder.append("        return dateFormat.format(date);\n");
+    			stringBuilder.append("    }\n\n");
+    			stringBuilder.append("    public static Date stringToDate(String dateString) throws ParseException, java.text.ParseException {\n");
+    			stringBuilder.append("        return stringToDate(dateString, DEFAULT_DATE_FORMAT);\n");
+    			stringBuilder.append("    }\n\n");
+    			stringBuilder.append("    public static Date stringToDate(String dateString, String format) throws ParseException, java.text.ParseException {\n");
+    			stringBuilder.append("        DateFormat dateFormat = new SimpleDateFormat(format);\n");
+    			stringBuilder.append("        return dateFormat.parse(dateString);\n");
+    			stringBuilder.append("    }\n\n");
+    			stringBuilder.append("    public static Date addDaysToDate(Date date, int days) {\n");
+    			stringBuilder.append("        Calendar calendar = Calendar.getInstance();\n");
+    			stringBuilder.append("        calendar.setTime(date);\n");
+    			stringBuilder.append("        calendar.add(Calendar.DAY_OF_MONTH, days);\n");
+    			stringBuilder.append("        return calendar.getTime();\n");
+    			stringBuilder.append("    }\n\n");
+    			stringBuilder.append("    public static Date addHoursToDate(Date date, int hours) {\n");
+    			stringBuilder.append("        Calendar calendar = Calendar.getInstance();\n");
+    			stringBuilder.append("        calendar.setTime(date);\n");
+    			stringBuilder.append("        calendar.add(Calendar.HOUR_OF_DAY, hours);\n");
+    			stringBuilder.append("        return calendar.getTime();\n");
+    			stringBuilder.append("    }\n\n");
+    			stringBuilder.append("    public static long daysBetweenDates(Date startDate, Date endDate) {\n");
+    			stringBuilder.append("        long diffInMillis = endDate.getTime() - startDate.getTime();\n");
+    			stringBuilder.append("        return TimeUnit.MILLISECONDS.toDays(diffInMillis);\n");
+    			stringBuilder.append("    }\n\n");
+    			stringBuilder.append("    // ... (Rest of the methods)\n");
+    			stringBuilder.append("}\n");
+
+    			
+    			Files.write(Paths.get(diretorioUtilitario + "\\" + "DateUtils.java"), stringBuilder.toString().getBytes());
+    		}
+    		
+    		if(Objects.nonNull(screen.getValoresConversoes()) && screen.getValoresConversoes()) {
+    	        StringBuilder stringBuilder = new StringBuilder();
+    	        stringBuilder.append("package com."+projeto.getNomeProjeto()+".utilitarios;\n\n");
+    	        stringBuilder.append("import java.text.DecimalFormat;\n");
+    	        stringBuilder.append("import java.text.Normalizer;\n\n");
+    	        stringBuilder.append("public class ValueUtils {\n");
+
+    	        stringBuilder.append("    // Formata um valor para uma quantidade específica de casas decimais\n");
+    	        stringBuilder.append("    public static String formatValue(double value, int decimalPlaces) {\n");
+    	        stringBuilder.append("        if (decimalPlaces < 0) {\n");
+    	        stringBuilder.append("            throw new IllegalArgumentException(\"O número de casas decimais não pode ser negativo.\");\n");
+    	        stringBuilder.append("        }\n\n");
+    	        stringBuilder.append("        String pattern = \"#.\" + \"0\".repeat(decimalPlaces);\n");
+    	        stringBuilder.append("        DecimalFormat decimalFormat = new DecimalFormat(pattern);\n");
+    	        stringBuilder.append("        return decimalFormat.format(value);\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    // Formata um valor para 2 casas decimais por padrão\n");
+    	        stringBuilder.append("    public static String formatValue(double value) {\n");
+    	        stringBuilder.append("        return formatValue(value, 2);\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    // Arredonda um valor para a quantidade especificada de casas decimais\n");
+    	        stringBuilder.append("    public static double roundValue(double value, int decimalPlaces) {\n");
+    	        stringBuilder.append("        if (decimalPlaces < 0) {\n");
+    	        stringBuilder.append("            throw new IllegalArgumentException(\"O número de casas decimais não pode ser negativo.\");\n");
+    	        stringBuilder.append("        }\n\n");
+    	        stringBuilder.append("        double scale = Math.pow(10, decimalPlaces);\n");
+    	        stringBuilder.append("        return Math.round(value * scale) / scale;\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    // Arredonda um valor para 2 casas decimais por padrão\n");
+    	        stringBuilder.append("    public static double roundValue(double value) {\n");
+    	        stringBuilder.append("        return roundValue(value, 2);\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    // Função adicional: calcula a média de uma lista de valores\n");
+    	        stringBuilder.append("    public static double calculateAverage(double[] values) {\n");
+    	        stringBuilder.append("        if (values.length == 0) {\n");
+    	        stringBuilder.append("            throw new IllegalArgumentException(\"A lista de valores não pode estar vazia.\");\n");
+    	        stringBuilder.append("        }\n\n");
+    	        stringBuilder.append("        double sum = 0;\n");
+    	        stringBuilder.append("        for (double val : values) {\n");
+    	        stringBuilder.append("            sum += val;\n");
+    	        stringBuilder.append("        }\n");
+    	        stringBuilder.append("        return sum / values.length;\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    // Calcula a soma de uma lista de valores\n");
+    	        stringBuilder.append("    public static double calculateSum(double[] values) {\n");
+    	        stringBuilder.append("        double sum = 0;\n");
+    	        stringBuilder.append("        for (double val : values) {\n");
+    	        stringBuilder.append("            sum += val;\n");
+    	        stringBuilder.append("        }\n");
+    	        stringBuilder.append("        return sum;\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    // Calcula o produto de uma lista de valores\n");
+    	        stringBuilder.append("    public static double calculateProduct(double[] values) {\n");
+    	        stringBuilder.append("        if (values.length == 0) {\n");
+    	        stringBuilder.append("            throw new IllegalArgumentException(\"A lista de valores não pode estar vazia.\");\n");
+    	        stringBuilder.append("        }\n\n");
+    	        stringBuilder.append("        double product = 1;\n");
+    	        stringBuilder.append("        for (double val : values) {\n");
+    	        stringBuilder.append("            product *= val;\n");
+    	        stringBuilder.append("        }\n");
+    	        stringBuilder.append("        return product;\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    // Calcula o valor máximo em uma lista de valores\n");
+    	        stringBuilder.append("    public static double findMaxValue(double[] values) {\n");
+    	        stringBuilder.append("        if (values.length == 0) {\n");
+    	        stringBuilder.append("            throw new IllegalArgumentException(\"A lista de valores não pode estar vazia.\");\n");
+    	        stringBuilder.append("        }\n\n");
+    	        stringBuilder.append("        double max = Double.NEGATIVE_INFINITY;\n");
+    	        stringBuilder.append("        for (double val : values) {\n");
+    	        stringBuilder.append("            max = Math.max(max, val);\n");
+    	        stringBuilder.append("        }\n");
+    	        stringBuilder.append("        return max;\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    // Calcula o valor mínimo em uma lista de valores\n");
+    	        stringBuilder.append("    public static double findMinValue(double[] values) {\n");
+    	        stringBuilder.append("        if (values.length == 0) {\n");
+    	        stringBuilder.append("            throw new IllegalArgumentException(\"A lista de valores não pode estar vazia.\");\n");
+    	        stringBuilder.append("        }\n\n");
+    	        stringBuilder.append("        double min = Double.POSITIVE_INFINITY;\n");
+    	        stringBuilder.append("        for (double val : values) {\n");
+    	        stringBuilder.append("            min = Math.min(min, val);\n");
+    	        stringBuilder.append("        }\n");
+    	        stringBuilder.append("        return min;\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    // Calcula a potência de um número elevado a uma potência\n");
+    	        stringBuilder.append("    public static double calculatePower(double base, double exponent) {\n");
+    	        stringBuilder.append("        return Math.pow(base, exponent);\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    // Calcula o valor absoluto de um número\n");
+    	        stringBuilder.append("    public static double calculateAbsoluteValue(double value) {\n");
+    	        stringBuilder.append("        return Math.abs(value);\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    // Retorna o valor formatado como uma string monetária no formato R$ X,XX\n");
+    	        stringBuilder.append("    public static String formatAsCurrency(double value) {\n");
+    	        stringBuilder.append("        DecimalFormat currencyFormat = new DecimalFormat(\"R$ #,##0.00\");\n");
+    	        stringBuilder.append("        return currencyFormat.format(value);\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    // Calcula o desconto percentual entre o valor original e o valor com desconto\n");
+    	        stringBuilder.append("    public static double calculateDiscountPercentage(double originalValue, double discountedValue) {\n");
+    	        stringBuilder.append("        if (originalValue <= 0) {\n");
+    	        stringBuilder.append("            throw new IllegalArgumentException(\"O valor original deve ser maior que zero.\");\n");
+    	        stringBuilder.append("        }\n\n");
+    	        stringBuilder.append("        return ((originalValue - discountedValue) / originalValue) * 100;\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    public static double calculatePercentageOfValue(double totalValue, double percentage) {\n");
+    	        stringBuilder.append("        if (totalValue <= 0) {\n");
+    	        stringBuilder.append("            throw new IllegalArgumentException(\"O valor total deve ser maior que zero.\");\n");
+    	        stringBuilder.append("        }\n\n");
+    	        stringBuilder.append("        return (percentage / 100) * totalValue;\n");
+    	        stringBuilder.append("    }\n");
+
+    	        stringBuilder.append("}\n");
+    			
+    			Files.write(Paths.get(diretorioUtilitario + "\\" + "ValueUtils.java"), stringBuilder.toString().getBytes());
+    		}
+    		
+    		if(Objects.nonNull(screen.getStringConversoes()) && screen.getStringConversoes()) {
+    	        StringBuilder stringBuilder = new StringBuilder();
+    	        stringBuilder.append("package com."+projeto.getNomeProjeto()+".utilitarios;\n\n");
+    	        stringBuilder.append("import java.text.Normalizer;\n");
+    	        stringBuilder.append("import java.util.regex.Pattern;\n\n");
+    	        stringBuilder.append("public class StringUtils {\n");
+
+    	        stringBuilder.append("    public static String removerAcentos(String input) {\n");
+    	        stringBuilder.append("        return Normalizer.normalize(input, Normalizer.Form.NFD)\n");
+    	        stringBuilder.append("                       .replaceAll(\"[^\\\\p{ASCII}]\", \"\");\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    public static String removerCaracteresEspeciais(String input) {\n");
+    	        stringBuilder.append("        return input.replaceAll(\"[^a-zA-Z0-9]\", \"\");\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    public static String removerNumeros(String input) {\n");
+    	        stringBuilder.append("        return input.replaceAll(\"\\\\d\", \"\");\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    public static boolean ehSomenteNumeros(String input) {\n");
+    	        stringBuilder.append("        return input.matches(\"\\\\d+\");\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    public static boolean ehSomenteLetras(String input) {\n");
+    	        stringBuilder.append("        return input.matches(\"[a-zA-Z]+\");\n");
+    	        stringBuilder.append("    }\n\n");
+    	        
+    	        stringBuilder.append("    public static String capitalizarPalavras(String input) {\n");
+    	        stringBuilder.append("        String[] words = input.split(\"\\\\s\");\n");
+    	        stringBuilder.append("        for (int i = 0; i < words.length; i++) {\n");
+    	        stringBuilder.append("            if (!words[i].isEmpty()) {\n");
+    	        stringBuilder.append("                words[i] = words[i].substring(0, 1).toUpperCase() + words[i].substring(1).toLowerCase();\n");
+    	        stringBuilder.append("            }\n");
+    	        stringBuilder.append("        }\n");
+    	        stringBuilder.append("        return String.join(\" \", words);\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    public static String removerEspacosExtras(String input) {\n");
+    	        stringBuilder.append("        return input.trim().replaceAll(\"\\\\s+\", \" \");\n");
+    	        stringBuilder.append("    }\n\n");
+
+    	        stringBuilder.append("    public static String substituirPalavras(String input, String palavraAntiga, String palavraNova) {\n");
+    	        stringBuilder.append("        return input.replaceAll(Pattern.quote(palavraAntiga), palavraNova);\n");
+    	        stringBuilder.append("    }\n");
+    	        
+    	        stringBuilder.append("}\n");
+    			
+    			Files.write(Paths.get(diretorioUtilitario + "\\" + "StringUtils.java"), stringBuilder.toString().getBytes());
+    		}
+    	}
     }
     
     private void gerarMenu(Projeto projeto) throws IOException {
@@ -1758,10 +1967,6 @@ public class Menu extends JFrame{
             codigoTela.append("	}");
             
             Files.write(Paths.get(diretorioTelas + "\\" + "Tela" +classe.getNomeClasse() + ".java"), codigoTela.toString().getBytes());
-            
-            if(!projeto.getProjetoWeb()) {
-            	gerarMenu(projeto);
-            }
         }
     }
 
@@ -2079,7 +2284,6 @@ public class Menu extends JFrame{
     
 	public void mostraClasse(Classe classe) {
 		txtNomeClasse.setText(classe.getNomeClasse());
-		txtCaminhoClasse.setText(classe.getDiretorioClasse());
 		txtNomeAtributo.setText("");
 		cbTipoAtributo.setSelectedIndex(0);
 		chckbxApareceNaConsulta.setSelected(false);
@@ -2092,7 +2296,6 @@ public class Menu extends JFrame{
 	private void limpa(Boolean classe) {
 		if(classe) {
 			txtNomeClasse.setText("");
-			txtCaminhoClasse.setText("");
 		}
 		txtNomeAtributo.setText("");
 		cbTipoAtributo.setSelectedIndex(0);
