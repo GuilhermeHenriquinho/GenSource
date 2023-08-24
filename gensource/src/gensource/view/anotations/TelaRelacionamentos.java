@@ -122,11 +122,16 @@ public class TelaRelacionamentos extends JDialog {
 					String cascade = cbCascade.getSelectedItem().toString();
 					String field = txtMappedBy.getText();
 					
+					int count = 0;
 					if(field.length() > 0) {
+						count++;
 						anot += "mappedBy = \"" + field + "\"";
 					}
 					
+					boolean entrou = false;
 					if(cascade.length() > 0) {
+						count++;
+						entrou = true;
 						if (anot.endsWith("\"") ) {
 							anot += ", ";
 						}
@@ -134,6 +139,8 @@ public class TelaRelacionamentos extends JDialog {
 					}
 					
 					if(fetch.length() > 0) {
+						count++;
+						entrou = true;
 						if (anot.endsWith("\"") || !anot.endsWith("(")) {
 							anot += ", ";
 						}
@@ -141,12 +148,12 @@ public class TelaRelacionamentos extends JDialog {
 					}
 					
 					
-					if (anot.endsWith("\"") || !anot.endsWith("(")) {
+					if ((anot.endsWith("\"") || !anot.endsWith("(")) && entrou == false && count>1) {
 						anot += ", ";
 					}
 					anot += ")";
 					
-					if (fetch == null || fetch.isEmpty() && cascade == null || cascade.isEmpty() && field == null || field.isEmpty()) {
+					if (fetch.isEmpty() && cascade.isEmpty() && field.isEmpty()) {
 				        anot = anot.substring(0, anot.length() - 2);
 					}
 					

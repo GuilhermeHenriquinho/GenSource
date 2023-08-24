@@ -1986,16 +1986,20 @@ public class Menu extends JFrame {
 								for (int j = 0; j < listaClasses.get(i).getAtributos().size(); j++) {
 									if (listaClasses.get(i).getAtributos().get(j).getConsultaPor()) {
 
-										for (String anot : listaClasses.get(i).getAtributos().get(j).getAnotacao()) {
-											if (anot.contains("@Column") && anot.contains("Join")) {
-												searchByField = listaClasses.get(i).getAtributos().get(j)
-														.getNomeAtributo();
-												searchByField = searchByField.substring(0, 1).toUpperCase()
-														+ searchByField.substring(1);
-												teste = true;
-												break;
+										if (Objects.nonNull(listaClasses.get(i).getAtributos().get(j).getAnotacao())) {
+											for (String anot : listaClasses.get(i).getAtributos().get(j)
+													.getAnotacao()) {
+												if (anot.contains("@Column") && anot.contains("Join")) {
+													searchByField = listaClasses.get(i).getAtributos().get(j)
+															.getNomeAtributo();
+													searchByField = searchByField.substring(0, 1).toUpperCase()
+															+ searchByField.substring(1);
+													teste = true;
+													break;
+												}
 											}
 										}
+
 										if (teste) {
 											break;
 										}
