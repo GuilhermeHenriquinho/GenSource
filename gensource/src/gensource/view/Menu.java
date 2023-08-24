@@ -749,7 +749,7 @@ public class Menu extends JFrame{
 	private Projeto montaProjeto() {
 		
         txtCaminho.setText("C:\\workspace");
-        txtNomeProjeto.setText("projetoWebGerado");
+        txtNomeProjeto.setText("projeto");
         txtNomeConexao.setText("teste");
         txtUrl.setText("jdbc:mysql://localhost/teste");
         txtDialect.setText("org.hibernate.dialect.MySQL57Dialect");
@@ -2208,10 +2208,41 @@ public class Menu extends JFrame{
     	for(Classe classe : projeto.getClasses()) {
 	        StringBuilder conteudoRepository = new StringBuilder();
 	        conteudoRepository.append("package com."+projeto.getNomeProjeto()+"."+classe.getNomeClasse()+";\n\n");
-	        conteudoRepository.append("import org.springframework.data.repository.CrudRepository;\n\n");
+	        conteudoRepository.append("import org.springframework.data.repository.CrudRepository;\n");
+	        conteudoRepository.append("import org.springframework.data.repository.query.Param;\n");
+	        conteudoRepository.append("import java.util.List;\n");
+	        
+	        conteudoRepository.append("import org.springframework.data.jpa.repository.Query;\n\n");
+	        
 	        conteudoRepository.append("public interface "+classe.getNomeClasse()+"Repository extends CrudRepository<"+classe.getNomeClasse()+", Integer> {\n");
 	        //Verificar isso, chave primaria
 	        conteudoRepository.append("    public Long countById(Integer id);\n");
+	        
+	        
+	        conteudoRepository.append("    @Query(\"SELECT p FROM "+classe.getNomeClasse()+" p WHERE ");
+	        
+	        Boolean tem = false;
+	        for(int i=0; i<classe.getAtributos().size(); i++) {
+	        	Atributo attr = classe.getAtributos().get(i);
+	        	if(attr.getConsultaPor() && !attr.getIsRelacionamento() && !"id".equals(attr.getNomeAtributo())) {
+	        		tem = true;
+	        		if(i==0) {
+	        			conteudoRepository.append("p."+attr.getNomeAtributo()+" LIKE %:term% ");
+	        		} else {
+	        			conteudoRepository.append("OR p."+attr.getNomeAtributo()+" LIKE %:term% ");
+	        		}
+	        	}
+	        }
+	        if(tem) {
+	        	conteudoRepository.append("OR CAST(p.id AS string) LIKE %:term%\")\n");
+	        }else {
+	        	conteudoRepository.append("CAST(p.id AS string) LIKE %:term%\")\n");
+	        }
+	        
+	        conteudoRepository.append("    public List<"+classe.getNomeClasse()+"> searchAllFields(@Param(\"term\") String term);\n");
+
+	        
+	        
 	        conteudoRepository.append("}\n");
 	        
 	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\" + projeto.getNomeProjeto() + "\\" + classe.getNomeClasse();
@@ -2475,7 +2506,12 @@ public class Menu extends JFrame{
 	        conteudoService.append("            throw new "+classe.getNomeClasse()+"NotFoundException(\"Não foi possível encontrar nenhum usuário com ID \" + id);\n");
 	        conteudoService.append("        }\n");
 	        conteudoService.append("        repo.deleteById(id);\n");
-	        conteudoService.append("    }\n");
+	        conteudoService.append("    }\n\n");
+	        
+	        conteudoService.append("public List<"+classe.getNomeClasse()+"> searchAllFields(String term) {\n");
+	        conteudoService.append("    return repo.searchAllFields(term);\n");
+	        conteudoService.append("}\n");
+	        
 	        conteudoService.append("}\n");
 	        
 	        String diretorioService = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\" + projeto.getNomeProjeto() + "\\" + classe.getNomeClasse();
@@ -2607,6 +2643,21 @@ public class Menu extends JFrame{
     	    conteudoHtml.append("  <div th:if=\"${message}\" class=\"alert alert-success text-center\">\n");
     	    conteudoHtml.append("    [[${message}]]\n");
     	    conteudoHtml.append("  </div>\n");
+    	    
+    	    
+    	    
+    	    
+    	    conteudoHtml.append("<div class=\"d-flex justify-content-center mt-3\">\n");
+    	    conteudoHtml.append("    <form class=\"form-inline\" th:action=\"@{/"+classe.getNomeClasse()+"s/search}\" method=\"post\">\n");
+    	    conteudoHtml.append("        <input class=\"form-control mr-sm-2\" type=\"search\" placeholder=\"Pesquisar\" name=\"term\">\n");
+    	    conteudoHtml.append("        <button class=\"btn btn-outline-primary my-2 my-sm-0\" type=\"submit\">Filtrar</button>\n");
+    	    conteudoHtml.append("    </form>\n");
+    	    conteudoHtml.append("</div>\n");
+    	    conteudoHtml.append("<div class=\"mt-3\"></div>\n");
+    	    
+    	    
+    	    
+    	    
     	    conteudoHtml.append("  <div>\n");
     	    conteudoHtml.append("    <table class=\"table table-bordered\">\n");
     	    conteudoHtml.append("      <thead class=\"thead-dark\">\n");
@@ -2981,7 +3032,15 @@ public class Menu extends JFrame{
     	    conteudoController.append("            ra.addFlashAttribute(\"message\", e.getMessage());\n");
     	    conteudoController.append("        }\n");
     	    conteudoController.append("        return \"redirect:/"+classe.getNomeClasse()+"s\";\n");
-    	    conteudoController.append("    }\n");
+    	    conteudoController.append("    }\n\n");
+    	    
+    	    conteudoController.append("@PostMapping(\"/"+classe.getNomeClasse()+"s/search\")\n");
+    	    conteudoController.append("public String search"+classe.getNomeClasse()+"s(String term, Model model) {\n");
+    	    conteudoController.append("    List<"+classe.getNomeClasse()+"> searchResults = service.searchAllFields(term);\n");
+    	    conteudoController.append("    model.addAttribute(\"list"+classe.getNomeClasse()+"s\", searchResults);\n");
+    	    conteudoController.append("    return \""+classe.getNomeClasse()+"s\";\n");
+    	    conteudoController.append("}\n");
+    	    
     	    conteudoController.append("}\n");
     	    
 	        String diretorioRepository = projeto.getDiretorioProjeto() + "\\src\\main\\java\\com\\" + projeto.getNomeProjeto() + "\\" + classe.getNomeClasse();
