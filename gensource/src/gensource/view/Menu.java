@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -21,12 +23,12 @@ import java.util.Objects;
 import java.util.Set;
 
 import javax.swing.BoxLayout;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -50,8 +52,6 @@ import gensource.model.Atributo;
 import gensource.model.Classe;
 import gensource.model.Conexao;
 import gensource.model.Projeto;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 public class Menu extends JFrame {
 	private JTextField txtNomeClasse;
@@ -689,6 +689,36 @@ public class Menu extends JFrame {
 	}
 
 	public Boolean verificaClasse_Atributo() {
+		
+		if(checkRelacionamento.isSelected()) {
+			
+			String item = cbTipoAtributo.getSelectedItem().toString();
+		    
+		    List<String> atributosJava = new ArrayList<>();
+		    
+		    atributosJava.add("Integer"); 
+		    atributosJava.add("Long"); 
+		    atributosJava.add("Boolean"); 
+		    atributosJava.add("Char"); 
+		    atributosJava.add("Float"); 
+		    atributosJava.add("Double"); 
+		    atributosJava.add("String"); 
+			
+			
+		    Boolean teste = false;
+		    for(String name : atributosJava) {
+		    	if(item.equals(name)) {
+		    		teste = true;
+		    	}
+		    }
+		    
+		    if(teste) {
+		    	JOptionPane.showMessageDialog(Menu.this, "Tipo de Atributo invalido para relacionamento!");
+		    	return false;
+		    }
+		    
+		}
+		
 		String nomeClasse = txtNomeClasse.getText();
 
 		boolean teste = true;
