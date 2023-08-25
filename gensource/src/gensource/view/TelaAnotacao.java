@@ -76,7 +76,9 @@ public class TelaAnotacao extends JDialog {
 		this.getContentPane().add(scrollPane);
 
 		table = new JTable();
+		
 		scrollPane.setViewportView(table);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
 		JButton btnNewButton = new JButton("Concluir");
 		btnNewButton.addActionListener(new ActionListener() {

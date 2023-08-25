@@ -66,10 +66,12 @@ public class TelaClassesUtilitarias extends JDialog{
 		
 		JCheckBox ckvaloresconversoes = new JCheckBox("Valores/Convers\u00F5es");
 		ckvaloresconversoes.setBounds(18, 47, 151, 23);
+		ckvaloresconversoes.setToolTipText("Esta classe contém métodos para facilitar a manipulação e as conversões de valores");
 		panel.add(ckvaloresconversoes);
 		
 		JCheckBox ckdatashoras = new JCheckBox("Datas/Horas");
 		ckdatashoras.setBounds(18, 21, 151, 23);
+		ckdatashoras.setToolTipText("Esta classe contém métodos para facilitar a manipulação de datas e horários");
 		panel.add(ckdatashoras);
 		panel.add(getCkstringconversoes());
 		getContentPane().add(getBtnCancelar());
@@ -106,6 +108,7 @@ public class TelaClassesUtilitarias extends JDialog{
 	private JCheckBox getCkstringconversoes() {
 		if (ckstringconversoes == null) {
 			ckstringconversoes = new JCheckBox("String/Convers\u00F5es");
+			ckstringconversoes.setToolTipText("Esta classe contém métodos para facilitar a manipulação de Strings e conversões");
 			ckstringconversoes.setBounds(18, 73, 151, 23);
 		}
 		return ckstringconversoes;

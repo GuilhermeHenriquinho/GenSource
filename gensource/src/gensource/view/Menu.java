@@ -473,6 +473,7 @@ public class Menu extends JFrame {
 				}
 
 				TelaEditarAtributo screen = new TelaEditarAtributo();
+				screen.setModel(cbTipoAtributo.getModel());
 				screen.setAtributo(classe.getAtributos().get(index));
 				screen.setVisible(true);
 
@@ -2762,9 +2763,10 @@ public class Menu extends JFrame {
 					+ classe.getNomeClasse() + "s}\">\n");
 			conteudoHtml.append("       <tr>\n");
 
+			Boolean teste = false;
+			Classe rel = new Classe();
 			if (Objects.nonNull(atributos) && !atributos.isEmpty()) {
 				String nomeSearch = "";
-				Boolean teste = false;
 				for (Atributo attr : atributos) {
 					if (attr.getApareceNaConsulta()) {
 						if (Objects.nonNull(attr.getIsRelacionamento()) && attr.getIsRelacionamento()) {
@@ -2785,6 +2787,9 @@ public class Menu extends JFrame {
 														break;
 													}
 												}
+												if(Objects.isNull(nomeSearch) || nomeSearch.isEmpty()) {
+													rel = listaClasses.get(i);
+												}
 											}
 											if (teste) {
 												break;
@@ -2797,6 +2802,15 @@ public class Menu extends JFrame {
 								}
 								if (teste) {
 									break;
+								}
+							}
+							
+							if(Objects.isNull(nomeSearch) || nomeSearch.isEmpty()) {
+								for(Atributo attrr : rel.getAtributos()) {
+									if(!"id".equals(attrr.getNomeAtributo())) {
+										nomeSearch = attrr.getNomeAtributo();
+										break;
+									}
 								}
 							}
 

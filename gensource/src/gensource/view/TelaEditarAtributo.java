@@ -16,6 +16,9 @@ import javax.swing.JDialog;
 import javax.swing.JButton;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Objects;
+
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -37,6 +40,7 @@ public class TelaEditarAtributo extends JDialog{
 	private Atributo atributo;
 	private Atributo retorno;
 	private JButton btnSalvar;
+	private ComboBoxModel<String> model;
 
 	/**
 	 * Launch the application.
@@ -65,6 +69,10 @@ public class TelaEditarAtributo extends JDialog{
 			@Override
 			public void windowOpened(WindowEvent e) {
 				txtNomeAtributo.setText(getAtributo().getNomeAtributo());
+				
+				if(Objects.nonNull(getModel())) {
+					cbTipo.setModel(getModel());
+				}
 				
 				DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) cbTipo.getModel();
 				for (int i = 0; i < model.getSize(); i++) {
@@ -211,4 +219,12 @@ public class TelaEditarAtributo extends JDialog{
 		}
 		return btnSalvar;
 	}
+
+	public ComboBoxModel<String> getModel() {
+		return model;
+	}
+
+	public void setModel(ComboBoxModel<String> model) {
+		this.model = model;
+	}	
 }
