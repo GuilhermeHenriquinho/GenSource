@@ -2921,14 +2921,14 @@ public class Menu extends JFrame {
 												}
 											}
 
-											String minlength = " minlength=\"" + length + "\"";
+											String maxlength = " maxlength=\"" + length + "\"";
 											String required = " ";
 											if (Objects.nonNull(nullable) && nullable) {
 												required += "required";
 											}
 
 											if (Objects.nonNull(length)) {
-												restrictions = minlength;
+												restrictions = maxlength;
 											}
 											if (Objects.nonNull(nullable)) {
 												restrictions += required;
