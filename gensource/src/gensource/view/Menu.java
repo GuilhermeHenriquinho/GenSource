@@ -2305,7 +2305,7 @@ public class Menu extends JFrame {
 				codigoDAO.append("    List<String> fields = new ArrayList<>();\n");
 
 				for (Atributo atributo : atributos) {
-					if (atributo.getConsultaPor() != null && atributo.getConsultaPor()) {
+					if (atributo.getConsultaPor() != null && atributo.getConsultaPor() && !"id".equals(atributo.getNomeAtributo())) {
 						codigoDAO.append("    fields.add(new String(\"" + atributo.getNomeAtributo() + "\"));\n");
 					}
 				}
