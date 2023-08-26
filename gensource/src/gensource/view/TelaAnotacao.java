@@ -165,8 +165,6 @@ public class TelaAnotacao extends JDialog {
 				            anotacao.setAnotacao("@Transient");
 				            anotacoesString.add(anotacao);
 				            carregaTableString(anotacoesString);
-				            
-				            JOptionPane.showMessageDialog(null, "Anotação adicionada com Sucesso!");
 				        }
 					}
 

@@ -803,7 +803,7 @@ public class Menu extends JFrame {
 	private Projeto montaProjeto() {
 
 		txtCaminho.setText("C:\\workspace");
-		txtNomeProjeto.setText("projeto1");
+		txtNomeProjeto.setText("projetoWebReal2");
 		txtNomeConexao.setText("teste");
 		txtUrl.setText("jdbc:mysql://localhost/teste");
 		txtDialect.setText("org.hibernate.dialect.MySQL57Dialect");
@@ -975,6 +975,7 @@ public class Menu extends JFrame {
 			criarIndex(projeto);
 			criarListar(projeto);
 			criarFormulario(projeto);
+			gerarClassesUtilitarias(projeto);
 		} else {
 			// desktop
 			montaPomXml(projeto);
@@ -1565,7 +1566,12 @@ public class Menu extends JFrame {
 			// editavel
 			for (Atributo atr : classe.getAtributos()) {
 				String nomeAtributo = atr.getNomeAtributo();
-
+				
+				String asteristico = "";
+				if(Objects.nonNull(atr.getIsObrigatorio()) && atr.getIsObrigatorio()) {
+					asteristico = " *";
+				}
+				
 				if ("Boolean".equals(atr.getTipoAtributo())) {
 
 					codigoTela.append("private JCheckBox getCb" + nomeAtributo + "() {\n");
@@ -1580,7 +1586,7 @@ public class Menu extends JFrame {
 				} else {
 					codigoTela.append("private JLabel getLb" + nomeAtributo + "() {\n");
 					codigoTela.append("    if (lb" + nomeAtributo + "== null) {\n");
-					codigoTela.append("        lb" + nomeAtributo + " = new JLabel(\"" + nomeAtributo + ":\");\n");
+					codigoTela.append("        lb" + nomeAtributo + " = new JLabel(\"" + nomeAtributo.concat(asteristico) + ":\");\n");
 					codigoTela
 							.append("        lb" + nomeAtributo + ".setFont(new Font(\"Tahoma\", Font.PLAIN, 13));\n");
 					codigoTela.append("        lb" + nomeAtributo + ".setBounds(" + x + ", " + y + ", 102, 14);\n");
@@ -1687,8 +1693,8 @@ public class Menu extends JFrame {
 			for (Atributo atr : classe.getAtributos()) {
 				String nomeAtributo = atr.getNomeAtributo();
 				String nomeAtrMaiusculo = nomeAtributo.substring(0, 1).toUpperCase() + nomeAtributo.substring(1);
-				if (atr.getApareceNaConsulta() && Objects.isNull(atr.getIsRelacionamento())
-						|| !atr.getIsRelacionamento()) {
+				if (atr.getApareceNaConsulta() && (Objects.isNull(atr.getIsRelacionamento())
+						|| !atr.getIsRelacionamento())) {
 					codigoTela.append("                        obj.get").append(nomeAtrMaiusculo).append("(),\n");
 				}
 				if (Objects.nonNull(atr.getIsRelacionamento()) && atr.getIsRelacionamento()) {
@@ -1849,6 +1855,9 @@ public class Menu extends JFrame {
 						}
 						
 						if(Objects.nonNull(length) && !length.isEmpty()) {
+							if (length.contains(")")) {
+								length = length.replace(")", "");
+							}
 							codigoTela.append(
 									"if (txt" + atr.getNomeAtributo() + ".getText().length() <= " + length + ") {\n");
 							codigoTela.append(
@@ -2010,7 +2019,11 @@ public class Menu extends JFrame {
 			codigoTela.append("    dados.setNumRows(0);\n");
 			codigoTela.append("    for(").append(classe.getNomeClasse()).append(" obj : lista)").append("{\n");
 			codigoTela.append("        dados.addRow(new Object[]{\n");
-
+			
+			if(classe.getNomeClasse().equals("Curso")) {
+				System.out.println("aa");
+			}
+			
 			Boolean teste = false;
 			Classe rel = new Classe();
 			for (Atributo atr : classe.getAtributos()) {
@@ -2071,9 +2084,6 @@ public class Menu extends JFrame {
 					} else {
 						codigoTela.append("            obj.get").append(nomeAtrMaiusculo).append("(),\n");
 					}
-				}
-				if (teste) {
-					break;
 				}
 			}
 
@@ -2394,7 +2404,7 @@ public class Menu extends JFrame {
 		codigoGenericDAO.append("public class GenericDAO<T> {\n\n");
 		codigoGenericDAO.append(
 				"    private static final String PERSISTENCE_UNIT_NAME = \"" + projeto.getConexao().getNomeConexao()
-						+ "\"; // Nome da unidade de persistência no persistence.xml\n\n");
+						+ "\";\n\n");
 		codigoGenericDAO.append("    private Class<T> entityType;\n");
 		codigoGenericDAO.append("    private EntityManagerFactory entityManagerFactory;\n\n");
 		codigoGenericDAO.append("    public GenericDAO(Class<T> entityType) {\n");
@@ -2918,12 +2928,18 @@ public class Menu extends JFrame {
 			List<Atributo> atributos = classe.getAtributos();
 			if (Objects.nonNull(atributos) && !atributos.isEmpty()) {
 				for (Atributo attr : atributos) {
+					
+					String asteristico = "";
+					if(Objects.nonNull(attr.getIsObrigatorio()) && attr.getIsObrigatorio()) {
+						asteristico = " *";
+					}
+					
 					if (!("id".equals(attr.getNomeAtributo()))) {
 						if (!attr.getTipoAtributo().equals("Boolean")) {
 							if (Objects.nonNull(attr.getIsRelacionamento()) && attr.getIsRelacionamento()) {
 								conteudoFormHtml.append("      <div class=\"form-group row\">\n");
 								conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">"
-										+ attr.getNomeAtributo() + ":</label>\n");
+										+ attr.getNomeAtributo().concat(asteristico) + ":</label>\n");
 								conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
 								conteudoFormHtml.append("          <select th:field=\"*{" + attr.getNomeAtributo()
 										+ "}\" class=\"form-control\">\n");
@@ -2937,7 +2953,7 @@ public class Menu extends JFrame {
 							} else {
 								conteudoFormHtml.append("      <div class=\"form-group row\">\n");
 								conteudoFormHtml.append("        <label class=\"col-sm-4 col-form-label\">"
-										+ attr.getNomeAtributo() + ":</label>\n");
+										+ attr.getNomeAtributo().concat(asteristico) + ":</label>\n");
 								conteudoFormHtml.append("        <div class=\"col-sm-8\">\n");
 
 								String restrictions = "";
