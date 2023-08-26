@@ -803,7 +803,7 @@ public class Menu extends JFrame {
 	private Projeto montaProjeto() {
 
 		txtCaminho.setText("C:\\workspace");
-		txtNomeProjeto.setText("projeto");
+		txtNomeProjeto.setText("projeto1");
 		txtNomeConexao.setText("teste");
 		txtUrl.setText("jdbc:mysql://localhost/teste");
 		txtDialect.setText("org.hibernate.dialect.MySQL57Dialect");
@@ -1850,7 +1850,7 @@ public class Menu extends JFrame {
 						
 						if(Objects.nonNull(length) && !length.isEmpty()) {
 							codigoTela.append(
-									"if (txt" + atr.getNomeAtributo() + ".getText().length() <= " + length + " {\n");
+									"if (txt" + atr.getNomeAtributo() + ".getText().length() <= " + length + ") {\n");
 							codigoTela.append(
 									"    obj.set" + nomeAtrMaiusculo + "(txt" + atr.getNomeAtributo() + ".getText());\n");
 							codigoTela.append("} else {\n");
