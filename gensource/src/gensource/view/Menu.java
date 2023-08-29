@@ -803,7 +803,7 @@ public class Menu extends JFrame {
 	private Projeto montaProjeto() {
 
 		txtCaminho.setText("C:\\workspace");
-		txtNomeProjeto.setText("projetoWebReal2");
+		txtNomeProjeto.setText("projetoWebReal");
 		txtNomeConexao.setText("teste");
 		txtUrl.setText("jdbc:mysql://localhost/teste");
 		txtDialect.setText("org.hibernate.dialect.MySQL57Dialect");
@@ -2731,7 +2731,7 @@ public class Menu extends JFrame {
 
 		for (Classe classe : projeto.getClasses()) {
 			htmlBuilder.append("        <li class=\"menu-item\"><a th:href=\"@{/" + classe.getNomeClasse()
-					+ "s}\">Gerenciar " + classe.getNomeClasse() + "s</a></li>\n");
+					+ "s}\">Gerenciar " + classe.getNomeClasse() + "</a></li>\n");
 		}
 
 		htmlBuilder.append("    </ul>\n");
@@ -2755,13 +2755,13 @@ public class Menu extends JFrame {
 			conteudoHtml.append("<html lang=\"en\" xmlns:th=\"http://www.thymeleaf.org\">\n");
 			conteudoHtml.append("<head>\n");
 			conteudoHtml.append("  <meta charset=\"UTF-8\">\n");
-			conteudoHtml.append("  <title>Gerenciar " + classe.getNomeClasse() + "s</title>\n");
+			conteudoHtml.append("  <title>Gerenciar " + classe.getNomeClasse() + "</title>\n");
 			conteudoHtml.append(
 					"  <link rel=\"stylesheet\" type=\"text/css\" th:href=\"@{/webjars/bootstrap/css/bootstrap.min.css}\"  />\n");
 			conteudoHtml.append("</head>\n");
 			conteudoHtml.append("<body>\n");
 			conteudoHtml.append("<div class=\"container-fluid text-center\">\n");
-			conteudoHtml.append("  <div><h2>Gerenciar " + classe.getNomeClasse() + "s</h2></div>\n");
+			conteudoHtml.append("  <div><h2>Gerenciar " + classe.getNomeClasse() + "</h2></div>\n");
 			conteudoHtml.append("  <div class=\"m-2\">\n");
 			conteudoHtml.append("    <a class=\"h3\" th:href=\"@{/" + classe.getNomeClasse() + "s/new}\">Adicionar "
 					+ classe.getNomeClasse() + "</a>\n");
