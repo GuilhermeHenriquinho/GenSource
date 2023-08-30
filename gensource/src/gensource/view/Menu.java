@@ -803,7 +803,7 @@ public class Menu extends JFrame {
 	private Projeto montaProjeto() {
 
 		txtCaminho.setText("C:\\workspace");
-		txtNomeProjeto.setText("projetoWebReal");
+		txtNomeProjeto.setText("peojetoWebGerado2");
 		txtNomeConexao.setText("teste");
 		txtUrl.setText("jdbc:mysql://localhost/teste");
 		txtDialect.setText("org.hibernate.dialect.MySQL57Dialect");
@@ -1016,8 +1016,8 @@ public class Menu extends JFrame {
 				stringBuilder.append("import java.text.SimpleDateFormat;\n");
 				stringBuilder.append("import java.util.Calendar;\n");
 				stringBuilder.append("import java.util.Date;\n");
+				stringBuilder.append("import java.text.ParseException;\n");
 				stringBuilder.append("import java.util.concurrent.TimeUnit;\n\n");
-				stringBuilder.append("import com.google.protobuf.TextFormat.ParseException;\n\n");
 				stringBuilder.append("public class DateUtils {\n");
 				stringBuilder
 						.append("    private static final String DEFAULT_DATE_FORMAT = \"yyyy-MM-dd HH:mm:ss\";\n\n");
@@ -1027,10 +1027,6 @@ public class Menu extends JFrame {
 				stringBuilder.append("    public static String dateToString(Date date, String format) {\n");
 				stringBuilder.append("        DateFormat dateFormat = new SimpleDateFormat(format);\n");
 				stringBuilder.append("        return dateFormat.format(date);\n");
-				stringBuilder.append("    }\n\n");
-				stringBuilder.append(
-						"    public static Date stringToDate(String dateString) throws ParseException, java.text.ParseException {\n");
-				stringBuilder.append("        return stringToDate(dateString, DEFAULT_DATE_FORMAT);\n");
 				stringBuilder.append("    }\n\n");
 				stringBuilder.append(
 						"    public static Date stringToDate(String dateString, String format) throws ParseException, java.text.ParseException {\n");
